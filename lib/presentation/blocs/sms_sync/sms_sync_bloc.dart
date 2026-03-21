@@ -21,6 +21,8 @@ abstract class SmsSyncEvent extends Equatable {
 
 class StartInitialSync extends SmsSyncEvent {}
 
+class CancelInitialSync extends SmsSyncEvent {}
+
 class StartRealtimeListener extends SmsSyncEvent {}
 
 class StopRealtimeListener extends SmsSyncEvent {}
@@ -54,13 +56,15 @@ class SmsSyncComplete extends SmsSyncState {
   final int tradesAdded;
   final int fundsAdded;
   final int skipped;
+  final bool isCancelled;
   const SmsSyncComplete({
     required this.tradesAdded,
     required this.fundsAdded,
     required this.skipped,
+    this.isCancelled = false,
   });
   @override
-  List<Object?> get props => [tradesAdded, fundsAdded, skipped];
+  List<Object?> get props => [tradesAdded, fundsAdded, skipped, isCancelled];
 }
 
 class SmsSyncListening extends SmsSyncState {}
@@ -88,6 +92,7 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
   final FundTransferDao _fundTransferDao;
   static const _uuid = Uuid();
   StreamSubscription<SmsMessage>? _smsSubscription;
+  bool _isSyncCancelled = false;
 
   SmsSyncBloc({
     required SmsService smsService,
@@ -100,6 +105,7 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
         _fundTransferDao = fundTransferDao,
         super(SmsSyncIdle()) {
     on<StartInitialSync>(_onInitialSync);
+    on<CancelInitialSync>((event, emit) => _isSyncCancelled = true);
     on<StartRealtimeListener>(_onStartRealtime);
     on<StopRealtimeListener>(_onStopRealtime);
     on<ProcessIncomingSms>(_onProcessSms);
@@ -109,6 +115,7 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
     StartInitialSync event,
     Emitter<SmsSyncState> emit,
   ) async {
+    _isSyncCancelled = false;
     try {
       debugPrint('[SmsSyncBloc] Starting initial sync...');
 
@@ -150,7 +157,12 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       int skipped = 0;
 
       for (int i = 0; i < messages.length; i++) {
-        if (i % 20 == 0) {
+        if (_isSyncCancelled) {
+          debugPrint('[SmsSyncBloc] Sync cancelled by user');
+          break;
+        }
+
+        if (i % 5 == 0) {
           emit(SmsSyncInProgress(processed: i + 1, total: messages.length));
         }
 
@@ -172,6 +184,7 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
         tradesAdded: tradesAdded,
         fundsAdded: fundsAdded,
         skipped: skipped,
+        isCancelled: _isSyncCancelled,
       ));
     } catch (e, stackTrace) {
       debugPrint('[SmsSyncBloc] Sync failed: $e');

@@ -7,6 +7,7 @@ import 'package:equity_echo/core/di/injection.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
 import 'package:equity_echo/presentation/blocs/sms_sync/sms_sync_bloc.dart';
+import 'package:equity_echo/presentation/widgets/sync_progress_dialog.dart';
 
 
 class SettingsScreen extends StatelessWidget {
@@ -88,9 +89,7 @@ class SettingsScreen extends StatelessWidget {
             subtitle: 'Scan existing SMS messages',
             onTap: () {
               context.read<SmsSyncBloc>().add(StartInitialSync());
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('SMS sync started...')),
-              );
+              showSyncProgressDialog(context);
             },
           ),
           const SizedBox(height: 6),
@@ -239,9 +238,7 @@ class SettingsScreen extends StatelessWidget {
               await fundDao.deleteAllFundTransfers();
               if (context.mounted) {
                 context.read<SmsSyncBloc>().add(StartInitialSync());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Data cleared. Re-syncing SMS...')),
-                );
+                showSyncProgressDialog(context);
               }
             },
             child: Text('Clear & Sync', style: TextStyle(color: AppTheme.warning)),

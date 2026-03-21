@@ -9,6 +9,7 @@ import 'package:equity_echo/presentation/blocs/dashboard/dashboard_state.dart';
 import 'package:equity_echo/presentation/blocs/sms_sync/sms_sync_bloc.dart';
 import 'package:equity_echo/presentation/widgets/stat_card.dart';
 import 'package:equity_echo/presentation/widgets/holding_card.dart';
+import 'package:equity_echo/presentation/widgets/sync_progress_dialog.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -24,6 +25,7 @@ class DashboardScreen extends StatelessWidget {
             tooltip: 'Sync SMS',
             onPressed: () {
               context.read<SmsSyncBloc>().add(StartInitialSync());
+              showSyncProgressDialog(context);
             },
           ),
           IconButton(
@@ -35,19 +37,8 @@ class DashboardScreen extends StatelessWidget {
       ),
       body: BlocListener<SmsSyncBloc, SmsSyncState>(
         listener: (context, state) {
-          if (state is SmsSyncComplete) {
+          if (state is SmsSyncComplete && !state.isCancelled) {
             context.read<DashboardBloc>().add(RefreshDashboard());
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Sync complete: ${state.tradesAdded} trades, ${state.fundsAdded} funds added',
-                ),
-              ),
-            );
-          } else if (state is SmsSyncError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
           }
         },
         child: BlocBuilder<DashboardBloc, DashboardState>(

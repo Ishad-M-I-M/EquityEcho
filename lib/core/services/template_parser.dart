@@ -26,12 +26,14 @@ class ParseResult {
 /// into regex patterns and parses SMS messages against them.
 ///
 /// Supported placeholders:
-///   {{symbol}}   → Stock ticker symbol
-///   {{quantity}} → Number of shares
-///   {{price}}    → Price per share
-///   {{amount}}   → Fund transfer amount
-///   {{date}}     → Date (e.g., 17-03-2026)
-///   {{time}}     → Time (e.g., 11:41)
+///   {{symbol}}   -> Stock ticker symbol
+///   {{quantity}} -> Number of shares
+///   {{price}}    -> Price per share
+///   {{amount}}   -> Fund transfer amount
+///   {{date}}     -> Date (e.g., 17-03-2026)
+///   {{time}}     -> Time (e.g., 11:41)
+///   {{*}}        -> Wildcard (matches any text)
+///   {{word}}     -> Matches any single word (no spaces)
 class TemplateParser {
   /// The original user template
   final String template;
@@ -81,7 +83,7 @@ class TemplateParser {
     // and replace them with placeholders if user didn't use {{date}}/{{time}}
     String processed = _autoReplaceLiteralDateTimes(template);
 
-    // Map of placeholder → regex capture group
+    // Map of placeholder -> regex capture group
     const placeholderPatterns = {
       '{{symbol}}': r'(?<symbol>\S+)',
       '{{quantity}}': r'(?<quantity>[\d,.]+)',
@@ -89,6 +91,8 @@ class TemplateParser {
       '{{amount}}': r'(?<amount>[\d,.]+)',
       '{{date}}': r'(?<date>[\d/\-]+)',
       '{{time}}': r'(?<time>[\d:]+\s*[aApPmM]*)',
+      '{{*}}': r'.*?',
+      '{{word}}': r'\S+',
     };
 
     // Split the template by placeholders, keeping placeholders as tokens

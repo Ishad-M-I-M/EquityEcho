@@ -135,7 +135,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
                 _SectionHeader('Buy Template', color: AppTheme.buyGreen),
                 const SizedBox(height: 4),
                 _PlaceholderHints(
-                  placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}'],
+                  placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}', '{{*}}'],
                 ),
                 const SizedBox(height: 4),
                 const _TemplateInstructions(),
@@ -167,7 +167,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
                 _SectionHeader('Sell Template', color: AppTheme.sellRed),
                 const SizedBox(height: 4),
                 _PlaceholderHints(
-                  placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}'],
+                  placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}', '{{*}}'],
                 ),
                 const SizedBox(height: 4),
                 const _TemplateInstructions(),
@@ -200,7 +200,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
                     color: AppTheme.fundBlue),
                 const SizedBox(height: 4),
                 _PlaceholderHints(
-                  placeholders: ['{{amount}}', '{{date}}', '{{time}}'],
+                  placeholders: ['{{amount}}', '{{date}}', '{{time}}', '{{*}}'],
                 ),
                 const SizedBox(height: 4),
                 const _TemplateInstructions(isFund: true),
