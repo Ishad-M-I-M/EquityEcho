@@ -1,0 +1,55 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:equity_echo/data/database/daos/trade_dao.dart';
+import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
+import 'package:equity_echo/data/database/daos/channel_dao.dart';
+import 'dashboard_event.dart';
+import 'dashboard_state.dart';
+
+class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
+  final TradeDao _tradeDao;
+  final FundTransferDao _fundTransferDao;
+  final ChannelDao _channelDao;
+
+  DashboardBloc({
+    required TradeDao tradeDao,
+    required FundTransferDao fundTransferDao,
+    required ChannelDao channelDao,
+  })  : _tradeDao = tradeDao,
+        _fundTransferDao = fundTransferDao,
+        _channelDao = channelDao,
+        super(DashboardInitial()) {
+    on<LoadDashboard>(_onLoadDashboard);
+    on<RefreshDashboard>(_onLoadDashboard);
+  }
+
+  Future<void> _onLoadDashboard(
+    DashboardEvent event,
+    Emitter<DashboardState> emit,
+  ) async {
+    emit(DashboardLoading());
+    try {
+      final holdings = await _tradeDao.getHoldings();
+      final totalInvested = await _tradeDao.getTotalInvested();
+      final totalSold = await _tradeDao.getTotalSold();
+      final totalDeposits = await _fundTransferDao.getTotalDeposits();
+      final totalWithdrawals = await _fundTransferDao.getTotalWithdrawals();
+      final allTrades = await _tradeDao.getAllTrades();
+
+      // Get currency from first channel, default to LKR
+      final channels = await _channelDao.getAllChannels();
+      final currency = channels.isNotEmpty ? channels.first.currency : 'LKR';
+
+      emit(DashboardLoaded(
+        holdings: holdings,
+        totalInvested: totalInvested,
+        totalSold: totalSold,
+        totalDeposits: totalDeposits,
+        totalWithdrawals: totalWithdrawals,
+        totalTrades: allTrades.length,
+        currency: currency,
+      ));
+    } catch (e) {
+      emit(DashboardError('Failed to load dashboard: $e'));
+    }
+  }
+}
