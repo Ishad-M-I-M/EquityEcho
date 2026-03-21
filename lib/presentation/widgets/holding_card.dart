@@ -51,27 +51,31 @@ class HoldingCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 12),
                 // Net quantity
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${holding.netQuantity.toStringAsFixed(0)} shares',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${holding.netQuantity.toStringAsFixed(0)} shares',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Avg: $currency ${holding.avgBuyPrice.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 12,
+                      const SizedBox(height: 2),
+                      Text(
+                        'Avg: $currency ${holding.avgBuyPrice.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -79,20 +83,25 @@ class HoldingCard extends StatelessWidget {
             // Bottom row: invested, sold
             Row(
               children: [
-                _MetricChip(
-                  label: 'Invested',
-                  value:
-                      '$currency ${holding.totalInvested.toStringAsFixed(2)}',
-                  color: AppTheme.buyGreen,
-                ),
-                const SizedBox(width: 8),
-                if (holding.totalSoldQuantity > 0)
-                  _MetricChip(
-                    label: 'Sold',
+                Flexible(
+                  child: _MetricChip(
+                    label: 'Invested',
                     value:
-                        '$currency ${holding.totalSoldValue.toStringAsFixed(2)}',
-                    color: AppTheme.sellRed,
+                        '$currency ${holding.totalInvested.toStringAsFixed(2)}',
+                    color: AppTheme.buyGreen,
                   ),
+                ),
+                if (holding.totalSoldQuantity > 0) ...[
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: _MetricChip(
+                      label: 'Sold',
+                      value:
+                          '$currency ${holding.totalSoldValue.toStringAsFixed(2)}',
+                      color: AppTheme.sellRed,
+                    ),
+                  ),
+                ],
               ],
             ),
           ],
@@ -131,12 +140,15 @@ class _MetricChip extends StatelessWidget {
               fontSize: 11,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
