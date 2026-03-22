@@ -27,6 +27,7 @@ import 'package:equity_echo/presentation/screens/channel_config_screen.dart';
 import 'package:equity_echo/presentation/screens/trade_form_screen.dart';
 import 'package:equity_echo/presentation/screens/fund_form_screen.dart';
 import 'package:equity_echo/presentation/screens/holding_detail_screen.dart';
+import 'package:equity_echo/presentation/screens/splash_screen.dart';
 
 class EquityEchoApp extends StatelessWidget {
   const EquityEchoApp({super.key});
@@ -90,8 +91,12 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/dashboard',
+  initialLocation: '/',
   routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashScreen(),
+    ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) => _AppShell(child: child),
