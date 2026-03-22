@@ -149,7 +149,9 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/trade/new',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const TradeFormScreen(),
+      builder: (context, state) => TradeFormScreen(
+        initialSymbol: state.extra as String?,
+      ),
     ),
     GoRoute(
       path: '/trade/:id',

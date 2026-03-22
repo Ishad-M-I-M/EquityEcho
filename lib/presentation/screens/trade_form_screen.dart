@@ -15,8 +15,9 @@ import 'package:intl/intl.dart';
 
 class TradeFormScreen extends StatefulWidget {
   final String? tradeId;
+  final String? initialSymbol;
 
-  const TradeFormScreen({super.key, this.tradeId});
+  const TradeFormScreen({super.key, this.tradeId, this.initialSymbol});
 
   @override
   State<TradeFormScreen> createState() => _TradeFormScreenState();
@@ -33,6 +34,14 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
   TimeOfDay _time = TimeOfDay.now();
 
   bool get isEditing => widget.tradeId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialSymbol != null) {
+      _symbolController.text = widget.initialSymbol!;
+    }
+  }
 
   @override
   void dispose() {

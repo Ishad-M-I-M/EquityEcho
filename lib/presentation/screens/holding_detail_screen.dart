@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import 'package:equity_echo/core/theme/app_theme.dart';
 import 'package:equity_echo/core/di/injection.dart';
 import 'package:equity_echo/data/database/database.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
+import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_state.dart';
+import 'package:equity_echo/presentation/blocs/trade/trade_bloc.dart';
+import 'package:equity_echo/presentation/blocs/trade/trade_event.dart';
 
 class HoldingDetailScreen extends StatefulWidget {
   final String symbol;
@@ -31,6 +35,19 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.symbol} Details'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await context.push('/trade/new', extra: widget.symbol);
+          if (!context.mounted) return;
+          // Refresh trades timeline after we return
+          setState(() {
+            _tradesFuture = getIt<TradeDao>().getTradesForSymbol(widget.symbol);
+          });
+          context.read<DashboardBloc>().add(RefreshDashboard());
+        },
+        backgroundColor: AppTheme.accent,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
@@ -104,13 +121,15 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                       children: trades.map((trade) {
                         final isBuy = trade.action.toLowerCase() == 'buy';
                         final color = isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surfaceDark,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+return GestureDetector(
+                          onLongPress: () => _confirmDeleteTrade(context, trade),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceDark,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -172,7 +191,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                               ),
                             ],
                           ),
-                        );
+                        ));
                       }).toList(),
                     );
                   },
@@ -182,6 +201,37 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
           }
           return const Center(child: CircularProgressIndicator());
         },
+      ),
+    );
+  }
+
+  void _confirmDeleteTrade(BuildContext context, Trade trade) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.cardDark,
+        title: const Text('Delete Transaction'),
+        content: const Text('Are you sure you want to delete this transaction? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<TradeBloc>().add(DeleteTrade(trade.id));
+              context.read<DashboardBloc>().add(RefreshDashboard());
+              setState(() {
+                _tradesFuture = getIt<TradeDao>().getTradesForSymbol(widget.symbol);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Transaction scheduled for deletion')),
+              );
+            },
+            child: Text('Delete', style: TextStyle(color: AppTheme.sellRed)),
+          ),
+        ],
       ),
     );
   }
