@@ -118,6 +118,7 @@ class DashboardScreen extends StatelessWidget {
                               value: currencyFormatter.format(state.totalDeposits),
                               icon: Icons.account_balance_wallet,
                               color: AppTheme.fundBlue,
+                              onTap: () => context.push('/deposits'),
                             ),
                           ),
                           const SizedBox(width: 12),

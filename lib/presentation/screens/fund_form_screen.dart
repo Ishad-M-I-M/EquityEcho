@@ -14,7 +14,8 @@ import 'package:equity_echo/presentation/blocs/activity_log/activity_log_event.d
 import 'package:intl/intl.dart';
 
 class FundFormScreen extends StatefulWidget {
-  const FundFormScreen({super.key});
+  final String? initialAction;
+  const FundFormScreen({super.key, this.initialAction});
 
   @override
   State<FundFormScreen> createState() => _FundFormScreenState();
@@ -27,6 +28,14 @@ class _FundFormScreenState extends State<FundFormScreen> {
   String? _channelId;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialAction != null) {
+      _action = widget.initialAction!;
+    }
+  }
 
   @override
   void dispose() {
