@@ -34,6 +34,10 @@ class DashboardLoaded extends DashboardState {
   double get netFundBalance =>
       totalDeposits - totalWithdrawals - totalInvested + totalSold;
 
+  /// Total realized gain from all past sells
+  double get totalRealizedGain =>
+      holdings.fold(0.0, (sum, h) => sum + h.realizedGain);
+
   /// Total book value of current holdings
   double get totalBookValue =>
       holdings.fold(0.0, (sum, h) => sum + h.currentValue);

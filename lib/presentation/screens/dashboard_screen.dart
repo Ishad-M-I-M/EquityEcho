@@ -98,10 +98,11 @@ class DashboardScreen extends StatelessWidget {
                           const SizedBox(width: 12),
                           Expanded(
                             child: StatCard(
-                              label: 'Total Sold',
-                              value: currencyFormatter.format(state.totalSold),
-                              icon: Icons.sell,
-                              color: AppTheme.sellRed,
+                              label: 'Realized Gain',
+                              value: currencyFormatter.format(state.totalRealizedGain),
+                              icon: Icons.monetization_on,
+                              color: state.totalRealizedGain >= 0 ? AppTheme.accent : AppTheme.sellRed,
+                              onTap: () => context.push('/realized-gains'),
                             ),
                           ),
                         ],

@@ -29,6 +29,7 @@ import 'package:equity_echo/presentation/screens/fund_form_screen.dart';
 import 'package:equity_echo/presentation/screens/holding_detail_screen.dart';
 import 'package:equity_echo/presentation/screens/splash_screen.dart';
 import 'package:equity_echo/presentation/screens/deposits_screen.dart';
+import 'package:equity_echo/presentation/screens/realized_gains_screen.dart';
 
 class EquityEchoApp extends StatelessWidget {
   const EquityEchoApp({super.key});
@@ -185,6 +186,11 @@ final GoRouter _router = GoRouter(
       path: '/deposits',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DepositsScreen(),
+    ),
+    GoRoute(
+      path: '/realized-gains',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RealizedGainsScreen(),
     ),
   ],
 );
