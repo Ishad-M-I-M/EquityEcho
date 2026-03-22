@@ -54,8 +54,8 @@ class FundTransferDao extends DatabaseAccessor<AppDatabase>
   /// Get total deposits
   Future<double> getTotalDeposits() async {
     final result = await customSelect(
-      'SELECT COALESCE(SUM(amount), 0.0) as total FROM fund_transfers WHERE action = ?',
-      variables: [Variable.withString('deposit')],
+      'SELECT COALESCE(SUM(amount), 0.0) as total FROM fund_transfers WHERE action IN (?, ?)',
+      variables: [Variable.withString('deposit'), Variable.withString('ipo_deposit')],
       readsFrom: {fundTransfers},
     ).getSingle();
     return result.read<double>('total');

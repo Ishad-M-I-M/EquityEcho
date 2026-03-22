@@ -27,7 +27,10 @@ class _DepositsScreenState extends State<DepositsScreen> {
 
   void _loadDeposits() {
     _depositsFuture = getIt<FundTransferDao>().getAllFundTransfers().then(
-          (transfers) => transfers.where((t) => t.action.toLowerCase() == 'deposit').toList(),
+          (transfers) => transfers.where((t) {
+            final a = t.action.toLowerCase();
+            return a == 'deposit' || a == 'ipo_deposit';
+          }).toList(),
         );
   }
 
@@ -83,36 +86,55 @@ class _DepositsScreenState extends State<DepositsScreen> {
             itemCount: deposits.length,
             itemBuilder: (context, index) {
               final deposit = deposits[index];
+              final isIpo = deposit.action.toLowerCase() == 'ipo_deposit';
+              final dColor = isIpo ? AppTheme.accent : AppTheme.fundBlue;
+              final dIcon = isIpo ? Icons.new_releases : Icons.arrow_downward;
+              
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceDark,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.fundBlue.withValues(alpha: 0.15)),
+                  border: Border.all(color: dColor.withValues(alpha: 0.15)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.fundBlue.withValues(alpha: 0.1),
+                        color: dColor.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.arrow_downward, color: AppTheme.fundBlue),
+                      child: Icon(dIcon, color: dColor),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '+ ${currencyFormatter.format(deposit.amount)}',
-                            style: TextStyle(
-                              color: AppTheme.fundBlue,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                '+ ${currencyFormatter.format(deposit.amount)}',
+                                style: TextStyle(
+                                  color: dColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (isIpo) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.accent.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text('IPO', style: TextStyle(color: AppTheme.accent, fontSize: 10, fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ],
                           ),
                           const SizedBox(height: 4),
                           Text(

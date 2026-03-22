@@ -16,7 +16,8 @@ enum TradeAction {
 /// Fund transfer action types
 enum FundAction {
   deposit,
-  withdrawal;
+  withdrawal,
+  ipoDeposit;
 
   String get label {
     switch (this) {
@@ -24,6 +25,8 @@ enum FundAction {
         return 'Deposit';
       case FundAction.withdrawal:
         return 'Withdrawal';
+      case FundAction.ipoDeposit:
+        return 'IPO Deposit';
     }
   }
 }

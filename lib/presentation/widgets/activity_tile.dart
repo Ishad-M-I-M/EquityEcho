@@ -18,7 +18,8 @@ class ActivityTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isTrade = item.type == ActivityType.trade;
     final isBuy = item.tradeAction?.name == 'buy';
-    final isDeposit = item.fundAction?.name == 'deposit';
+    final isDeposit = item.fundAction?.name == 'deposit' || item.fundAction?.name == 'ipoDeposit';
+    final isIpoDeposit = item.fundAction?.name == 'ipoDeposit';
 
     Color actionColor;
     IconData actionIcon;
@@ -29,9 +30,15 @@ class ActivityTile extends StatelessWidget {
       actionIcon = isBuy ? Icons.arrow_downward : Icons.arrow_upward;
       actionLabel = isBuy ? 'BUY' : 'SELL';
     } else {
-      actionColor = isDeposit ? AppTheme.fundBlue : AppTheme.warning;
-      actionIcon = isDeposit ? Icons.account_balance_wallet : Icons.output;
-      actionLabel = isDeposit ? 'DEPOSIT' : 'WITHDRAWAL';
+      if (isIpoDeposit) {
+        actionColor = AppTheme.accent;
+        actionIcon = Icons.new_releases;
+        actionLabel = 'IPO DEPOSIT';
+      } else {
+        actionColor = isDeposit ? AppTheme.fundBlue : AppTheme.warning;
+        actionIcon = isDeposit ? Icons.account_balance_wallet : Icons.output;
+        actionLabel = isDeposit ? 'DEPOSIT' : 'WITHDRAWAL';
+      }
     }
 
     return GestureDetector(

@@ -167,6 +167,14 @@ final GoRouter _router = GoRouter(
       ),
     ),
     GoRoute(
+      path: '/ipo/new',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => TradeFormScreen(
+        initialSymbol: state.extra as String?,
+        isIpo: true,
+      ),
+    ),
+    GoRoute(
       path: '/fund/new',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => FundFormScreen(

@@ -64,7 +64,7 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
             isManual: f.isManual,
             fundAction: f.action == 'deposit'
                 ? FundAction.deposit
-                : FundAction.withdrawal,
+                : (f.action == 'ipo_deposit' ? FundAction.ipoDeposit : FundAction.withdrawal),
             amount: f.amount,
           ));
 

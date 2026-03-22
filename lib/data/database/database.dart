@@ -96,6 +96,17 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(fundTransfers, fundTransfers.smsReceivedDate);
         }
       },
+      beforeOpen: (details) async {
+        await into(channels).insert(
+          ChannelsCompanion.insert(
+            id: 'other',
+            name: 'Other',
+            senderAddress: 'N/A',
+            currency: const Value('LKR'),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+      },
     );
   }
 }

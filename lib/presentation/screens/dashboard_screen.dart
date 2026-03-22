@@ -297,6 +297,26 @@ class DashboardScreen extends StatelessWidget {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
+                  color: AppTheme.accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.new_releases, color: AppTheme.accent),
+              ),
+              title: const Text('Add IPO Purchase'),
+              subtitle: Text(
+                'Record an IPO allotment and deposit',
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/ipo/new');
+              },
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
                   color: AppTheme.fundBlue.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),

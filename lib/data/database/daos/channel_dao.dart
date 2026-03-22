@@ -9,10 +9,20 @@ class ChannelDao extends DatabaseAccessor<AppDatabase>
   ChannelDao(super.db);
 
   /// Get all channels
-  Future<List<Channel>> getAllChannels() => select(channels).get();
+  Future<List<Channel>> getAllChannels() => (select(channels)
+        ..orderBy([
+          (c) => OrderingTerm(expression: c.id.equals('other')),
+          (c) => OrderingTerm(expression: c.name),
+        ]))
+      .get();
 
   /// Watch all channels (reactive stream)
-  Stream<List<Channel>> watchAllChannels() => select(channels).watch();
+  Stream<List<Channel>> watchAllChannels() => (select(channels)
+        ..orderBy([
+          (c) => OrderingTerm(expression: c.id.equals('other')),
+          (c) => OrderingTerm(expression: c.name),
+        ]))
+      .watch();
 
   /// Get a channel by ID
   Future<Channel?> getChannelById(String id) =>

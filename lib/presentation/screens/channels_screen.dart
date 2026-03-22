@@ -29,7 +29,9 @@ class ChannelsScreen extends StatelessWidget {
           }
 
           if (state is ChannelsLoaded) {
-            if (state.channels.isEmpty) {
+            final displayChannels = state.channels.where((c) => c.id != 'other').toList();
+
+            if (displayChannels.isEmpty) {
               return Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -72,9 +74,9 @@ class ChannelsScreen extends StatelessWidget {
 
             return ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: state.channels.length,
+              itemCount: displayChannels.length,
               itemBuilder: (context, index) {
-                final channel = state.channels[index];
+                final channel = displayChannels[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(

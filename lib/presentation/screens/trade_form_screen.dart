@@ -11,13 +11,16 @@ import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_bloc.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_event.dart';
+import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_bloc.dart';
+import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_event.dart';
 import 'package:intl/intl.dart';
 
 class TradeFormScreen extends StatefulWidget {
   final String? tradeId;
   final String? initialSymbol;
+  final bool isIpo;
 
-  const TradeFormScreen({super.key, this.tradeId, this.initialSymbol});
+  const TradeFormScreen({super.key, this.tradeId, this.initialSymbol, this.isIpo = false});
 
   @override
   State<TradeFormScreen> createState() => _TradeFormScreenState();
@@ -41,6 +44,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
     if (widget.initialSymbol != null) {
       _symbolController.text = widget.initialSymbol!;
     }
+    if (widget.isIpo) {
+      _action = 'buy';
+    }
   }
 
   @override
@@ -55,7 +61,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Trade' : 'Add Trade'),
+        title: Text(isEditing ? 'Edit Trade' : (widget.isIpo ? 'Add IPO Purchase' : 'Add Trade')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -84,78 +90,80 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Action toggle
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _action = 'buy'),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: _action == 'buy'
-                                ? AppTheme.buyGreen.withValues(alpha: 0.15)
-                                : AppTheme.surfaceDark,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                if (!widget.isIpo) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _action = 'buy'),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
                               color: _action == 'buy'
-                                  ? AppTheme.buyGreen
-                                  : AppTheme.divider,
-                              width: _action == 'buy' ? 2 : 1,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'BUY',
-                              style: TextStyle(
+                                  ? AppTheme.buyGreen.withValues(alpha: 0.15)
+                                  : AppTheme.surfaceDark,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
                                 color: _action == 'buy'
                                     ? AppTheme.buyGreen
-                                    : AppTheme.textSecondary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
+                                    : AppTheme.divider,
+                                width: _action == 'buy' ? 2 : 1,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'BUY',
+                                style: TextStyle(
+                                  color: _action == 'buy'
+                                      ? AppTheme.buyGreen
+                                      : AppTheme.textSecondary,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _action = 'sell'),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: _action == 'sell'
-                                ? AppTheme.sellRed.withValues(alpha: 0.15)
-                                : AppTheme.surfaceDark,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _action = 'sell'),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
                               color: _action == 'sell'
-                                  ? AppTheme.sellRed
-                                  : AppTheme.divider,
-                              width: _action == 'sell' ? 2 : 1,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'SELL',
-                              style: TextStyle(
+                                  ? AppTheme.sellRed.withValues(alpha: 0.15)
+                                  : AppTheme.surfaceDark,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
                                 color: _action == 'sell'
                                     ? AppTheme.sellRed
-                                    : AppTheme.textSecondary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
+                                    : AppTheme.divider,
+                                width: _action == 'sell' ? 2 : 1,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'SELL',
+                                style: TextStyle(
+                                  color: _action == 'sell'
+                                      ? AppTheme.sellRed
+                                      : AppTheme.textSecondary,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                ],
 
                 // Channel selector
                 BlocBuilder<ChannelBloc, ChannelState>(
@@ -359,7 +367,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                       backgroundColor:
                           _action == 'buy' ? AppTheme.buyGreen : AppTheme.sellRed,
                     ),
-                    child: Text(isEditing ? 'Update Trade' : 'Add Trade'),
+                    child: Text(isEditing ? 'Update Trade' : (widget.isIpo ? 'Add IPO Purchase' : 'Add Trade')),
                   ),
                 ),
               ],
@@ -402,6 +410,16 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
             smsDate: dateTime,
             isManual: true,
           ));
+          
+      if (widget.isIpo) {
+        context.read<FundTransferBloc>().add(AddFundTransfer(
+              channelId: _channelId!,
+              action: 'ipo_deposit',
+              amount: double.parse(_quantityController.text) * double.parse(_priceController.text),
+              smsDate: dateTime,
+              isManual: true,
+            ));
+      }
     }
   }
 }
