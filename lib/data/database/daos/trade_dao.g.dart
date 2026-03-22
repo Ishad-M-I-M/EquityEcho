@@ -6,6 +6,7 @@ part of 'trade_dao.dart';
 mixin _$TradeDaoMixin on DatabaseAccessor<AppDatabase> {
   $ChannelsTable get channels => attachedDatabase.channels;
   $TradesTable get trades => attachedDatabase.trades;
+  $StockSplitsTable get stockSplits => attachedDatabase.stockSplits;
   TradeDaoManager get managers => TradeDaoManager(this);
 }
 
@@ -16,4 +17,6 @@ class TradeDaoManager {
       $$ChannelsTableTableManager(_db.attachedDatabase, _db.channels);
   $$TradesTableTableManager get trades =>
       $$TradesTableTableManager(_db.attachedDatabase, _db.trades);
+  $$StockSplitsTableTableManager get stockSplits =>
+      $$StockSplitsTableTableManager(_db.attachedDatabase, _db.stockSplits);
 }

@@ -7,6 +7,7 @@ import 'package:equity_echo/core/constants/app_constants.dart';
 import 'package:equity_echo/data/database/daos/channel_dao.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
+import 'package:equity_echo/data/database/daos/stock_split_dao.dart';
 
 part 'database.g.dart';
 
@@ -66,13 +67,26 @@ class FundTransfers extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Stock subdivisions (Stock Splits)
+class StockSplits extends Table {
+  TextColumn get id => text()();
+  TextColumn get symbol => text()();
+  DateTimeColumn get splitDate => dateTime()();
+  IntColumn get oldShares => integer()();
+  IntColumn get newShares => integer()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // DATABASE
 // ──────────────────────────────────────────────────────────────────────────────
 
 @DriftDatabase(
-  tables: [Channels, Trades, FundTransfers],
-  daos: [ChannelDao, TradeDao, FundTransferDao],
+  tables: [Channels, Trades, FundTransfers, StockSplits],
+  daos: [ChannelDao, TradeDao, FundTransferDao, StockSplitDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -81,7 +95,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -94,6 +108,10 @@ class AppDatabase extends _$AppDatabase {
           // Add smsReceivedDate column to both tables
           await m.addColumn(trades, trades.smsReceivedDate);
           await m.addColumn(fundTransfers, fundTransfers.smsReceivedDate);
+        }
+        if (from < 3) {
+          // Create the new stock splits table
+          await m.createTable(stockSplits);
         }
       },
       beforeOpen: (details) async {

@@ -4,7 +4,7 @@ import 'package:equity_echo/data/models/holding.dart';
 
 part 'trade_dao.g.dart';
 
-@DriftAccessor(tables: [Trades])
+@DriftAccessor(tables: [Trades, StockSplits])
 class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   TradeDao(super.db);
 
@@ -53,75 +53,77 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
     return results.isNotEmpty;
   }
 
-  /// Compute holdings using weighted average.
-  /// Groups buy trades by symbol to calculate total quantity and average price,
-  /// then separately sums sell quantities and values.
+  /// Compute holdings natively by iterating trades and splits chronologically.
   Future<List<Holding>> getHoldings() async {
-    // Get all buy trades grouped by symbol
-    final buyQuery = customSelect(
-      'SELECT symbol, '
-      'SUM(quantity) as total_qty, '
-      'SUM(total_value) as total_invested '
-      'FROM trades WHERE action = ? '
-      'GROUP BY symbol',
-      variables: [Variable.withString('buy')],
-      readsFrom: {trades},
-    );
+    final allTrades = await (select(trades)..orderBy([(t) => OrderingTerm.asc(t.smsDate)])).get();
+    final allSplits = await (select(stockSplits)..orderBy([(s) => OrderingTerm.asc(s.splitDate)])).get();
 
-    final buyResults = await buyQuery.get();
+    final List<dynamic> events = [...allTrades, ...allSplits];
+    events.sort((a, b) {
+      final dateA = (a is Trade) ? a.smsDate : (a as StockSplit).splitDate;
+      final dateB = (b is Trade) ? b.smsDate : (b as StockSplit).splitDate;
+      return dateA.compareTo(dateB);
+    });
 
-    // Get all sell trades grouped by symbol
-    final sellQuery = customSelect(
-      'SELECT symbol, '
-      'SUM(quantity) as total_qty, '
-      'SUM(total_value) as total_value '
-      'FROM trades WHERE action = ? '
-      'GROUP BY symbol',
-      variables: [Variable.withString('sell')],
-      readsFrom: {trades},
-    );
+    final holdingsMap = <String, _SymbolState>{};
 
-    final sellResults = await sellQuery.get();
-
-    // Build a map of sell data
-    final sellMap = <String, ({double qty, double value})>{};
-    for (final row in sellResults) {
-      final symbol = row.read<String>('symbol');
-      sellMap[symbol] = (
-        qty: row.read<double>('total_qty'),
-        value: row.read<double>('total_value'),
-      );
+    for (var event in events) {
+      if (event is Trade) {
+        final symbol = event.symbol;
+        final state = holdingsMap.putIfAbsent(symbol, () => _SymbolState());
+        
+        if (event.action == 'buy') {
+          state.currentQty += event.quantity;
+          state.investedPool += event.totalValue;
+        } else if (event.action == 'sell') {
+          if (state.currentQty > 0) {
+            double costBasisForSale = (event.quantity / state.currentQty) * state.investedPool;
+            state.investedPool -= costBasisForSale;
+            state.realizedGain += event.totalValue - costBasisForSale;
+          }
+          state.currentQty -= event.quantity;
+          state.totalSoldQty += event.quantity;
+          state.totalSoldValue += event.totalValue;
+        }
+      } else if (event is StockSplit) {
+        final symbol = event.symbol;
+        final state = holdingsMap.putIfAbsent(symbol, () => _SymbolState());
+        
+        int newQtyFloor = (state.currentQty * event.newShares) ~/ event.oldShares;
+        state.currentQty = newQtyFloor.toDouble();
+        // investedPool (cost basis) remains explicitly the same. Note: Do not alter investedPool.
+      }
     }
 
-    // Build holdings list
     final holdings = <Holding>[];
-    for (final row in buyResults) {
-      final symbol = row.read<String>('symbol');
-      final totalQty = row.read<double>('total_qty');
-      final totalInvested = row.read<double>('total_invested');
-      final avgPrice = totalQty > 0 ? totalInvested / totalQty : 0.0;
+    for (var entry in holdingsMap.entries) {
+      final symbol = entry.key;
+      final state = entry.value;
 
-      final sell = sellMap[symbol];
+      final avgPrice = state.currentQty > 0 ? state.investedPool / state.currentQty : 0.0;
 
       holdings.add(Holding(
         symbol: symbol,
-        totalQuantity: totalQty,
+        netQuantity: state.currentQty,
         avgBuyPrice: avgPrice,
-        totalInvested: totalInvested,
-        totalSoldQuantity: sell?.qty ?? 0.0,
-        totalSoldValue: sell?.value ?? 0.0,
+        totalInvested: state.investedPool,
+        totalSoldQuantity: state.totalSoldQty,
+        totalSoldValue: state.totalSoldValue,
+        realizedGain: state.realizedGain,
       ));
     }
 
-    // Sort by symbol
     holdings.sort((a, b) => a.symbol.compareTo(b.symbol));
-
     return holdings;
   }
 
   /// Watch holdings (reactive)
   Stream<List<Holding>> watchHoldings() {
-    return (select(trades)).watch().asyncMap((_) => getHoldings());
+    // We can't use RxCombine easily without rxdart, but Drift allows watching multiple tables.
+    // Instead, using customSelect to listen, then calling getHoldings()
+    return customSelect('SELECT 1 FROM trades UNION SELECT 1 FROM stock_splits', readsFrom: {trades, stockSplits})
+        .watch()
+        .asyncMap((_) => getHoldings());
   }
 
   /// Get total invested (sum of all BUY trades)
@@ -143,4 +145,12 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
     ).getSingle();
     return result.read<double>('total');
   }
+}
+
+class _SymbolState {
+  double currentQty = 0;
+  double investedPool = 0;
+  double realizedGain = 0;
+  double totalSoldQty = 0;
+  double totalSoldValue = 0;
 }

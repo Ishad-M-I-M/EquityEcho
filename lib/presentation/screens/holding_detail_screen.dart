@@ -6,6 +6,7 @@ import 'package:equity_echo/core/theme/app_theme.dart';
 import 'package:equity_echo/core/di/injection.dart';
 import 'package:equity_echo/data/database/database.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
+import 'package:equity_echo/data/database/daos/stock_split_dao.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_state.dart';
@@ -22,12 +23,61 @@ class HoldingDetailScreen extends StatefulWidget {
 }
 
 class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
-  late Future<List<Trade>> _tradesFuture;
+  late Future<List<dynamic>> _eventsFuture;
 
   @override
   void initState() {
     super.initState();
-    _tradesFuture = getIt<TradeDao>().getTradesForSymbol(widget.symbol);
+    _loadEvents();
+  }
+
+  void _loadEvents() {
+    setState(() {
+      _eventsFuture = _fetchEvents();
+    });
+  }
+
+  Future<List<dynamic>> _fetchEvents() async {
+    final trades = await getIt<TradeDao>().getTradesForSymbol(widget.symbol);
+    final splits = await getIt<StockSplitDao>().getSplitsForSymbol(widget.symbol);
+    
+    final events = [...trades, ...splits];
+    events.sort((a, b) {
+      final dateA = (a is Trade) ? a.smsDate : (a as StockSplit).splitDate;
+      final dateB = (b is Trade) ? b.smsDate : (b as StockSplit).splitDate;
+      return dateA.compareTo(dateB); // Oldest first to track balance
+    });
+    
+    double runningQty = 0;
+    List<dynamic> processedEvents = [];
+    
+    for (var event in events) {
+      if (event is Trade) {
+        if (event.action.toLowerCase() == 'buy') {
+          runningQty += event.quantity;
+        } else if (event.action.toLowerCase() == 'sell') {
+          runningQty -= event.quantity;
+        }
+        processedEvents.add(event);
+      } else if (event is StockSplit) {
+        double beforeQty = runningQty;
+        int newQtyFloor = (runningQty * event.newShares) ~/ event.oldShares;
+        runningQty = newQtyFloor.toDouble();
+        processedEvents.add(_SplitEventWithBalance(
+          split: event,
+          beforeQty: beforeQty,
+          afterQty: runningQty,
+        ));
+      }
+    }
+    
+    processedEvents.sort((a, b) {
+      final dateA = (a is Trade) ? a.smsDate : (a as _SplitEventWithBalance).split.splitDate;
+      final dateB = (b is Trade) ? b.smsDate : (b as _SplitEventWithBalance).split.splitDate;
+      return dateB.compareTo(dateA); // Newest first for UI display
+    });
+
+    return processedEvents;
   }
 
   @override
@@ -35,15 +85,20 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.symbol} Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.call_split),
+            onPressed: () => _showAddSplitDialog(context),
+            tooltip: 'Add Sub-division',
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await context.push('/trade/new', extra: widget.symbol);
           if (!context.mounted) return;
-          // Refresh trades timeline after we return
-          setState(() {
-            _tradesFuture = getIt<TradeDao>().getTradesForSymbol(widget.symbol);
-          });
+          // Refresh events timeline after we return
+          _loadEvents();
           context.read<DashboardBloc>().add(RefreshDashboard());
         },
         backgroundColor: AppTheme.accent,
@@ -102,8 +157,8 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                FutureBuilder<List<Trade>>(
-                  future: _tradesFuture,
+                FutureBuilder<List<dynamic>>(
+                  future: _eventsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -112,16 +167,90 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                       return Text('Error: ${snapshot.error}', style: TextStyle(color: AppTheme.sellRed));
                     }
 
-                    final trades = snapshot.data ?? [];
-                    if (trades.isEmpty) {
+                    final events = snapshot.data ?? [];
+                    if (events.isEmpty) {
                       return Text('No transactions found.', style: TextStyle(color: AppTheme.textSecondary));
                     }
 
                     return Column(
-                      children: trades.map((trade) {
+                      children: events.map((event) {
+                        if (event is _SplitEventWithBalance) {
+                          return GestureDetector(
+                            onLongPress: () => _confirmDeleteSplit(context, event.split),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppTheme.surfaceDark,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.call_split, color: Colors.blueAccent, size: 20),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'SUB-DIVISION',
+                                            style: TextStyle(
+                                              color: Colors.blueAccent,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            DateFormat('MMM dd, yyyy').format(event.split.splitDate),
+                                            style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        'Ratio ${event.split.oldShares} : ${event.split.newShares}',
+                                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            event.beforeQty.toStringAsFixed(0),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                              decoration: TextDecoration.lineThrough,
+                                              color: Colors.white54,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          const Icon(Icons.arrow_forward, size: 12, color: Colors.blueAccent),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            event.afterQty.toStringAsFixed(0),
+                                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        
+                        // Otherwise it is a Trade
+                        final trade = event as Trade;
                         final isBuy = trade.action.toLowerCase() == 'buy';
                         final color = isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
-return GestureDetector(
+                        return GestureDetector(
                           onLongPress: () => _confirmDeleteTrade(context, trade),
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 12),
@@ -222,9 +351,7 @@ return GestureDetector(
               Navigator.pop(ctx);
               context.read<TradeBloc>().add(DeleteTrade(trade.id));
               context.read<DashboardBloc>().add(RefreshDashboard());
-              setState(() {
-                _tradesFuture = getIt<TradeDao>().getTradesForSymbol(widget.symbol);
-              });
+              _loadEvents();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Transaction scheduled for deletion')),
               );
@@ -233,6 +360,135 @@ return GestureDetector(
           ),
         ],
       ),
+    );
+  }
+
+  void _confirmDeleteSplit(BuildContext context, StockSplit split) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.cardDark,
+        title: const Text('Delete Sub-division'),
+        content: const Text('Are you sure you want to delete this sub-division event?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await getIt<StockSplitDao>().deleteSplit(split.id);
+              if (!context.mounted) return;
+              context.read<DashboardBloc>().add(RefreshDashboard());
+              _loadEvents();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Sub-division deleted')),
+              );
+            },
+            child: Text('Delete', style: TextStyle(color: AppTheme.sellRed)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddSplitDialog(BuildContext context) {
+    DateTime selectedDate = DateTime.now();
+    final oldSharesController = TextEditingController();
+    final newSharesController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (context, setStateLocal) {
+            return AlertDialog(
+              backgroundColor: AppTheme.cardDark,
+              title: Text('Sub-division for ${widget.symbol}'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Date'),
+                    subtitle: Text(DateFormat('yyyy-MM-dd').format(selectedDate)),
+                    trailing: const Icon(Icons.calendar_today, size: 20),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null) {
+                        setStateLocal(() => selectedDate = picked);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: oldSharesController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Old Shares',
+                      hintText: 'e.g. 10',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: newSharesController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'New Shares',
+                      hintText: 'e.g. 1',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Rule: 10 old into 1 new => Ratio 10:1',
+                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final oldS = int.tryParse(oldSharesController.text);
+                    final newS = int.tryParse(newSharesController.text);
+                    if (oldS == null || newS == null || oldS <= 0 || newS <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please enter valid integers')),
+                      );
+                      return;
+                    }
+                    
+                    Navigator.pop(dialogCtx);
+                    
+                    final companion = StockSplitsCompanion.insert(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      symbol: widget.symbol,
+                      splitDate: selectedDate,
+                      oldShares: oldS,
+                      newShares: newS,
+                    );
+                    await getIt<StockSplitDao>().insertSplit(companion);
+                    
+                    if (!context.mounted) return;
+                    _loadEvents();
+                    context.read<DashboardBloc>().add(RefreshDashboard());
+                  },
+                  child: Text('Save', style: TextStyle(color: AppTheme.accent)),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -264,4 +520,16 @@ class _StatRow extends StatelessWidget {
       ],
     );
   }
+}
+
+class _SplitEventWithBalance {
+  final StockSplit split;
+  final double beforeQty;
+  final double afterQty;
+
+  _SplitEventWithBalance({
+    required this.split,
+    required this.beforeQty,
+    required this.afterQty,
+  });
 }

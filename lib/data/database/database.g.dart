@@ -1917,17 +1917,425 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
   }
 }
 
+class $StockSplitsTable extends StockSplits
+    with TableInfo<$StockSplitsTable, StockSplit> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StockSplitsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _symbolMeta = const VerificationMeta('symbol');
+  @override
+  late final GeneratedColumn<String> symbol = GeneratedColumn<String>(
+    'symbol',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _splitDateMeta = const VerificationMeta(
+    'splitDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> splitDate = GeneratedColumn<DateTime>(
+    'split_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _oldSharesMeta = const VerificationMeta(
+    'oldShares',
+  );
+  @override
+  late final GeneratedColumn<int> oldShares = GeneratedColumn<int>(
+    'old_shares',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _newSharesMeta = const VerificationMeta(
+    'newShares',
+  );
+  @override
+  late final GeneratedColumn<int> newShares = GeneratedColumn<int>(
+    'new_shares',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    symbol,
+    splitDate,
+    oldShares,
+    newShares,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'stock_splits';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StockSplit> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('symbol')) {
+      context.handle(
+        _symbolMeta,
+        symbol.isAcceptableOrUnknown(data['symbol']!, _symbolMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_symbolMeta);
+    }
+    if (data.containsKey('split_date')) {
+      context.handle(
+        _splitDateMeta,
+        splitDate.isAcceptableOrUnknown(data['split_date']!, _splitDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_splitDateMeta);
+    }
+    if (data.containsKey('old_shares')) {
+      context.handle(
+        _oldSharesMeta,
+        oldShares.isAcceptableOrUnknown(data['old_shares']!, _oldSharesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_oldSharesMeta);
+    }
+    if (data.containsKey('new_shares')) {
+      context.handle(
+        _newSharesMeta,
+        newShares.isAcceptableOrUnknown(data['new_shares']!, _newSharesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_newSharesMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StockSplit map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StockSplit(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      symbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}symbol'],
+      )!,
+      splitDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}split_date'],
+      )!,
+      oldShares: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}old_shares'],
+      )!,
+      newShares: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}new_shares'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StockSplitsTable createAlias(String alias) {
+    return $StockSplitsTable(attachedDatabase, alias);
+  }
+}
+
+class StockSplit extends DataClass implements Insertable<StockSplit> {
+  final String id;
+  final String symbol;
+  final DateTime splitDate;
+  final int oldShares;
+  final int newShares;
+  final DateTime createdAt;
+  const StockSplit({
+    required this.id,
+    required this.symbol,
+    required this.splitDate,
+    required this.oldShares,
+    required this.newShares,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['symbol'] = Variable<String>(symbol);
+    map['split_date'] = Variable<DateTime>(splitDate);
+    map['old_shares'] = Variable<int>(oldShares);
+    map['new_shares'] = Variable<int>(newShares);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  StockSplitsCompanion toCompanion(bool nullToAbsent) {
+    return StockSplitsCompanion(
+      id: Value(id),
+      symbol: Value(symbol),
+      splitDate: Value(splitDate),
+      oldShares: Value(oldShares),
+      newShares: Value(newShares),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory StockSplit.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StockSplit(
+      id: serializer.fromJson<String>(json['id']),
+      symbol: serializer.fromJson<String>(json['symbol']),
+      splitDate: serializer.fromJson<DateTime>(json['splitDate']),
+      oldShares: serializer.fromJson<int>(json['oldShares']),
+      newShares: serializer.fromJson<int>(json['newShares']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'symbol': serializer.toJson<String>(symbol),
+      'splitDate': serializer.toJson<DateTime>(splitDate),
+      'oldShares': serializer.toJson<int>(oldShares),
+      'newShares': serializer.toJson<int>(newShares),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  StockSplit copyWith({
+    String? id,
+    String? symbol,
+    DateTime? splitDate,
+    int? oldShares,
+    int? newShares,
+    DateTime? createdAt,
+  }) => StockSplit(
+    id: id ?? this.id,
+    symbol: symbol ?? this.symbol,
+    splitDate: splitDate ?? this.splitDate,
+    oldShares: oldShares ?? this.oldShares,
+    newShares: newShares ?? this.newShares,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  StockSplit copyWithCompanion(StockSplitsCompanion data) {
+    return StockSplit(
+      id: data.id.present ? data.id.value : this.id,
+      symbol: data.symbol.present ? data.symbol.value : this.symbol,
+      splitDate: data.splitDate.present ? data.splitDate.value : this.splitDate,
+      oldShares: data.oldShares.present ? data.oldShares.value : this.oldShares,
+      newShares: data.newShares.present ? data.newShares.value : this.newShares,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StockSplit(')
+          ..write('id: $id, ')
+          ..write('symbol: $symbol, ')
+          ..write('splitDate: $splitDate, ')
+          ..write('oldShares: $oldShares, ')
+          ..write('newShares: $newShares, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, symbol, splitDate, oldShares, newShares, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StockSplit &&
+          other.id == this.id &&
+          other.symbol == this.symbol &&
+          other.splitDate == this.splitDate &&
+          other.oldShares == this.oldShares &&
+          other.newShares == this.newShares &&
+          other.createdAt == this.createdAt);
+}
+
+class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
+  final Value<String> id;
+  final Value<String> symbol;
+  final Value<DateTime> splitDate;
+  final Value<int> oldShares;
+  final Value<int> newShares;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const StockSplitsCompanion({
+    this.id = const Value.absent(),
+    this.symbol = const Value.absent(),
+    this.splitDate = const Value.absent(),
+    this.oldShares = const Value.absent(),
+    this.newShares = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StockSplitsCompanion.insert({
+    required String id,
+    required String symbol,
+    required DateTime splitDate,
+    required int oldShares,
+    required int newShares,
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       symbol = Value(symbol),
+       splitDate = Value(splitDate),
+       oldShares = Value(oldShares),
+       newShares = Value(newShares);
+  static Insertable<StockSplit> custom({
+    Expression<String>? id,
+    Expression<String>? symbol,
+    Expression<DateTime>? splitDate,
+    Expression<int>? oldShares,
+    Expression<int>? newShares,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (symbol != null) 'symbol': symbol,
+      if (splitDate != null) 'split_date': splitDate,
+      if (oldShares != null) 'old_shares': oldShares,
+      if (newShares != null) 'new_shares': newShares,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StockSplitsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? symbol,
+    Value<DateTime>? splitDate,
+    Value<int>? oldShares,
+    Value<int>? newShares,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return StockSplitsCompanion(
+      id: id ?? this.id,
+      symbol: symbol ?? this.symbol,
+      splitDate: splitDate ?? this.splitDate,
+      oldShares: oldShares ?? this.oldShares,
+      newShares: newShares ?? this.newShares,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (symbol.present) {
+      map['symbol'] = Variable<String>(symbol.value);
+    }
+    if (splitDate.present) {
+      map['split_date'] = Variable<DateTime>(splitDate.value);
+    }
+    if (oldShares.present) {
+      map['old_shares'] = Variable<int>(oldShares.value);
+    }
+    if (newShares.present) {
+      map['new_shares'] = Variable<int>(newShares.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StockSplitsCompanion(')
+          ..write('id: $id, ')
+          ..write('symbol: $symbol, ')
+          ..write('splitDate: $splitDate, ')
+          ..write('oldShares: $oldShares, ')
+          ..write('newShares: $newShares, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ChannelsTable channels = $ChannelsTable(this);
   late final $TradesTable trades = $TradesTable(this);
   late final $FundTransfersTable fundTransfers = $FundTransfersTable(this);
+  late final $StockSplitsTable stockSplits = $StockSplitsTable(this);
   late final ChannelDao channelDao = ChannelDao(this as AppDatabase);
   late final TradeDao tradeDao = TradeDao(this as AppDatabase);
   late final FundTransferDao fundTransferDao = FundTransferDao(
     this as AppDatabase,
   );
+  late final StockSplitDao stockSplitDao = StockSplitDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1936,6 +2344,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     channels,
     trades,
     fundTransfers,
+    stockSplits,
   ];
 }
 
@@ -3296,6 +3705,225 @@ typedef $$FundTransfersTableProcessedTableManager =
       FundTransfer,
       PrefetchHooks Function({bool channelId})
     >;
+typedef $$StockSplitsTableCreateCompanionBuilder =
+    StockSplitsCompanion Function({
+      required String id,
+      required String symbol,
+      required DateTime splitDate,
+      required int oldShares,
+      required int newShares,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+typedef $$StockSplitsTableUpdateCompanionBuilder =
+    StockSplitsCompanion Function({
+      Value<String> id,
+      Value<String> symbol,
+      Value<DateTime> splitDate,
+      Value<int> oldShares,
+      Value<int> newShares,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$StockSplitsTableFilterComposer
+    extends Composer<_$AppDatabase, $StockSplitsTable> {
+  $$StockSplitsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get symbol => $composableBuilder(
+    column: $table.symbol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get splitDate => $composableBuilder(
+    column: $table.splitDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get oldShares => $composableBuilder(
+    column: $table.oldShares,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get newShares => $composableBuilder(
+    column: $table.newShares,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$StockSplitsTableOrderingComposer
+    extends Composer<_$AppDatabase, $StockSplitsTable> {
+  $$StockSplitsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get symbol => $composableBuilder(
+    column: $table.symbol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get splitDate => $composableBuilder(
+    column: $table.splitDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get oldShares => $composableBuilder(
+    column: $table.oldShares,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get newShares => $composableBuilder(
+    column: $table.newShares,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$StockSplitsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StockSplitsTable> {
+  $$StockSplitsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get symbol =>
+      $composableBuilder(column: $table.symbol, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get splitDate =>
+      $composableBuilder(column: $table.splitDate, builder: (column) => column);
+
+  GeneratedColumn<int> get oldShares =>
+      $composableBuilder(column: $table.oldShares, builder: (column) => column);
+
+  GeneratedColumn<int> get newShares =>
+      $composableBuilder(column: $table.newShares, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$StockSplitsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StockSplitsTable,
+          StockSplit,
+          $$StockSplitsTableFilterComposer,
+          $$StockSplitsTableOrderingComposer,
+          $$StockSplitsTableAnnotationComposer,
+          $$StockSplitsTableCreateCompanionBuilder,
+          $$StockSplitsTableUpdateCompanionBuilder,
+          (
+            StockSplit,
+            BaseReferences<_$AppDatabase, $StockSplitsTable, StockSplit>,
+          ),
+          StockSplit,
+          PrefetchHooks Function()
+        > {
+  $$StockSplitsTableTableManager(_$AppDatabase db, $StockSplitsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StockSplitsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StockSplitsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StockSplitsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> symbol = const Value.absent(),
+                Value<DateTime> splitDate = const Value.absent(),
+                Value<int> oldShares = const Value.absent(),
+                Value<int> newShares = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StockSplitsCompanion(
+                id: id,
+                symbol: symbol,
+                splitDate: splitDate,
+                oldShares: oldShares,
+                newShares: newShares,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String symbol,
+                required DateTime splitDate,
+                required int oldShares,
+                required int newShares,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StockSplitsCompanion.insert(
+                id: id,
+                symbol: symbol,
+                splitDate: splitDate,
+                oldShares: oldShares,
+                newShares: newShares,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$StockSplitsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StockSplitsTable,
+      StockSplit,
+      $$StockSplitsTableFilterComposer,
+      $$StockSplitsTableOrderingComposer,
+      $$StockSplitsTableAnnotationComposer,
+      $$StockSplitsTableCreateCompanionBuilder,
+      $$StockSplitsTableUpdateCompanionBuilder,
+      (
+        StockSplit,
+        BaseReferences<_$AppDatabase, $StockSplitsTable, StockSplit>,
+      ),
+      StockSplit,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3306,4 +3934,6 @@ class $AppDatabaseManager {
       $$TradesTableTableManager(_db, _db.trades);
   $$FundTransfersTableTableManager get fundTransfers =>
       $$FundTransfersTableTableManager(_db, _db.fundTransfers);
+  $$StockSplitsTableTableManager get stockSplits =>
+      $$StockSplitsTableTableManager(_db, _db.stockSplits);
 }
