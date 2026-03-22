@@ -12,10 +12,34 @@ class ActivityLogInitial extends ActivityLogState {}
 class ActivityLogLoading extends ActivityLogState {}
 
 class ActivityLogLoaded extends ActivityLogState {
-  final List<ActivityItem> items;
-  const ActivityLogLoaded(this.items);
+  final Map<String, List<ActivityItem>> groupedItems;
+  final int? monthFilter;
+  final int? yearFilter;
+  final String? symbolFilter;
+  final ActivityType? typeFilter;
+  final List<String> availableSymbols;
+  final List<int> availableYears;
+
+  const ActivityLogLoaded({
+    required this.groupedItems,
+    this.monthFilter,
+    this.yearFilter,
+    this.symbolFilter,
+    this.typeFilter,
+    required this.availableSymbols,
+    required this.availableYears,
+  });
+
   @override
-  List<Object?> get props => [items];
+  List<Object?> get props => [
+        groupedItems,
+        monthFilter,
+        yearFilter,
+        symbolFilter,
+        typeFilter,
+        availableSymbols,
+        availableYears,
+      ];
 }
 
 class ActivityLogError extends ActivityLogState {
