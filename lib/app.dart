@@ -26,6 +26,7 @@ import 'package:equity_echo/presentation/screens/channels_screen.dart';
 import 'package:equity_echo/presentation/screens/channel_config_screen.dart';
 import 'package:equity_echo/presentation/screens/trade_form_screen.dart';
 import 'package:equity_echo/presentation/screens/fund_form_screen.dart';
+import 'package:equity_echo/presentation/screens/holding_detail_screen.dart';
 
 class EquityEchoApp extends StatelessWidget {
   const EquityEchoApp({super.key});
@@ -136,6 +137,13 @@ final GoRouter _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => ChannelConfigScreen(
         channelId: state.pathParameters['id'],
+      ),
+    ),
+    GoRoute(
+      path: '/holding/:symbol',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => HoldingDetailScreen(
+        symbol: state.pathParameters['symbol']!,
       ),
     ),
     GoRoute(

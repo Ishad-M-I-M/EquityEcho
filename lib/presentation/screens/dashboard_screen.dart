@@ -209,10 +209,32 @@ class DashboardScreen extends StatelessWidget {
                     const SizedBox(height: 14),
 
                     // Holdings list
-                    ...state.holdings.map((h) => HoldingCard(
+                    ...state.holdings.where((h) => h.netQuantity > 0).map((h) => HoldingCard(
                           holding: h,
                           currency: state.currency,
+                          onTap: () => context.push('/holding/${h.symbol}'),
                         )),
+
+                    if (state.holdings.any((h) => h.netQuantity <= 0)) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'Past Holdings',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...state.holdings.where((h) => h.netQuantity <= 0).map((h) => Opacity(
+                            opacity: 0.6,
+                            child: HoldingCard(
+                              holding: h,
+                              currency: state.currency,
+                              onTap: () => context.push('/holding/${h.symbol}'),
+                            ),
+                          )),
+                    ],
                   ],
                 ),
               );

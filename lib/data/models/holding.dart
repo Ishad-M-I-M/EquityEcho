@@ -24,6 +24,11 @@ class Holding extends Equatable {
   /// Current book value (cost basis)
   double get currentValue => netQuantity * avgBuyPrice;
 
+  /// Realized Gain
+  double get realizedGain => totalSoldQuantity > 0 
+      ? totalSoldValue - (totalSoldQuantity * avgBuyPrice) 
+      : 0.0;
+
   @override
   List<Object?> get props => [
         symbol,
