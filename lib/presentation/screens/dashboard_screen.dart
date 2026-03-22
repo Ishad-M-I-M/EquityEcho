@@ -125,13 +125,12 @@ class DashboardScreen extends StatelessWidget {
                           const SizedBox(width: 12),
                           Expanded(
                             child: StatCard(
-                              label: 'Fund Balance',
-                              value: currencyFormatter.format(state.netFundBalance),
-                              icon: Icons.savings,
-                              color: state.netFundBalance >= 0
-                                  ? AppTheme.accent
-                                  : AppTheme.warning,
-                              subtitle: 'Available funds',
+                              label: 'Dividends',
+                              value: currencyFormatter.format(state.totalDividends),
+                              icon: Icons.card_giftcard,
+                              color: AppTheme.buyGreen,
+                              subtitle: 'Received',
+                              onTap: () => context.push('/dividends'),
                             ),
                           ),
                         ],

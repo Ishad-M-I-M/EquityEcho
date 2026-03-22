@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
 import 'package:equity_echo/data/database/daos/channel_dao.dart';
+import 'package:equity_echo/data/database/daos/dividend_dao.dart';
 import 'dashboard_event.dart';
 import 'dashboard_state.dart';
 
@@ -9,14 +10,17 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   final TradeDao _tradeDao;
   final FundTransferDao _fundTransferDao;
   final ChannelDao _channelDao;
+  final DividendDao _dividendDao;
 
   DashboardBloc({
     required TradeDao tradeDao,
     required FundTransferDao fundTransferDao,
     required ChannelDao channelDao,
+    required DividendDao dividendDao,
   })  : _tradeDao = tradeDao,
         _fundTransferDao = fundTransferDao,
         _channelDao = channelDao,
+        _dividendDao = dividendDao,
         super(DashboardInitial()) {
     on<LoadDashboard>(_onLoadDashboard);
     on<RefreshDashboard>(_onLoadDashboard);
@@ -34,6 +38,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final totalDeposits = await _fundTransferDao.getTotalDeposits();
       final totalWithdrawals = await _fundTransferDao.getTotalWithdrawals();
       final allTrades = await _tradeDao.getAllTrades();
+      final totalDividends = await _dividendDao.getTotalDividends();
 
       // Get currency from first channel, default to LKR
       final channels = await _channelDao.getAllChannels();
@@ -46,6 +51,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         totalDeposits: totalDeposits,
         totalWithdrawals: totalWithdrawals,
         totalTrades: allTrades.length,
+        totalDividends: totalDividends,
         currency: currency,
       ));
     } catch (e) {

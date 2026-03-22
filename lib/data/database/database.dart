@@ -8,6 +8,7 @@ import 'package:equity_echo/data/database/daos/channel_dao.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
 import 'package:equity_echo/data/database/daos/stock_split_dao.dart';
+import 'package:equity_echo/data/database/daos/dividend_dao.dart';
 
 part 'database.g.dart';
 
@@ -80,13 +81,28 @@ class StockSplits extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Dividends received
+class Dividends extends Table {
+  TextColumn get id => text()();
+  TextColumn get symbol => text()();
+  RealColumn get amount => real()();
+  RealColumn get tax => real().withDefault(const Constant(0.0))();
+  RealColumn get shares => real().withDefault(const Constant(0.0))();
+  RealColumn get dividendPerShare => real().withDefault(const Constant(0.0))();
+  DateTimeColumn get date => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // DATABASE
 // ──────────────────────────────────────────────────────────────────────────────
 
 @DriftDatabase(
-  tables: [Channels, Trades, FundTransfers, StockSplits],
-  daos: [ChannelDao, TradeDao, FundTransferDao, StockSplitDao],
+  tables: [Channels, Trades, FundTransfers, StockSplits, Dividends],
+  daos: [ChannelDao, TradeDao, FundTransferDao, StockSplitDao, DividendDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -95,7 +111,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -112,6 +128,17 @@ class AppDatabase extends _$AppDatabase {
         if (from < 3) {
           // Create the new stock splits table
           await m.createTable(stockSplits);
+        }
+        if (from < 4) {
+          // Create the new dividends table
+          await m.createTable(dividends);
+        }
+        if (from < 5) {
+          await m.addColumn(dividends, dividends.tax);
+        }
+        if (from < 6) {
+          await m.addColumn(dividends, dividends.shares);
+          await m.addColumn(dividends, dividends.dividendPerShare);
         }
       },
       beforeOpen: (details) async {

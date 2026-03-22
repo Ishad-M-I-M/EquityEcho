@@ -2323,6 +2323,505 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
   }
 }
 
+class $DividendsTable extends Dividends
+    with TableInfo<$DividendsTable, Dividend> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DividendsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _symbolMeta = const VerificationMeta('symbol');
+  @override
+  late final GeneratedColumn<String> symbol = GeneratedColumn<String>(
+    'symbol',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taxMeta = const VerificationMeta('tax');
+  @override
+  late final GeneratedColumn<double> tax = GeneratedColumn<double>(
+    'tax',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _sharesMeta = const VerificationMeta('shares');
+  @override
+  late final GeneratedColumn<double> shares = GeneratedColumn<double>(
+    'shares',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _dividendPerShareMeta = const VerificationMeta(
+    'dividendPerShare',
+  );
+  @override
+  late final GeneratedColumn<double> dividendPerShare = GeneratedColumn<double>(
+    'dividend_per_share',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    symbol,
+    amount,
+    tax,
+    shares,
+    dividendPerShare,
+    date,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'dividends';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Dividend> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('symbol')) {
+      context.handle(
+        _symbolMeta,
+        symbol.isAcceptableOrUnknown(data['symbol']!, _symbolMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_symbolMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('tax')) {
+      context.handle(
+        _taxMeta,
+        tax.isAcceptableOrUnknown(data['tax']!, _taxMeta),
+      );
+    }
+    if (data.containsKey('shares')) {
+      context.handle(
+        _sharesMeta,
+        shares.isAcceptableOrUnknown(data['shares']!, _sharesMeta),
+      );
+    }
+    if (data.containsKey('dividend_per_share')) {
+      context.handle(
+        _dividendPerShareMeta,
+        dividendPerShare.isAcceptableOrUnknown(
+          data['dividend_per_share']!,
+          _dividendPerShareMeta,
+        ),
+      );
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Dividend map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Dividend(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      symbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}symbol'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+      tax: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}tax'],
+      )!,
+      shares: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}shares'],
+      )!,
+      dividendPerShare: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}dividend_per_share'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DividendsTable createAlias(String alias) {
+    return $DividendsTable(attachedDatabase, alias);
+  }
+}
+
+class Dividend extends DataClass implements Insertable<Dividend> {
+  final String id;
+  final String symbol;
+  final double amount;
+  final double tax;
+  final double shares;
+  final double dividendPerShare;
+  final DateTime date;
+  final DateTime createdAt;
+  const Dividend({
+    required this.id,
+    required this.symbol,
+    required this.amount,
+    required this.tax,
+    required this.shares,
+    required this.dividendPerShare,
+    required this.date,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['symbol'] = Variable<String>(symbol);
+    map['amount'] = Variable<double>(amount);
+    map['tax'] = Variable<double>(tax);
+    map['shares'] = Variable<double>(shares);
+    map['dividend_per_share'] = Variable<double>(dividendPerShare);
+    map['date'] = Variable<DateTime>(date);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  DividendsCompanion toCompanion(bool nullToAbsent) {
+    return DividendsCompanion(
+      id: Value(id),
+      symbol: Value(symbol),
+      amount: Value(amount),
+      tax: Value(tax),
+      shares: Value(shares),
+      dividendPerShare: Value(dividendPerShare),
+      date: Value(date),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Dividend.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Dividend(
+      id: serializer.fromJson<String>(json['id']),
+      symbol: serializer.fromJson<String>(json['symbol']),
+      amount: serializer.fromJson<double>(json['amount']),
+      tax: serializer.fromJson<double>(json['tax']),
+      shares: serializer.fromJson<double>(json['shares']),
+      dividendPerShare: serializer.fromJson<double>(json['dividendPerShare']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'symbol': serializer.toJson<String>(symbol),
+      'amount': serializer.toJson<double>(amount),
+      'tax': serializer.toJson<double>(tax),
+      'shares': serializer.toJson<double>(shares),
+      'dividendPerShare': serializer.toJson<double>(dividendPerShare),
+      'date': serializer.toJson<DateTime>(date),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  Dividend copyWith({
+    String? id,
+    String? symbol,
+    double? amount,
+    double? tax,
+    double? shares,
+    double? dividendPerShare,
+    DateTime? date,
+    DateTime? createdAt,
+  }) => Dividend(
+    id: id ?? this.id,
+    symbol: symbol ?? this.symbol,
+    amount: amount ?? this.amount,
+    tax: tax ?? this.tax,
+    shares: shares ?? this.shares,
+    dividendPerShare: dividendPerShare ?? this.dividendPerShare,
+    date: date ?? this.date,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  Dividend copyWithCompanion(DividendsCompanion data) {
+    return Dividend(
+      id: data.id.present ? data.id.value : this.id,
+      symbol: data.symbol.present ? data.symbol.value : this.symbol,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      tax: data.tax.present ? data.tax.value : this.tax,
+      shares: data.shares.present ? data.shares.value : this.shares,
+      dividendPerShare: data.dividendPerShare.present
+          ? data.dividendPerShare.value
+          : this.dividendPerShare,
+      date: data.date.present ? data.date.value : this.date,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Dividend(')
+          ..write('id: $id, ')
+          ..write('symbol: $symbol, ')
+          ..write('amount: $amount, ')
+          ..write('tax: $tax, ')
+          ..write('shares: $shares, ')
+          ..write('dividendPerShare: $dividendPerShare, ')
+          ..write('date: $date, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    symbol,
+    amount,
+    tax,
+    shares,
+    dividendPerShare,
+    date,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Dividend &&
+          other.id == this.id &&
+          other.symbol == this.symbol &&
+          other.amount == this.amount &&
+          other.tax == this.tax &&
+          other.shares == this.shares &&
+          other.dividendPerShare == this.dividendPerShare &&
+          other.date == this.date &&
+          other.createdAt == this.createdAt);
+}
+
+class DividendsCompanion extends UpdateCompanion<Dividend> {
+  final Value<String> id;
+  final Value<String> symbol;
+  final Value<double> amount;
+  final Value<double> tax;
+  final Value<double> shares;
+  final Value<double> dividendPerShare;
+  final Value<DateTime> date;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const DividendsCompanion({
+    this.id = const Value.absent(),
+    this.symbol = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.tax = const Value.absent(),
+    this.shares = const Value.absent(),
+    this.dividendPerShare = const Value.absent(),
+    this.date = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DividendsCompanion.insert({
+    required String id,
+    required String symbol,
+    required double amount,
+    this.tax = const Value.absent(),
+    this.shares = const Value.absent(),
+    this.dividendPerShare = const Value.absent(),
+    required DateTime date,
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       symbol = Value(symbol),
+       amount = Value(amount),
+       date = Value(date);
+  static Insertable<Dividend> custom({
+    Expression<String>? id,
+    Expression<String>? symbol,
+    Expression<double>? amount,
+    Expression<double>? tax,
+    Expression<double>? shares,
+    Expression<double>? dividendPerShare,
+    Expression<DateTime>? date,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (symbol != null) 'symbol': symbol,
+      if (amount != null) 'amount': amount,
+      if (tax != null) 'tax': tax,
+      if (shares != null) 'shares': shares,
+      if (dividendPerShare != null) 'dividend_per_share': dividendPerShare,
+      if (date != null) 'date': date,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DividendsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? symbol,
+    Value<double>? amount,
+    Value<double>? tax,
+    Value<double>? shares,
+    Value<double>? dividendPerShare,
+    Value<DateTime>? date,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return DividendsCompanion(
+      id: id ?? this.id,
+      symbol: symbol ?? this.symbol,
+      amount: amount ?? this.amount,
+      tax: tax ?? this.tax,
+      shares: shares ?? this.shares,
+      dividendPerShare: dividendPerShare ?? this.dividendPerShare,
+      date: date ?? this.date,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (symbol.present) {
+      map['symbol'] = Variable<String>(symbol.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (tax.present) {
+      map['tax'] = Variable<double>(tax.value);
+    }
+    if (shares.present) {
+      map['shares'] = Variable<double>(shares.value);
+    }
+    if (dividendPerShare.present) {
+      map['dividend_per_share'] = Variable<double>(dividendPerShare.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DividendsCompanion(')
+          ..write('id: $id, ')
+          ..write('symbol: $symbol, ')
+          ..write('amount: $amount, ')
+          ..write('tax: $tax, ')
+          ..write('shares: $shares, ')
+          ..write('dividendPerShare: $dividendPerShare, ')
+          ..write('date: $date, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2330,12 +2829,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TradesTable trades = $TradesTable(this);
   late final $FundTransfersTable fundTransfers = $FundTransfersTable(this);
   late final $StockSplitsTable stockSplits = $StockSplitsTable(this);
+  late final $DividendsTable dividends = $DividendsTable(this);
   late final ChannelDao channelDao = ChannelDao(this as AppDatabase);
   late final TradeDao tradeDao = TradeDao(this as AppDatabase);
   late final FundTransferDao fundTransferDao = FundTransferDao(
     this as AppDatabase,
   );
   late final StockSplitDao stockSplitDao = StockSplitDao(this as AppDatabase);
+  late final DividendDao dividendDao = DividendDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2345,6 +2846,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     trades,
     fundTransfers,
     stockSplits,
+    dividends,
   ];
 }
 
@@ -3924,6 +4426,259 @@ typedef $$StockSplitsTableProcessedTableManager =
       StockSplit,
       PrefetchHooks Function()
     >;
+typedef $$DividendsTableCreateCompanionBuilder =
+    DividendsCompanion Function({
+      required String id,
+      required String symbol,
+      required double amount,
+      Value<double> tax,
+      Value<double> shares,
+      Value<double> dividendPerShare,
+      required DateTime date,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+typedef $$DividendsTableUpdateCompanionBuilder =
+    DividendsCompanion Function({
+      Value<String> id,
+      Value<String> symbol,
+      Value<double> amount,
+      Value<double> tax,
+      Value<double> shares,
+      Value<double> dividendPerShare,
+      Value<DateTime> date,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$DividendsTableFilterComposer
+    extends Composer<_$AppDatabase, $DividendsTable> {
+  $$DividendsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get symbol => $composableBuilder(
+    column: $table.symbol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get tax => $composableBuilder(
+    column: $table.tax,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get shares => $composableBuilder(
+    column: $table.shares,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get dividendPerShare => $composableBuilder(
+    column: $table.dividendPerShare,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DividendsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DividendsTable> {
+  $$DividendsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get symbol => $composableBuilder(
+    column: $table.symbol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get tax => $composableBuilder(
+    column: $table.tax,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get shares => $composableBuilder(
+    column: $table.shares,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get dividendPerShare => $composableBuilder(
+    column: $table.dividendPerShare,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DividendsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DividendsTable> {
+  $$DividendsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get symbol =>
+      $composableBuilder(column: $table.symbol, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<double> get tax =>
+      $composableBuilder(column: $table.tax, builder: (column) => column);
+
+  GeneratedColumn<double> get shares =>
+      $composableBuilder(column: $table.shares, builder: (column) => column);
+
+  GeneratedColumn<double> get dividendPerShare => $composableBuilder(
+    column: $table.dividendPerShare,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$DividendsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DividendsTable,
+          Dividend,
+          $$DividendsTableFilterComposer,
+          $$DividendsTableOrderingComposer,
+          $$DividendsTableAnnotationComposer,
+          $$DividendsTableCreateCompanionBuilder,
+          $$DividendsTableUpdateCompanionBuilder,
+          (Dividend, BaseReferences<_$AppDatabase, $DividendsTable, Dividend>),
+          Dividend,
+          PrefetchHooks Function()
+        > {
+  $$DividendsTableTableManager(_$AppDatabase db, $DividendsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DividendsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DividendsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DividendsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> symbol = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+                Value<double> tax = const Value.absent(),
+                Value<double> shares = const Value.absent(),
+                Value<double> dividendPerShare = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DividendsCompanion(
+                id: id,
+                symbol: symbol,
+                amount: amount,
+                tax: tax,
+                shares: shares,
+                dividendPerShare: dividendPerShare,
+                date: date,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String symbol,
+                required double amount,
+                Value<double> tax = const Value.absent(),
+                Value<double> shares = const Value.absent(),
+                Value<double> dividendPerShare = const Value.absent(),
+                required DateTime date,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DividendsCompanion.insert(
+                id: id,
+                symbol: symbol,
+                amount: amount,
+                tax: tax,
+                shares: shares,
+                dividendPerShare: dividendPerShare,
+                date: date,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DividendsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DividendsTable,
+      Dividend,
+      $$DividendsTableFilterComposer,
+      $$DividendsTableOrderingComposer,
+      $$DividendsTableAnnotationComposer,
+      $$DividendsTableCreateCompanionBuilder,
+      $$DividendsTableUpdateCompanionBuilder,
+      (Dividend, BaseReferences<_$AppDatabase, $DividendsTable, Dividend>),
+      Dividend,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3936,4 +4691,6 @@ class $AppDatabaseManager {
       $$FundTransfersTableTableManager(_db, _db.fundTransfers);
   $$StockSplitsTableTableManager get stockSplits =>
       $$StockSplitsTableTableManager(_db, _db.stockSplits);
+  $$DividendsTableTableManager get dividends =>
+      $$DividendsTableTableManager(_db, _db.dividends);
 }

@@ -18,6 +18,7 @@ class DashboardLoaded extends DashboardState {
   final double totalDeposits;
   final double totalWithdrawals;
   final int totalTrades;
+  final double totalDividends;
   final String currency;
 
   const DashboardLoaded({
@@ -27,12 +28,13 @@ class DashboardLoaded extends DashboardState {
     required this.totalDeposits,
     required this.totalWithdrawals,
     required this.totalTrades,
+    required this.totalDividends,
     required this.currency,
   });
 
-  /// Net fund balance = deposits - withdrawals - totalInvested + totalSold
+  /// Net fund balance = deposits - withdrawals - totalInvested + totalSold + totalDividends
   double get netFundBalance =>
-      totalDeposits - totalWithdrawals - totalInvested + totalSold;
+      totalDeposits - totalWithdrawals - totalInvested + totalSold + totalDividends;
 
   /// Total realized gain from all past sells
   double get totalRealizedGain =>
@@ -50,6 +52,7 @@ class DashboardLoaded extends DashboardState {
         totalDeposits,
         totalWithdrawals,
         totalTrades,
+        totalDividends,
         currency,
       ];
 }

@@ -6,6 +6,7 @@ import 'package:equity_echo/core/di/injection.dart';
 import 'package:equity_echo/data/database/daos/channel_dao.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
+import 'package:equity_echo/data/database/daos/dividend_dao.dart';
 import 'package:equity_echo/core/services/sms_service.dart';
 import 'package:equity_echo/presentation/blocs/channel/channel_bloc.dart';
 import 'package:equity_echo/presentation/blocs/channel/channel_event.dart';
@@ -30,6 +31,8 @@ import 'package:equity_echo/presentation/screens/holding_detail_screen.dart';
 import 'package:equity_echo/presentation/screens/splash_screen.dart';
 import 'package:equity_echo/presentation/screens/deposits_screen.dart';
 import 'package:equity_echo/presentation/screens/realized_gains_screen.dart';
+import 'package:equity_echo/presentation/screens/dividends_screen.dart';
+import 'package:equity_echo/presentation/screens/dividend_history_screen.dart';
 
 class EquityEchoApp extends StatelessWidget {
   const EquityEchoApp({super.key});
@@ -47,6 +50,7 @@ class EquityEchoApp extends StatelessWidget {
             tradeDao: getIt<TradeDao>(),
             fundTransferDao: getIt<FundTransferDao>(),
             channelDao: getIt<ChannelDao>(),
+            dividendDao: getIt<DividendDao>(),
           )..add(LoadDashboard()),
         ),
         BlocProvider(
@@ -191,6 +195,18 @@ final GoRouter _router = GoRouter(
       path: '/realized-gains',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RealizedGainsScreen(),
+    ),
+    GoRoute(
+      path: '/dividends',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DividendsScreen(),
+    ),
+    GoRoute(
+      path: '/dividends/:symbol',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => DividendHistoryScreen(
+        symbol: state.pathParameters['symbol']!,
+      ),
     ),
   ],
 );
