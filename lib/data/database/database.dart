@@ -47,6 +47,8 @@ class Trades extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isManual => boolean().withDefault(const Constant(false))();
   BoolColumn get isEdited => boolean().withDefault(const Constant(false))();
+  /// True when this trade was an IPO purchase — charges do NOT apply.
+  BoolColumn get isIpo => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -111,7 +113,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -139,6 +141,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 6) {
           await m.addColumn(dividends, dividends.shares);
           await m.addColumn(dividends, dividends.dividendPerShare);
+        }
+        if (from < 7) {
+          await m.addColumn(trades, trades.isIpo);
         }
       },
       beforeOpen: (details) async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equity_echo/core/theme/app_theme.dart';
+import 'package:equity_echo/core/utils/transaction_charges.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_bloc.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_event.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_state.dart';
@@ -145,68 +146,232 @@ class ActivityLogScreen extends StatelessWidget {
   void _showTradeDetails(BuildContext context, ActivityItem item) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppTheme.cardDark,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.textSecondary.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (ctx) {
+        final isBuy = item.tradeAction?.label == 'BUY';
+        final tradeColor = isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
+        final totalValue = item.totalValue ?? 0.0;
+        final hasCharges = !item.isIpo && totalValue > 0;
+        final breakdown = hasCharges
+            ? TransactionCharges.compute(totalValue)
+            : null;
+        final effectiveTotal = hasCharges
+            ? (isBuy
+                ? TransactionCharges.buyCost(totalValue)
+                : TransactionCharges.sellProceeds(totalValue))
+            : totalValue;
+
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            bool chargesExpanded = false;
+
+            return DraggableScrollableSheet(
+              expand: false,
+              initialChildSize: 0.55,
+              minChildSize: 0.35,
+              maxChildSize: 0.85,
+              builder: (_, scrollCtrl) => StatefulBuilder(
+                builder: (ctx2, setInnerState) => SingleChildScrollView(
+                  controller: scrollCtrl,
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: tradeColor.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              item.tradeAction?.label ?? '',
+                              style: TextStyle(
+                                color: tradeColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          if (item.isIpo) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'IPO',
+                                style: TextStyle(
+                                  color: Colors.purple,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              item.symbol ?? '',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _DetailRow('Quantity', item.quantity?.toStringAsFixed(0) ?? '-'),
+                      _DetailRow('Price', item.price?.toStringAsFixed(2) ?? '-'),
+                      _DetailRow('Trade Value', totalValue.toStringAsFixed(2)),
+                      if (hasCharges)
+                        _DetailRow(
+                          isBuy ? 'Total Cost' : 'Net Proceeds',
+                          effectiveTotal.toStringAsFixed(2),
+                          valueColor: tradeColor,
+                        ),
+                      _DetailRow('Date', item.date.toLocal().toString().split('.').first),
+                      _DetailRow('Channel', item.channelName),
+                      _DetailRow('Source', item.isManual ? 'Manual Entry' : 'SMS'),
+
+                      // Collapsible charges breakdown
+                      if (hasCharges && breakdown != null) ...[
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: () => setInnerState(() => chargesExpanded = !chargesExpanded),
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceDark,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppTheme.divider),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.receipt_long,
+                                        size: 14, color: AppTheme.accent),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        'Transaction Charges',
+                                        style: TextStyle(
+                                          color: AppTheme.accent,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      chargesExpanded
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      size: 18,
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                  ],
+                                ),
+                                if (chargesExpanded) ...[
+                                  const SizedBox(height: 10),
+                                  _SheetChargeRow('Brokerage Fee', '0.640%',
+                                      breakdown.brokerageFee),
+                                  _SheetChargeRow(
+                                      'CSE Fees', '0.084%', breakdown.cseFee),
+                                  _SheetChargeRow(
+                                      'CDS Fees', '0.024%', breakdown.cdsFee),
+                                  _SheetChargeRow(
+                                      'SEC Cess', '0.072%', breakdown.secCess),
+                                  _SheetChargeRow('Share Trans. Levy', '0.300%',
+                                      breakdown.shareTransactionLevy),
+                                  Divider(height: 16, color: AppTheme.divider),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Total Charges (1.12%)',
+                                        style: TextStyle(
+                                          color: AppTheme.warning,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Text(
+                                        breakdown.totalCharges.toStringAsFixed(2),
+                                        style: TextStyle(
+                                          color: AppTheme.warning,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      if (item.rawSmsBody.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'Original SMS',
+                          style: TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surfaceDark,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            item.rawSmsBody,
+                            style:
+                                const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '${item.tradeAction?.label ?? ''} — ${item.symbol}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _DetailRow('Quantity', '${item.quantity}'),
-            _DetailRow('Price', '${item.price}'),
-            _DetailRow('Total Value', '${item.totalValue?.toStringAsFixed(2)}'),
-            _DetailRow('Date', '${item.date}'),
-            _DetailRow('Channel', item.channelName),
-            _DetailRow('Source', item.isManual ? 'Manual Entry' : 'SMS'),
-            if (item.rawSmsBody.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Original SMS',
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  item.rawSmsBody,
-                  style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -487,7 +652,8 @@ class ActivityLogScreen extends StatelessWidget {
 class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
-  const _DetailRow(this.label, this.value);
+  final Color? valueColor;
+  const _DetailRow(this.label, this.value, {this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -503,7 +669,60 @@ class _DetailRow extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 14)),
+            child: Text(value, style: TextStyle(
+              fontSize: 14,
+              color: valueColor,
+              fontWeight: valueColor != null ? FontWeight.w700 : null,
+            )),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SheetChargeRow extends StatelessWidget {
+  final String label;
+  final String rate;
+  final double amount;
+
+  const _SheetChargeRow(this.label, this.rate, this.amount);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                label,
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: AppTheme.divider,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  rate,
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            amount.toStringAsFixed(2),
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
           ),
         ],
       ),

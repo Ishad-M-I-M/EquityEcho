@@ -20,6 +20,8 @@ class ActivityItem extends Equatable {
   final double? quantity;
   final double? price;
   final double? totalValue;
+  /// True when the trade was an IPO purchase — charges do NOT apply.
+  final bool isIpo;
 
   // Fund transfer-specific fields (null for trades)
   final FundAction? fundAction;
@@ -38,6 +40,7 @@ class ActivityItem extends Equatable {
     this.quantity,
     this.price,
     this.totalValue,
+    this.isIpo = false,
     this.fundAction,
     this.amount,
   });

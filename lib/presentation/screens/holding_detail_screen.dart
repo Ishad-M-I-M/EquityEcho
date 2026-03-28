@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_echo/core/theme/app_theme.dart';
 import 'package:equity_echo/core/di/injection.dart';
+import 'package:equity_echo/core/utils/transaction_charges.dart';
 import 'package:equity_echo/data/database/database.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/stock_split_dao.dart';
@@ -40,17 +41,17 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
   Future<List<dynamic>> _fetchEvents() async {
     final trades = await getIt<TradeDao>().getTradesForSymbol(widget.symbol);
     final splits = await getIt<StockSplitDao>().getSplitsForSymbol(widget.symbol);
-    
+
     final events = [...trades, ...splits];
     events.sort((a, b) {
       final dateA = (a is Trade) ? a.smsDate : (a as StockSplit).splitDate;
       final dateB = (b is Trade) ? b.smsDate : (b as StockSplit).splitDate;
-      return dateA.compareTo(dateB); // Oldest first to track balance
+      return dateA.compareTo(dateB);
     });
-    
+
     double runningQty = 0;
     List<dynamic> processedEvents = [];
-    
+
     for (var event in events) {
       if (event is Trade) {
         if (event.action.toLowerCase() == 'buy') {
@@ -70,11 +71,11 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
         ));
       }
     }
-    
+
     processedEvents.sort((a, b) {
       final dateA = (a is Trade) ? a.smsDate : (a as _SplitEventWithBalance).split.splitDate;
       final dateB = (b is Trade) ? b.smsDate : (b as _SplitEventWithBalance).split.splitDate;
-      return dateB.compareTo(dateA); // Newest first for UI display
+      return dateB.compareTo(dateA);
     });
 
     return processedEvents;
@@ -97,7 +98,6 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
         onPressed: () async {
           await context.push('/trade/new', extra: widget.symbol);
           if (!context.mounted) return;
-          // Refresh events timeline after we return
           _loadEvents();
           context.read<DashboardBloc>().add(RefreshDashboard());
         },
@@ -136,9 +136,14 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                       Divider(height: 24, color: AppTheme.divider),
                       _StatRow('Average Price', currencyFormatter.format(holding.avgBuyPrice)),
                       Divider(height: 24, color: AppTheme.divider),
-                      _StatRow('Total Invested', currencyFormatter.format(holding.totalInvested), color: AppTheme.buyGreen),
+                      _StatRow('Average Cost', currencyFormatter.format(holding.avgCostWithCharges),
+                          subtitle: 'incl. charges'),
                       Divider(height: 24, color: AppTheme.divider),
-                      _StatRow('Total Sold', currencyFormatter.format(holding.totalSoldValue), color: AppTheme.textSecondary),
+                      _StatRow('Total Invested', currencyFormatter.format(holding.totalInvested),
+                          color: AppTheme.buyGreen, subtitle: 'incl. charges'),
+                      Divider(height: 24, color: AppTheme.divider),
+                      _StatRow('Total Sold', currencyFormatter.format(holding.totalSoldValue),
+                          color: AppTheme.textSecondary, subtitle: 'net of charges'),
                       Divider(height: 24, color: AppTheme.divider),
                       _StatRow(
                         'Realized Gain',
@@ -174,6 +179,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
 
                     return Column(
                       children: events.map((event) {
+                        // Stock sub-division event
                         if (event is _SplitEventWithBalance) {
                           return GestureDetector(
                             onLongPress: () => _confirmDeleteSplit(context, event.split),
@@ -245,82 +251,14 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                             ),
                           );
                         }
-                        
-                        // Otherwise it is a Trade
+
+                        // Trade event — expandable card
                         final trade = event as Trade;
-                        final isBuy = trade.action.toLowerCase() == 'buy';
-                        final color = isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
-                        return GestureDetector(
-                          onLongPress: () => _confirmDeleteTrade(context, trade),
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppTheme.surfaceDark,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        isBuy ? Icons.arrow_downward : Icons.arrow_upward,
-                                        color: color,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        isBuy ? 'BOUGHT' : 'SOLD',
-                                        style: TextStyle(
-                                          color: color,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    DateFormat('MMM dd, yyyy').format(trade.smsDate),
-                                    style: TextStyle(
-                                      color: AppTheme.textSecondary,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '${trade.quantity.toStringAsFixed(0)} shares',
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'at ${currencyFormatter.format(trade.price)}',
-                                    style: TextStyle(
-                                      color: AppTheme.textSecondary,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    currencyFormatter.format(trade.totalValue),
-                                    style: TextStyle(
-                                      color: color,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ));
+                        return _TradeCard(
+                          trade: trade,
+                          currencyFormatter: currencyFormatter,
+                          onDelete: () => _confirmDeleteTrade(context, trade),
+                        );
                       }).toList(),
                     );
                   },
@@ -466,9 +404,9 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                       );
                       return;
                     }
-                    
+
                     Navigator.pop(dialogCtx);
-                    
+
                     final companion = StockSplitsCompanion.insert(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       symbol: widget.symbol,
@@ -477,7 +415,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                       newShares: newS,
                     );
                     await getIt<StockSplitDao>().insertSplit(companion);
-                    
+
                     if (!context.mounted) return;
                     _loadEvents();
                     context.read<DashboardBloc>().add(RefreshDashboard());
@@ -493,21 +431,255 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
   }
 }
 
+// ─── Trade Card (expandable) ───────────────────────────────────────────────
+
+class _TradeCard extends StatefulWidget {
+  final Trade trade;
+  final NumberFormat currencyFormatter;
+  final VoidCallback onDelete;
+
+  const _TradeCard({
+    required this.trade,
+    required this.currencyFormatter,
+    required this.onDelete,
+  });
+
+  @override
+  State<_TradeCard> createState() => _TradeCardState();
+}
+
+class _TradeCardState extends State<_TradeCard> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final trade = widget.trade;
+    final fmt = widget.currencyFormatter;
+    final isBuy = trade.action.toLowerCase() == 'buy';
+    final color = isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
+    final isIpo = trade.isIpo;
+    final hasCharges = !isIpo || !isBuy; // sells always have charges
+    final breakdown = hasCharges ? TransactionCharges.compute(trade.totalValue) : null;
+
+    // Effective total: what you actually pay (buy) or receive (sell)
+    final effectiveTotal = isBuy
+        ? TransactionCharges.buyCost(trade.totalValue, isIpo: isIpo)
+        : TransactionCharges.sellProceeds(trade.totalValue);
+
+    return GestureDetector(
+      onTap: hasCharges ? () => setState(() => _expanded = !_expanded) : null,
+      onLongPress: widget.onDelete,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceDark,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            // Main trade row
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            isBuy ? Icons.arrow_downward : Icons.arrow_upward,
+                            color: color,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            isBuy ? 'BOUGHT' : 'SOLD',
+                            style: TextStyle(
+                              color: color,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (isIpo) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'IPO',
+                                style: TextStyle(
+                                  color: Colors.purple,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        DateFormat('MMM dd, yyyy').format(trade.smsDate),
+                        style: TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${trade.quantity.toStringAsFixed(0)} × ${fmt.format(trade.price)}',
+                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        fmt.format(effectiveTotal),
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      if (hasCharges) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          isBuy ? 'Total Cost' : 'Net Proceeds',
+                          style: TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Expand indicator
+            if (hasCharges && !_expanded)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: AppTheme.textSecondary.withValues(alpha: 0.5),
+                ),
+              ),
+
+            // Expandable charges breakdown
+            if (hasCharges && _expanded && breakdown != null) ...[
+              Divider(height: 1, color: AppTheme.divider),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                child: Column(
+                  children: [
+                    _TradeChargeRow('Trade Value', '', trade.totalValue, fmt, isHeader: true),
+                    const SizedBox(height: 4),
+                    _TradeChargeRow('Brokerage Fee', '0.640%', breakdown.brokerageFee, fmt),
+                    _TradeChargeRow('CSE Fees', '0.084%', breakdown.cseFee, fmt),
+                    _TradeChargeRow('CDS Fees', '0.024%', breakdown.cdsFee, fmt),
+                    _TradeChargeRow('SEC Cess', '0.072%', breakdown.secCess, fmt),
+                    _TradeChargeRow('Share Trans. Levy', '0.300%', breakdown.shareTransactionLevy, fmt),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Total Charges',
+                          style: TextStyle(
+                            color: AppTheme.warning,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          fmt.format(breakdown.totalCharges),
+                          style: TextStyle(
+                            color: AppTheme.warning,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          isBuy ? 'Total Cost' : 'Net Proceeds',
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          fmt.format(effectiveTotal),
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Icon(
+                  Icons.keyboard_arrow_up,
+                  size: 16,
+                  color: AppTheme.textSecondary.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Helper widgets ────────────────────────────────────────────────────────
+
 class _StatRow extends StatelessWidget {
   final String label;
   final String value;
   final Color? color;
+  final String? subtitle;
 
-  const _StatRow(this.label, this.value, {this.color});
+  const _StatRow(this.label, this.value, {this.color, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+            ),
+            if (subtitle != null)
+              Text(
+                subtitle!,
+                style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.6), fontSize: 10),
+              ),
+          ],
         ),
         Text(
           value,
@@ -518,6 +690,66 @@ class _StatRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _TradeChargeRow extends StatelessWidget {
+  final String label;
+  final String rate;
+  final double amount;
+  final NumberFormat formatter;
+  final bool isHeader;
+
+  const _TradeChargeRow(this.label, this.rate, this.amount, this.formatter,
+      {this.isHeader = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: isHeader ? Colors.white70 : AppTheme.textSecondary,
+                  fontSize: isHeader ? 12 : 11,
+                  fontWeight: isHeader ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+              if (rate.isNotEmpty) ...[
+                const SizedBox(width: 5),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: AppTheme.divider,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Text(
+                    rate,
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          Text(
+            formatter.format(amount),
+            style: TextStyle(
+              color: isHeader ? Colors.white70 : AppTheme.textSecondary,
+              fontSize: isHeader ? 12 : 11,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

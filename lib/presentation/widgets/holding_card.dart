@@ -67,7 +67,7 @@ class HoldingCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Avg: $currency ${holding.avgBuyPrice.toStringAsFixed(2)}',
+                        'Avg Cost: $currency ${holding.avgCostWithCharges.toStringAsFixed(2)}',
                         style: TextStyle(
                           color: AppTheme.textSecondary,
                           fontSize: 12,

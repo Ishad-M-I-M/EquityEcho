@@ -48,6 +48,7 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
         smsDate: event.smsDate,
         rawSmsBody: Value(event.rawSmsBody),
         isManual: Value(event.isManual),
+        isIpo: Value(event.isIpo),
       ));
       emit(const TradeOperationSuccess('Trade added'));
       add(LoadTrades());
@@ -77,6 +78,7 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
         createdAt: existing.createdAt,
         isManual: existing.isManual,
         isEdited: true,
+        isIpo: existing.isIpo,
       );
 
       await _tradeDao.updateTrade(updated);

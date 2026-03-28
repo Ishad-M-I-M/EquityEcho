@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:equity_echo/data/database/database.dart';
 import 'package:equity_echo/data/models/holding.dart';
+import 'package:equity_echo/core/utils/transaction_charges.dart';
 
 part 'trade_dao.g.dart';
 
@@ -53,7 +54,12 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
     return results.isNotEmpty;
   }
 
-  /// Compute holdings natively by iterating trades and splits chronologically.
+  /// Compute holdings by iterating trades and splits chronologically.
+  ///
+  /// Charges are factored in:
+  /// - BUY (non-IPO): investedPool += tradeValue * (1 + 1.12%)
+  /// - BUY (IPO):      investedPool += tradeValue  (no charges)
+  /// - SELL:            netProceeds = tradeValue * (1 − 1.12%); realizedGain += netProceeds − costBasis
   Future<List<Holding>> getHoldings() async {
     final allTrades = await (select(trades)..orderBy([(t) => OrderingTerm.asc(t.smsDate)])).get();
     final allSplits = await (select(stockSplits)..orderBy([(s) => OrderingTerm.asc(s.splitDate)])).get();
@@ -71,27 +77,37 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
       if (event is Trade) {
         final symbol = event.symbol;
         final state = holdingsMap.putIfAbsent(symbol, () => _SymbolState());
-        
+
         if (event.action == 'buy') {
+          final totalCost = TransactionCharges.buyCost(
+            event.totalValue,
+            isIpo: event.isIpo,
+          );
           state.currentQty += event.quantity;
-          state.investedPool += event.totalValue;
+          state.investedPool += totalCost;
+          // Track raw buy value (no charges) for raw avg price
+          state.rawBuyValue += event.totalValue;
+          state.totalBoughtQty += event.quantity;
         } else if (event.action == 'sell') {
+          final netProceeds = TransactionCharges.sellProceeds(event.totalValue);
           if (state.currentQty > 0) {
-            double costBasisForSale = (event.quantity / state.currentQty) * state.investedPool;
+            double costBasisForSale =
+                (event.quantity / state.currentQty) * state.investedPool;
             state.investedPool -= costBasisForSale;
-            state.realizedGain += event.totalValue - costBasisForSale;
+            state.realizedGain += netProceeds - costBasisForSale;
           }
           state.currentQty -= event.quantity;
           state.totalSoldQty += event.quantity;
-          state.totalSoldValue += event.totalValue;
+          state.totalSoldValue += netProceeds;
         }
       } else if (event is StockSplit) {
         final symbol = event.symbol;
         final state = holdingsMap.putIfAbsent(symbol, () => _SymbolState());
-        
-        int newQtyFloor = (state.currentQty * event.newShares) ~/ event.oldShares;
+
+        int newQtyFloor =
+            (state.currentQty * event.newShares) ~/ event.oldShares;
         state.currentQty = newQtyFloor.toDouble();
-        // investedPool (cost basis) remains explicitly the same. Note: Do not alter investedPool.
+        // investedPool (cost basis) remains explicitly the same.
       }
     }
 
@@ -100,12 +116,21 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
       final symbol = entry.key;
       final state = entry.value;
 
-      final avgPrice = state.currentQty > 0 ? state.investedPool / state.currentQty : 0.0;
+      // Raw average price (without charges)
+      final avgRawPrice = state.totalBoughtQty > 0
+          ? state.rawBuyValue / state.totalBoughtQty
+          : 0.0;
+
+      // Average cost with charges
+      final avgCostWithCharges = state.currentQty > 0
+          ? state.investedPool / state.currentQty
+          : 0.0;
 
       holdings.add(Holding(
         symbol: symbol,
         netQuantity: state.currentQty,
-        avgBuyPrice: avgPrice,
+        avgBuyPrice: avgRawPrice,
+        avgCostWithCharges: avgCostWithCharges,
         totalInvested: state.investedPool,
         totalSoldQuantity: state.totalSoldQty,
         totalSoldValue: state.totalSoldValue,
@@ -119,38 +144,43 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
 
   /// Watch holdings (reactive)
   Stream<List<Holding>> watchHoldings() {
-    // We can't use RxCombine easily without rxdart, but Drift allows watching multiple tables.
-    // Instead, using customSelect to listen, then calling getHoldings()
     return customSelect('SELECT 1 FROM trades UNION SELECT 1 FROM stock_splits', readsFrom: {trades, stockSplits})
         .watch()
         .asyncMap((_) => getHoldings());
   }
 
-  /// Get total invested (sum of all BUY trades)
+  /// Get total invested (sum of all BUY costs including charges).
+  /// IPO buys are included at raw value (no charges).
   Future<double> getTotalInvested() async {
-    final result = await customSelect(
-      'SELECT COALESCE(SUM(total_value), 0.0) as total FROM trades WHERE action = ?',
-      variables: [Variable.withString('buy')],
-      readsFrom: {trades},
-    ).getSingle();
-    return result.read<double>('total');
+    final buyTrades = await (select(trades)
+          ..where((t) => t.action.equals('buy')))
+        .get();
+    double total = 0;
+    for (final t in buyTrades) {
+      total += TransactionCharges.buyCost(t.totalValue, isIpo: t.isIpo);
+    }
+    return total;
   }
 
-  /// Get total sold value (sum of all SELL trades)
+  /// Get total sold value (sum of all SELL net proceeds after charges).
   Future<double> getTotalSold() async {
-    final result = await customSelect(
-      'SELECT COALESCE(SUM(total_value), 0.0) as total FROM trades WHERE action = ?',
-      variables: [Variable.withString('sell')],
-      readsFrom: {trades},
-    ).getSingle();
-    return result.read<double>('total');
+    final sellTrades = await (select(trades)
+          ..where((t) => t.action.equals('sell')))
+        .get();
+    double total = 0;
+    for (final t in sellTrades) {
+      total += TransactionCharges.sellProceeds(t.totalValue);
+    }
+    return total;
   }
 }
 
 class _SymbolState {
   double currentQty = 0;
-  double investedPool = 0;
+  double investedPool = 0; // charges-adjusted cost basis
   double realizedGain = 0;
   double totalSoldQty = 0;
-  double totalSoldValue = 0;
+  double totalSoldValue = 0; // net proceeds after charges
+  double rawBuyValue = 0; // raw trade value of buys (no charges)
+  double totalBoughtQty = 0; // total qty bought (for raw avg price)
 }

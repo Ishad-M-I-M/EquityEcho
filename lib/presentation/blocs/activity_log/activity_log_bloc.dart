@@ -59,6 +59,7 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
             quantity: t.quantity,
             price: t.price,
             totalValue: t.totalValue,
+            isIpo: t.isIpo,
           ));
 
       // Fetch fund transfers

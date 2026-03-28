@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_echo/core/theme/app_theme.dart';
+import 'package:equity_echo/core/utils/transaction_charges.dart';
 import 'package:equity_echo/presentation/blocs/trade/trade_bloc.dart';
 import 'package:equity_echo/presentation/blocs/trade/trade_event.dart';
 import 'package:equity_echo/presentation/blocs/trade/trade_state.dart';
@@ -35,6 +36,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
   String? _channelId;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
+  bool _showChargesBreakdown = false;
 
   bool get isEditing => widget.tradeId != null;
 
@@ -306,7 +308,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
 
                 const SizedBox(height: 16),
 
-                // Total value preview
+                // Total value preview / charges breakdown
                 ValueListenableBuilder(
                   valueListenable: _quantityController,
                   builder: (context, v1, c1) {
@@ -320,35 +322,180 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                         final total = qty * price;
                         if (total == 0) return const SizedBox.shrink();
 
-                        return Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: _action == 'buy'
-                                ? AppTheme.buyGreen.withValues(alpha: 0.08)
-                                : AppTheme.sellRed.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Total Value',
-                                style: TextStyle(
-                                  color: AppTheme.textSecondary,
-                                  fontSize: 14,
+                        final isBuy = _action == 'buy';
+                        final baseColor =
+                            isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
+
+                        // IPO purchases: show plain total only
+                        if (widget.isIpo) {
+                          return Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: baseColor.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Total Value',
+                                  style: TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                total.toStringAsFixed(2),
-                                style: TextStyle(
-                                  color: _action == 'buy'
-                                      ? AppTheme.buyGreen
-                                      : AppTheme.sellRed,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
+                                Text(
+                                  total.toStringAsFixed(2),
+                                  style: TextStyle(
+                                    color: baseColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Non-IPO trades: effective total + collapsible breakdown
+                        final breakdown = TransactionCharges.compute(total);
+                        final effectiveTotal = isBuy
+                            ? TransactionCharges.buyCost(total)
+                            : TransactionCharges.sellProceeds(total);
+                        final effectiveLabel = isBuy ? 'Total Cost' : 'Net Proceeds';
+
+                        return GestureDetector(
+                          onTap: () => setState(() =>
+                              _showChargesBreakdown = !_showChargesBreakdown),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: baseColor.withValues(alpha: 0.06),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: baseColor.withValues(alpha: 0.25),
                               ),
-                            ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Effective total (always visible)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: baseColor.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            effectiveLabel,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Icon(
+                                            _showChargesBreakdown
+                                                ? Icons.keyboard_arrow_up
+                                                : Icons.keyboard_arrow_down,
+                                            size: 18,
+                                            color: AppTheme.textSecondary,
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        effectiveTotal.toStringAsFixed(2),
+                                        style: TextStyle(
+                                          color: baseColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Collapsible breakdown
+                                if (_showChargesBreakdown) ...[
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Trade Value',
+                                          style: TextStyle(
+                                            color: AppTheme.textSecondary,
+                                            fontSize: 13,
+                                          )),
+                                      Text(total.toStringAsFixed(2),
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          )),
+                                    ],
+                                  ),
+                                  Divider(height: 16, color: AppTheme.divider),
+                                  _ChargeRow(
+                                    label: 'Brokerage Fee',
+                                    rate: '0.640%',
+                                    amount: breakdown.brokerageFee,
+                                  ),
+                                  _ChargeRow(
+                                    label: 'CSE Fees',
+                                    rate: '0.084%',
+                                    amount: breakdown.cseFee,
+                                  ),
+                                  _ChargeRow(
+                                    label: 'CDS Fees',
+                                    rate: '0.024%',
+                                    amount: breakdown.cdsFee,
+                                  ),
+                                  _ChargeRow(
+                                    label: 'SEC Cess',
+                                    rate: '0.072%',
+                                    amount: breakdown.secCess,
+                                  ),
+                                  _ChargeRow(
+                                    label: 'Share Trans. Levy',
+                                    rate: '0.300%',
+                                    amount: breakdown.shareTransactionLevy,
+                                  ),
+                                  Divider(height: 16, color: AppTheme.divider),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Total Charges (1.12%)',
+                                        style: TextStyle(
+                                          color: AppTheme.warning,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      Text(
+                                        breakdown.totalCharges
+                                            .toStringAsFixed(2),
+                                        style: TextStyle(
+                                          color: AppTheme.warning,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -409,6 +556,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
             price: double.parse(_priceController.text),
             smsDate: dateTime,
             isManual: true,
+            isIpo: widget.isIpo,
           ));
           
       if (widget.isIpo) {
@@ -421,5 +569,64 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
             ));
       }
     }
+  }
+}
+
+/// A single fee row shown in the charges breakdown card.
+class _ChargeRow extends StatelessWidget {
+  final String label;
+  final String rate;
+  final double amount;
+
+  const _ChargeRow({
+    required this.label,
+    required this.rate,
+    required this.amount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: AppTheme.divider,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  rate,
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            amount.toStringAsFixed(2),
+            style: TextStyle(
+              color: AppTheme.textSecondary,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

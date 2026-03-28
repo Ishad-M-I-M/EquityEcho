@@ -17,6 +17,8 @@ class AddTrade extends TradeEvent {
   final DateTime smsDate;
   final String rawSmsBody;
   final bool isManual;
+  /// Whether this trade is an IPO purchase. Charges do NOT apply when true.
+  final bool isIpo;
 
   const AddTrade({
     required this.channelId,
@@ -27,10 +29,11 @@ class AddTrade extends TradeEvent {
     required this.smsDate,
     this.rawSmsBody = '',
     this.isManual = true,
+    this.isIpo = false,
   });
 
   @override
-  List<Object?> get props => [channelId, action, symbol, quantity, price, smsDate];
+  List<Object?> get props => [channelId, action, symbol, quantity, price, smsDate, isIpo];
 }
 
 class UpdateTrade extends TradeEvent {
