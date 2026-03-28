@@ -21,6 +21,7 @@ class AddTrade extends TradeEvent {
   final bool isIpo;
   /// Whether this trade is a holdings adjustment entry.
   final bool isAdjustment;
+  final String? targetSymbol;
 
   const AddTrade({
     required this.channelId,
@@ -33,10 +34,11 @@ class AddTrade extends TradeEvent {
     this.isManual = true,
     this.isIpo = false,
     this.isAdjustment = false,
+    this.targetSymbol,
   });
 
   @override
-  List<Object?> get props => [channelId, action, symbol, quantity, price, smsDate, isIpo, isAdjustment];
+  List<Object?> get props => [channelId, action, symbol, quantity, price, smsDate, isIpo, isAdjustment, targetSymbol];
 }
 
 class UpdateTrade extends TradeEvent {
@@ -47,6 +49,7 @@ class UpdateTrade extends TradeEvent {
   final double quantity;
   final double price;
   final DateTime smsDate;
+  final String? targetSymbol;
 
   const UpdateTrade({
     required this.id,
@@ -56,10 +59,11 @@ class UpdateTrade extends TradeEvent {
     required this.quantity,
     required this.price,
     required this.smsDate,
+    this.targetSymbol,
   });
 
   @override
-  List<Object?> get props => [id, channelId, action, symbol, quantity, price];
+  List<Object?> get props => [id, channelId, action, symbol, quantity, price, targetSymbol];
 }
 
 class DeleteTrade extends TradeEvent {

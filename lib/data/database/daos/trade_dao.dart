@@ -20,7 +20,10 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   /// Get trades for a specific symbol
   Future<List<Trade>> getTradesForSymbol(String symbol) =>
       (select(trades)
-            ..where((t) => t.symbol.equals(symbol))
+            ..where((t) =>
+                t.symbol.equals(symbol) |
+                (t.targetSymbol.equals(symbol) &
+                    t.action.equals('rights_convert')))
             ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
           .get();
 
@@ -100,7 +103,27 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
         final state = holdingsMap.putIfAbsent(symbol, () => _SymbolState());
         final isExempt = exemptIds.contains(event.id);
 
-        if (event.action == 'buy') {
+        if (event.action == 'rights_convert') {
+          // Removes quantity and extracts proportional invested pool from rights.
+          double rightsCostBasis = 0;
+          if (state.currentQty > 0) {
+            rightsCostBasis = (event.quantity / state.currentQty) * state.investedPool;
+            state.investedPool -= rightsCostBasis;
+          }
+          state.currentQty -= event.quantity;
+
+          // Target symbol gets the shares and combined cost basis.
+          final targetSym = event.targetSymbol ?? symbol.split('.').first;
+          final targetState = holdingsMap.putIfAbsent(targetSym, () => _SymbolState());
+          
+          final conversionCost = event.quantity * event.price;
+          final totalCostToAdd = rightsCostBasis + conversionCost;
+          
+          targetState.currentQty += event.quantity;
+          targetState.investedPool += totalCostToAdd;
+          targetState.rawBuyValue += conversionCost;
+          targetState.totalBoughtQty += event.quantity;
+        } else if (event.action == 'buy') {
           final totalCost = TransactionCharges.buyCost(
             event.totalValue,
             isIpo: event.isIpo,
@@ -184,12 +207,15 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
     );
     double total = 0;
     for (final t in allTrades) {
-      if (t.action != 'buy') continue;
-      total += TransactionCharges.buyCost(
-        t.totalValue,
-        isIpo: t.isIpo,
-        isExempt: exemptIds.contains(t.id),
-      );
+      if (t.action == 'buy') {
+        total += TransactionCharges.buyCost(
+          t.totalValue,
+          isIpo: t.isIpo,
+          isExempt: exemptIds.contains(t.id),
+        );
+      } else if (t.action == 'rights_convert') {
+        total += t.totalValue;
+      }
     }
     return total;
   }

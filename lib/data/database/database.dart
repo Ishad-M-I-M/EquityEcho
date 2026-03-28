@@ -51,6 +51,8 @@ class Trades extends Table {
   BoolColumn get isIpo => boolean().withDefault(const Constant(false))();
   /// True when this trade is a holdings adjustment entry.
   BoolColumn get isAdjustment => boolean().withDefault(const Constant(false))();
+  /// Specifies the target symbol for a rights conversion.
+  TextColumn get targetSymbol => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -115,7 +117,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -149,6 +151,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 8) {
           await m.addColumn(trades, trades.isAdjustment);
+        }
+        if (from < 9) {
+          await m.addColumn(trades, trades.targetSymbol);
         }
       },
       beforeOpen: (details) async {

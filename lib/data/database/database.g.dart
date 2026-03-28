@@ -767,6 +767,17 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _targetSymbolMeta = const VerificationMeta(
+    'targetSymbol',
+  );
+  @override
+  late final GeneratedColumn<String> targetSymbol = GeneratedColumn<String>(
+    'target_symbol',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -784,6 +795,7 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
     isEdited,
     isIpo,
     isAdjustment,
+    targetSymbol,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -909,6 +921,15 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
         ),
       );
     }
+    if (data.containsKey('target_symbol')) {
+      context.handle(
+        _targetSymbolMeta,
+        targetSymbol.isAcceptableOrUnknown(
+          data['target_symbol']!,
+          _targetSymbolMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -978,6 +999,10 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_adjustment'],
       )!,
+      targetSymbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_symbol'],
+      ),
     );
   }
 
@@ -1007,6 +1032,9 @@ class Trade extends DataClass implements Insertable<Trade> {
 
   /// True when this trade is a holdings adjustment entry.
   final bool isAdjustment;
+
+  /// Specifies the target symbol for a rights conversion.
+  final String? targetSymbol;
   const Trade({
     required this.id,
     required this.channelId,
@@ -1023,6 +1051,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     required this.isEdited,
     required this.isIpo,
     required this.isAdjustment,
+    this.targetSymbol,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1044,6 +1073,9 @@ class Trade extends DataClass implements Insertable<Trade> {
     map['is_edited'] = Variable<bool>(isEdited);
     map['is_ipo'] = Variable<bool>(isIpo);
     map['is_adjustment'] = Variable<bool>(isAdjustment);
+    if (!nullToAbsent || targetSymbol != null) {
+      map['target_symbol'] = Variable<String>(targetSymbol);
+    }
     return map;
   }
 
@@ -1066,6 +1098,9 @@ class Trade extends DataClass implements Insertable<Trade> {
       isEdited: Value(isEdited),
       isIpo: Value(isIpo),
       isAdjustment: Value(isAdjustment),
+      targetSymbol: targetSymbol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetSymbol),
     );
   }
 
@@ -1090,6 +1125,7 @@ class Trade extends DataClass implements Insertable<Trade> {
       isEdited: serializer.fromJson<bool>(json['isEdited']),
       isIpo: serializer.fromJson<bool>(json['isIpo']),
       isAdjustment: serializer.fromJson<bool>(json['isAdjustment']),
+      targetSymbol: serializer.fromJson<String?>(json['targetSymbol']),
     );
   }
   @override
@@ -1111,6 +1147,7 @@ class Trade extends DataClass implements Insertable<Trade> {
       'isEdited': serializer.toJson<bool>(isEdited),
       'isIpo': serializer.toJson<bool>(isIpo),
       'isAdjustment': serializer.toJson<bool>(isAdjustment),
+      'targetSymbol': serializer.toJson<String?>(targetSymbol),
     };
   }
 
@@ -1130,6 +1167,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     bool? isEdited,
     bool? isIpo,
     bool? isAdjustment,
+    Value<String?> targetSymbol = const Value.absent(),
   }) => Trade(
     id: id ?? this.id,
     channelId: channelId ?? this.channelId,
@@ -1148,6 +1186,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     isEdited: isEdited ?? this.isEdited,
     isIpo: isIpo ?? this.isIpo,
     isAdjustment: isAdjustment ?? this.isAdjustment,
+    targetSymbol: targetSymbol.present ? targetSymbol.value : this.targetSymbol,
   );
   Trade copyWithCompanion(TradesCompanion data) {
     return Trade(
@@ -1174,6 +1213,9 @@ class Trade extends DataClass implements Insertable<Trade> {
       isAdjustment: data.isAdjustment.present
           ? data.isAdjustment.value
           : this.isAdjustment,
+      targetSymbol: data.targetSymbol.present
+          ? data.targetSymbol.value
+          : this.targetSymbol,
     );
   }
 
@@ -1194,7 +1236,8 @@ class Trade extends DataClass implements Insertable<Trade> {
           ..write('isManual: $isManual, ')
           ..write('isEdited: $isEdited, ')
           ..write('isIpo: $isIpo, ')
-          ..write('isAdjustment: $isAdjustment')
+          ..write('isAdjustment: $isAdjustment, ')
+          ..write('targetSymbol: $targetSymbol')
           ..write(')'))
         .toString();
   }
@@ -1216,6 +1259,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     isEdited,
     isIpo,
     isAdjustment,
+    targetSymbol,
   );
   @override
   bool operator ==(Object other) =>
@@ -1235,7 +1279,8 @@ class Trade extends DataClass implements Insertable<Trade> {
           other.isManual == this.isManual &&
           other.isEdited == this.isEdited &&
           other.isIpo == this.isIpo &&
-          other.isAdjustment == this.isAdjustment);
+          other.isAdjustment == this.isAdjustment &&
+          other.targetSymbol == this.targetSymbol);
 }
 
 class TradesCompanion extends UpdateCompanion<Trade> {
@@ -1254,6 +1299,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
   final Value<bool> isEdited;
   final Value<bool> isIpo;
   final Value<bool> isAdjustment;
+  final Value<String?> targetSymbol;
   final Value<int> rowid;
   const TradesCompanion({
     this.id = const Value.absent(),
@@ -1271,6 +1317,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     this.isEdited = const Value.absent(),
     this.isIpo = const Value.absent(),
     this.isAdjustment = const Value.absent(),
+    this.targetSymbol = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TradesCompanion.insert({
@@ -1289,6 +1336,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     this.isEdited = const Value.absent(),
     this.isIpo = const Value.absent(),
     this.isAdjustment = const Value.absent(),
+    this.targetSymbol = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        channelId = Value(channelId),
@@ -1314,6 +1362,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     Expression<bool>? isEdited,
     Expression<bool>? isIpo,
     Expression<bool>? isAdjustment,
+    Expression<String>? targetSymbol,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1332,6 +1381,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
       if (isEdited != null) 'is_edited': isEdited,
       if (isIpo != null) 'is_ipo': isIpo,
       if (isAdjustment != null) 'is_adjustment': isAdjustment,
+      if (targetSymbol != null) 'target_symbol': targetSymbol,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1352,6 +1402,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     Value<bool>? isEdited,
     Value<bool>? isIpo,
     Value<bool>? isAdjustment,
+    Value<String?>? targetSymbol,
     Value<int>? rowid,
   }) {
     return TradesCompanion(
@@ -1370,6 +1421,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
       isEdited: isEdited ?? this.isEdited,
       isIpo: isIpo ?? this.isIpo,
       isAdjustment: isAdjustment ?? this.isAdjustment,
+      targetSymbol: targetSymbol ?? this.targetSymbol,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1422,6 +1474,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     if (isAdjustment.present) {
       map['is_adjustment'] = Variable<bool>(isAdjustment.value);
     }
+    if (targetSymbol.present) {
+      map['target_symbol'] = Variable<String>(targetSymbol.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1446,6 +1501,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
           ..write('isEdited: $isEdited, ')
           ..write('isIpo: $isIpo, ')
           ..write('isAdjustment: $isAdjustment, ')
+          ..write('targetSymbol: $targetSymbol, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3453,6 +3509,7 @@ typedef $$TradesTableCreateCompanionBuilder =
       Value<bool> isEdited,
       Value<bool> isIpo,
       Value<bool> isAdjustment,
+      Value<String?> targetSymbol,
       Value<int> rowid,
     });
 typedef $$TradesTableUpdateCompanionBuilder =
@@ -3472,6 +3529,7 @@ typedef $$TradesTableUpdateCompanionBuilder =
       Value<bool> isEdited,
       Value<bool> isIpo,
       Value<bool> isAdjustment,
+      Value<String?> targetSymbol,
       Value<int> rowid,
     });
 
@@ -3573,6 +3631,11 @@ class $$TradesTableFilterComposer
 
   ColumnFilters<bool> get isAdjustment => $composableBuilder(
     column: $table.isAdjustment,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetSymbol => $composableBuilder(
+    column: $table.targetSymbol,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3679,6 +3742,11 @@ class $$TradesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get targetSymbol => $composableBuilder(
+    column: $table.targetSymbol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ChannelsTableOrderingComposer get channelId {
     final $$ChannelsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3762,6 +3830,11 @@ class $$TradesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get targetSymbol => $composableBuilder(
+    column: $table.targetSymbol,
+    builder: (column) => column,
+  );
+
   $$ChannelsTableAnnotationComposer get channelId {
     final $$ChannelsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -3829,6 +3902,7 @@ class $$TradesTableTableManager
                 Value<bool> isEdited = const Value.absent(),
                 Value<bool> isIpo = const Value.absent(),
                 Value<bool> isAdjustment = const Value.absent(),
+                Value<String?> targetSymbol = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TradesCompanion(
                 id: id,
@@ -3846,6 +3920,7 @@ class $$TradesTableTableManager
                 isEdited: isEdited,
                 isIpo: isIpo,
                 isAdjustment: isAdjustment,
+                targetSymbol: targetSymbol,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3865,6 +3940,7 @@ class $$TradesTableTableManager
                 Value<bool> isEdited = const Value.absent(),
                 Value<bool> isIpo = const Value.absent(),
                 Value<bool> isAdjustment = const Value.absent(),
+                Value<String?> targetSymbol = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TradesCompanion.insert(
                 id: id,
@@ -3882,6 +3958,7 @@ class $$TradesTableTableManager
                 isEdited: isEdited,
                 isIpo: isIpo,
                 isAdjustment: isAdjustment,
+                targetSymbol: targetSymbol,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
