@@ -25,6 +25,7 @@ class HoldingDetailScreen extends StatefulWidget {
 
 class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
   late Future<List<dynamic>> _eventsFuture;
+  Set<String> _exemptIds = {};
 
   @override
   void initState() {
@@ -41,6 +42,20 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
   Future<List<dynamic>> _fetchEvents() async {
     final trades = await getIt<TradeDao>().getTradesForSymbol(widget.symbol);
     final splits = await getIt<StockSplitDao>().getSplitsForSymbol(widget.symbol);
+
+    // Compute intra-day exemptions for this symbol's trades
+    final tradeDataList = trades
+        .map((t) => TradeData(
+              id: t.id,
+              symbol: t.symbol,
+              channelId: t.channelId,
+              action: t.action,
+              quantity: t.quantity,
+              date: t.smsDate,
+              isIpo: t.isIpo,
+            ))
+        .toList();
+    _exemptIds = TransactionCharges.findIntraDayExemptions(tradeDataList);
 
     final events = [...trades, ...splits];
     events.sort((a, b) {
@@ -257,6 +272,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                         return _TradeCard(
                           trade: trade,
                           currencyFormatter: currencyFormatter,
+                          isExempt: _exemptIds.contains(trade.id),
                           onDelete: () => _confirmDeleteTrade(context, trade),
                         );
                       }).toList(),
@@ -437,11 +453,13 @@ class _TradeCard extends StatefulWidget {
   final Trade trade;
   final NumberFormat currencyFormatter;
   final VoidCallback onDelete;
+  final bool isExempt;
 
   const _TradeCard({
     required this.trade,
     required this.currencyFormatter,
     required this.onDelete,
+    this.isExempt = false,
   });
 
   @override
@@ -458,13 +476,18 @@ class _TradeCardState extends State<_TradeCard> {
     final isBuy = trade.action.toLowerCase() == 'buy';
     final color = isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
     final isIpo = trade.isIpo;
+    final isExempt = widget.isExempt;
     final hasCharges = !isIpo || !isBuy; // sells always have charges
-    final breakdown = hasCharges ? TransactionCharges.compute(trade.totalValue) : null;
+    final breakdown = hasCharges
+        ? (isExempt
+            ? TransactionCharges.computeExempt(trade.totalValue)
+            : TransactionCharges.compute(trade.totalValue))
+        : null;
 
     // Effective total: what you actually pay (buy) or receive (sell)
     final effectiveTotal = isBuy
-        ? TransactionCharges.buyCost(trade.totalValue, isIpo: isIpo)
-        : TransactionCharges.sellProceeds(trade.totalValue);
+        ? TransactionCharges.buyCost(trade.totalValue, isIpo: isIpo, isExempt: isExempt)
+        : TransactionCharges.sellProceeds(trade.totalValue, isExempt: isExempt);
 
     return GestureDetector(
       onTap: hasCharges ? () => setState(() => _expanded = !_expanded) : null,
@@ -516,6 +539,25 @@ class _TradeCardState extends State<_TradeCard> {
                                   color: Colors.purple,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (isExempt) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.teal.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'INTRA-DAY',
+                                style: TextStyle(
+                                  color: Colors.teal,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 9,
                                 ),
                               ),
                             ),

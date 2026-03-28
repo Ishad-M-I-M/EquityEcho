@@ -22,6 +22,8 @@ class ActivityItem extends Equatable {
   final double? totalValue;
   /// True when the trade was an IPO purchase — charges do NOT apply.
   final bool isIpo;
+  /// True when the trade is intra-day exempt — only STL charged.
+  final bool isIntraDayExempt;
 
   // Fund transfer-specific fields (null for trades)
   final FundAction? fundAction;
@@ -41,6 +43,7 @@ class ActivityItem extends Equatable {
     this.price,
     this.totalValue,
     this.isIpo = false,
+    this.isIntraDayExempt = false,
     this.fundAction,
     this.amount,
   });

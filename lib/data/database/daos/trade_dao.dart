@@ -54,15 +54,36 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
     return results.isNotEmpty;
   }
 
+  /// Build [TradeData] list from database [Trade] objects for the
+  /// intra-day exemption engine.
+  static List<TradeData> _toTradeData(List<Trade> trades) {
+    return trades
+        .map((t) => TradeData(
+              id: t.id,
+              symbol: t.symbol,
+              channelId: t.channelId,
+              action: t.action,
+              quantity: t.quantity,
+              date: t.smsDate,
+              isIpo: t.isIpo,
+            ))
+        .toList();
+  }
+
   /// Compute holdings by iterating trades and splits chronologically.
   ///
-  /// Charges are factored in:
-  /// - BUY (non-IPO): investedPool += tradeValue * (1 + 1.12%)
-  /// - BUY (IPO):      investedPool += tradeValue  (no charges)
-  /// - SELL:            netProceeds = tradeValue * (1 − 1.12%); realizedGain += netProceeds − costBasis
+  /// Charges are factored in with intra-day exemption support:
+  /// - Intra-day exempt trades: only STL (0.300%) charged.
+  /// - BUY (IPO):      no charges at all.
+  /// - Normal trades:   full 1.120% charged.
   Future<List<Holding>> getHoldings() async {
     final allTrades = await (select(trades)..orderBy([(t) => OrderingTerm.asc(t.smsDate)])).get();
     final allSplits = await (select(stockSplits)..orderBy([(s) => OrderingTerm.asc(s.splitDate)])).get();
+
+    // Pre-compute intra-day exemptions
+    final exemptIds = TransactionCharges.findIntraDayExemptions(
+      _toTradeData(allTrades),
+    );
 
     final List<dynamic> events = [...allTrades, ...allSplits];
     events.sort((a, b) {
@@ -77,11 +98,13 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
       if (event is Trade) {
         final symbol = event.symbol;
         final state = holdingsMap.putIfAbsent(symbol, () => _SymbolState());
+        final isExempt = exemptIds.contains(event.id);
 
         if (event.action == 'buy') {
           final totalCost = TransactionCharges.buyCost(
             event.totalValue,
             isIpo: event.isIpo,
+            isExempt: isExempt,
           );
           state.currentQty += event.quantity;
           state.investedPool += totalCost;
@@ -89,7 +112,10 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
           state.rawBuyValue += event.totalValue;
           state.totalBoughtQty += event.quantity;
         } else if (event.action == 'sell') {
-          final netProceeds = TransactionCharges.sellProceeds(event.totalValue);
+          final netProceeds = TransactionCharges.sellProceeds(
+            event.totalValue,
+            isExempt: isExempt,
+          );
           if (state.currentQty > 0) {
             double costBasisForSale =
                 (event.quantity / state.currentQty) * state.investedPool;
@@ -150,26 +176,38 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   }
 
   /// Get total invested (sum of all BUY costs including charges).
-  /// IPO buys are included at raw value (no charges).
+  /// Accounts for IPO exemptions and intra-day fee exemptions.
   Future<double> getTotalInvested() async {
-    final buyTrades = await (select(trades)
-          ..where((t) => t.action.equals('buy')))
-        .get();
+    final allTrades = await getAllTrades();
+    final exemptIds = TransactionCharges.findIntraDayExemptions(
+      _toTradeData(allTrades),
+    );
     double total = 0;
-    for (final t in buyTrades) {
-      total += TransactionCharges.buyCost(t.totalValue, isIpo: t.isIpo);
+    for (final t in allTrades) {
+      if (t.action != 'buy') continue;
+      total += TransactionCharges.buyCost(
+        t.totalValue,
+        isIpo: t.isIpo,
+        isExempt: exemptIds.contains(t.id),
+      );
     }
     return total;
   }
 
   /// Get total sold value (sum of all SELL net proceeds after charges).
+  /// Accounts for intra-day fee exemptions.
   Future<double> getTotalSold() async {
-    final sellTrades = await (select(trades)
-          ..where((t) => t.action.equals('sell')))
-        .get();
+    final allTrades = await getAllTrades();
+    final exemptIds = TransactionCharges.findIntraDayExemptions(
+      _toTradeData(allTrades),
+    );
     double total = 0;
-    for (final t in sellTrades) {
-      total += TransactionCharges.sellProceeds(t.totalValue);
+    for (final t in allTrades) {
+      if (t.action != 'sell') continue;
+      total += TransactionCharges.sellProceeds(
+        t.totalValue,
+        isExempt: exemptIds.contains(t.id),
+      );
     }
     return total;
   }

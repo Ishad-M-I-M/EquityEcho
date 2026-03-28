@@ -5,6 +5,7 @@ import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
 import 'package:equity_echo/data/database/daos/channel_dao.dart';
 import 'package:equity_echo/data/models/activity_item.dart';
 import 'package:equity_echo/data/models/enums.dart';
+import 'package:equity_echo/core/utils/transaction_charges.dart';
 import 'activity_log_event.dart';
 import 'activity_log_state.dart';
 
@@ -45,6 +46,21 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
 
       // Fetch trades
       final trades = await _tradeDao.getAllTrades();
+
+      // Compute intra-day exemptions
+      final tradeDataList = trades
+          .map((t) => TradeData(
+                id: t.id,
+                symbol: t.symbol,
+                channelId: t.channelId,
+                action: t.action,
+                quantity: t.quantity,
+                date: t.smsDate,
+                isIpo: t.isIpo,
+              ))
+          .toList();
+      final exemptIds = TransactionCharges.findIntraDayExemptions(tradeDataList);
+
       final tradeItems = trades.map((t) => ActivityItem(
             id: t.id,
             type: ActivityType.trade,
@@ -60,6 +76,7 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
             price: t.price,
             totalValue: t.totalValue,
             isIpo: t.isIpo,
+            isIntraDayExempt: exemptIds.contains(t.id),
           ));
 
       // Fetch fund transfers

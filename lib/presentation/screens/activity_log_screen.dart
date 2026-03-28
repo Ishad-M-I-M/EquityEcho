@@ -156,13 +156,16 @@ class ActivityLogScreen extends StatelessWidget {
         final tradeColor = isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
         final totalValue = item.totalValue ?? 0.0;
         final hasCharges = !item.isIpo && totalValue > 0;
+        final isExempt = item.isIntraDayExempt;
         final breakdown = hasCharges
-            ? TransactionCharges.compute(totalValue)
+            ? (isExempt
+                ? TransactionCharges.computeExempt(totalValue)
+                : TransactionCharges.compute(totalValue))
             : null;
         final effectiveTotal = hasCharges
             ? (isBuy
-                ? TransactionCharges.buyCost(totalValue)
-                : TransactionCharges.sellProceeds(totalValue))
+                ? TransactionCharges.buyCost(totalValue, isExempt: isExempt)
+                : TransactionCharges.sellProceeds(totalValue, isExempt: isExempt))
             : totalValue;
 
         return StatefulBuilder(
@@ -226,6 +229,25 @@ class ActivityLogScreen extends StatelessWidget {
                                   color: Colors.purple,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (item.isIntraDayExempt) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.teal.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'INTRA-DAY',
+                                style: TextStyle(
+                                  color: Colors.teal,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 11,
                                 ),
                               ),
                             ),
