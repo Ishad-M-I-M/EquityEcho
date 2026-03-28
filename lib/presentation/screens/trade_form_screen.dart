@@ -37,6 +37,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   bool _showChargesBreakdown = false;
+  bool _priceIncludesCharges = false;
 
   bool get isEditing => widget.tradeId != null;
 
@@ -259,6 +260,23 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                     ),
                   ],
                 ),
+                if (!widget.isIpo) ...[
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    title: const Text('Price includes charges'),
+                    subtitle: Text(
+                      _priceIncludesCharges
+                          ? 'Entering the final amount paid/received per share.'
+                          : 'Entering the raw exchange price per share.',
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                    value: _priceIncludesCharges,
+                    onChanged: (v) => setState(() => _priceIncludesCharges = v),
+                    activeColor: AppTheme.accent,
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                ],
                 const SizedBox(height: 16),
 
                 // Date & Time
@@ -319,10 +337,20 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                             double.tryParse(_quantityController.text) ?? 0;
                         final price =
                             double.tryParse(_priceController.text) ?? 0;
-                        final total = qty * price;
-                        if (total == 0) return const SizedBox.shrink();
-
+                        
                         final isBuy = _action == 'buy';
+                        
+                        // Back-calculate raw price if needed
+                        double rawPrice = price;
+                        if (_priceIncludesCharges && !widget.isIpo) {
+                          rawPrice = isBuy
+                              ? price / (1 + TransactionCharges.totalRate)
+                              : price / (1 - TransactionCharges.totalRate);
+                        }
+                        
+                        final total = qty * rawPrice;
+                        if (total == 0) return const SizedBox.shrink();
+ 
                         final baseColor =
                             isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
 
@@ -443,6 +471,13 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                           )),
                                     ],
                                   ),
+                                  if (_priceIncludesCharges) ...[
+                                    _ChargeRow(
+                                      label: 'Effective Raw Price',
+                                      rate: 'calculated',
+                                      amount: rawPrice,
+                                    ),
+                                  ],
                                   Divider(height: 16, color: AppTheme.divider),
                                   _ChargeRow(
                                     label: 'Brokerage Fee',
@@ -537,6 +572,15 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
       _time.minute,
     );
 
+    final enteredPrice = double.parse(_priceController.text);
+    double rawPrice = enteredPrice;
+    if (_priceIncludesCharges && !widget.isIpo) {
+      final isBuy = _action == 'buy';
+      rawPrice = isBuy
+          ? enteredPrice / (1 + TransactionCharges.totalRate)
+          : enteredPrice / (1 - TransactionCharges.totalRate);
+    }
+
     if (isEditing) {
       context.read<TradeBloc>().add(UpdateTrade(
             id: widget.tradeId!,
@@ -544,7 +588,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
             action: _action,
             symbol: _symbolController.text.toUpperCase(),
             quantity: double.parse(_quantityController.text),
-            price: double.parse(_priceController.text),
+            price: rawPrice,
             smsDate: dateTime,
           ));
     } else {
@@ -553,7 +597,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
             action: _action,
             symbol: _symbolController.text.toUpperCase(),
             quantity: double.parse(_quantityController.text),
-            price: double.parse(_priceController.text),
+            price: rawPrice,
             smsDate: dateTime,
             isManual: true,
             isIpo: widget.isIpo,
@@ -563,7 +607,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
         context.read<FundTransferBloc>().add(AddFundTransfer(
               channelId: _channelId!,
               action: 'ipo_deposit',
-              amount: double.parse(_quantityController.text) * double.parse(_priceController.text),
+              amount: double.parse(_quantityController.text) * rawPrice,
               smsDate: dateTime,
               isManual: true,
             ));
