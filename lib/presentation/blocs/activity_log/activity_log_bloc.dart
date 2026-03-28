@@ -77,6 +77,7 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
             totalValue: t.totalValue,
             isIpo: t.isIpo,
             isIntraDayExempt: exemptIds.contains(t.id),
+            isAdjustment: t.isAdjustment,
           ));
 
       // Fetch fund transfers

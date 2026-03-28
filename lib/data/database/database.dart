@@ -49,6 +49,8 @@ class Trades extends Table {
   BoolColumn get isEdited => boolean().withDefault(const Constant(false))();
   /// True when this trade was an IPO purchase — charges do NOT apply.
   BoolColumn get isIpo => boolean().withDefault(const Constant(false))();
+  /// True when this trade is a holdings adjustment entry.
+  BoolColumn get isAdjustment => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -113,7 +115,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -144,6 +146,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 7) {
           await m.addColumn(trades, trades.isIpo);
+        }
+        if (from < 8) {
+          await m.addColumn(trades, trades.isAdjustment);
         }
       },
       beforeOpen: (details) async {

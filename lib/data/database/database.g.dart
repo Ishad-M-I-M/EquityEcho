@@ -752,6 +752,21 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _isAdjustmentMeta = const VerificationMeta(
+    'isAdjustment',
+  );
+  @override
+  late final GeneratedColumn<bool> isAdjustment = GeneratedColumn<bool>(
+    'is_adjustment',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_adjustment" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -768,6 +783,7 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
     isManual,
     isEdited,
     isIpo,
+    isAdjustment,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -884,6 +900,15 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
         isIpo.isAcceptableOrUnknown(data['is_ipo']!, _isIpoMeta),
       );
     }
+    if (data.containsKey('is_adjustment')) {
+      context.handle(
+        _isAdjustmentMeta,
+        isAdjustment.isAcceptableOrUnknown(
+          data['is_adjustment']!,
+          _isAdjustmentMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -949,6 +974,10 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_ipo'],
       )!,
+      isAdjustment: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_adjustment'],
+      )!,
     );
   }
 
@@ -975,6 +1004,9 @@ class Trade extends DataClass implements Insertable<Trade> {
 
   /// True when this trade was an IPO purchase — charges do NOT apply.
   final bool isIpo;
+
+  /// True when this trade is a holdings adjustment entry.
+  final bool isAdjustment;
   const Trade({
     required this.id,
     required this.channelId,
@@ -990,6 +1022,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     required this.isManual,
     required this.isEdited,
     required this.isIpo,
+    required this.isAdjustment,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1010,6 +1043,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     map['is_manual'] = Variable<bool>(isManual);
     map['is_edited'] = Variable<bool>(isEdited);
     map['is_ipo'] = Variable<bool>(isIpo);
+    map['is_adjustment'] = Variable<bool>(isAdjustment);
     return map;
   }
 
@@ -1031,6 +1065,7 @@ class Trade extends DataClass implements Insertable<Trade> {
       isManual: Value(isManual),
       isEdited: Value(isEdited),
       isIpo: Value(isIpo),
+      isAdjustment: Value(isAdjustment),
     );
   }
 
@@ -1054,6 +1089,7 @@ class Trade extends DataClass implements Insertable<Trade> {
       isManual: serializer.fromJson<bool>(json['isManual']),
       isEdited: serializer.fromJson<bool>(json['isEdited']),
       isIpo: serializer.fromJson<bool>(json['isIpo']),
+      isAdjustment: serializer.fromJson<bool>(json['isAdjustment']),
     );
   }
   @override
@@ -1074,6 +1110,7 @@ class Trade extends DataClass implements Insertable<Trade> {
       'isManual': serializer.toJson<bool>(isManual),
       'isEdited': serializer.toJson<bool>(isEdited),
       'isIpo': serializer.toJson<bool>(isIpo),
+      'isAdjustment': serializer.toJson<bool>(isAdjustment),
     };
   }
 
@@ -1092,6 +1129,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     bool? isManual,
     bool? isEdited,
     bool? isIpo,
+    bool? isAdjustment,
   }) => Trade(
     id: id ?? this.id,
     channelId: channelId ?? this.channelId,
@@ -1109,6 +1147,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     isManual: isManual ?? this.isManual,
     isEdited: isEdited ?? this.isEdited,
     isIpo: isIpo ?? this.isIpo,
+    isAdjustment: isAdjustment ?? this.isAdjustment,
   );
   Trade copyWithCompanion(TradesCompanion data) {
     return Trade(
@@ -1132,6 +1171,9 @@ class Trade extends DataClass implements Insertable<Trade> {
       isManual: data.isManual.present ? data.isManual.value : this.isManual,
       isEdited: data.isEdited.present ? data.isEdited.value : this.isEdited,
       isIpo: data.isIpo.present ? data.isIpo.value : this.isIpo,
+      isAdjustment: data.isAdjustment.present
+          ? data.isAdjustment.value
+          : this.isAdjustment,
     );
   }
 
@@ -1151,7 +1193,8 @@ class Trade extends DataClass implements Insertable<Trade> {
           ..write('createdAt: $createdAt, ')
           ..write('isManual: $isManual, ')
           ..write('isEdited: $isEdited, ')
-          ..write('isIpo: $isIpo')
+          ..write('isIpo: $isIpo, ')
+          ..write('isAdjustment: $isAdjustment')
           ..write(')'))
         .toString();
   }
@@ -1172,6 +1215,7 @@ class Trade extends DataClass implements Insertable<Trade> {
     isManual,
     isEdited,
     isIpo,
+    isAdjustment,
   );
   @override
   bool operator ==(Object other) =>
@@ -1190,7 +1234,8 @@ class Trade extends DataClass implements Insertable<Trade> {
           other.createdAt == this.createdAt &&
           other.isManual == this.isManual &&
           other.isEdited == this.isEdited &&
-          other.isIpo == this.isIpo);
+          other.isIpo == this.isIpo &&
+          other.isAdjustment == this.isAdjustment);
 }
 
 class TradesCompanion extends UpdateCompanion<Trade> {
@@ -1208,6 +1253,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
   final Value<bool> isManual;
   final Value<bool> isEdited;
   final Value<bool> isIpo;
+  final Value<bool> isAdjustment;
   final Value<int> rowid;
   const TradesCompanion({
     this.id = const Value.absent(),
@@ -1224,6 +1270,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     this.isManual = const Value.absent(),
     this.isEdited = const Value.absent(),
     this.isIpo = const Value.absent(),
+    this.isAdjustment = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TradesCompanion.insert({
@@ -1241,6 +1288,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     this.isManual = const Value.absent(),
     this.isEdited = const Value.absent(),
     this.isIpo = const Value.absent(),
+    this.isAdjustment = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        channelId = Value(channelId),
@@ -1265,6 +1313,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     Expression<bool>? isManual,
     Expression<bool>? isEdited,
     Expression<bool>? isIpo,
+    Expression<bool>? isAdjustment,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1282,6 +1331,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
       if (isManual != null) 'is_manual': isManual,
       if (isEdited != null) 'is_edited': isEdited,
       if (isIpo != null) 'is_ipo': isIpo,
+      if (isAdjustment != null) 'is_adjustment': isAdjustment,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1301,6 +1351,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     Value<bool>? isManual,
     Value<bool>? isEdited,
     Value<bool>? isIpo,
+    Value<bool>? isAdjustment,
     Value<int>? rowid,
   }) {
     return TradesCompanion(
@@ -1318,6 +1369,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
       isManual: isManual ?? this.isManual,
       isEdited: isEdited ?? this.isEdited,
       isIpo: isIpo ?? this.isIpo,
+      isAdjustment: isAdjustment ?? this.isAdjustment,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1367,6 +1419,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     if (isIpo.present) {
       map['is_ipo'] = Variable<bool>(isIpo.value);
     }
+    if (isAdjustment.present) {
+      map['is_adjustment'] = Variable<bool>(isAdjustment.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1390,6 +1445,7 @@ class TradesCompanion extends UpdateCompanion<Trade> {
           ..write('isManual: $isManual, ')
           ..write('isEdited: $isEdited, ')
           ..write('isIpo: $isIpo, ')
+          ..write('isAdjustment: $isAdjustment, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3396,6 +3452,7 @@ typedef $$TradesTableCreateCompanionBuilder =
       Value<bool> isManual,
       Value<bool> isEdited,
       Value<bool> isIpo,
+      Value<bool> isAdjustment,
       Value<int> rowid,
     });
 typedef $$TradesTableUpdateCompanionBuilder =
@@ -3414,6 +3471,7 @@ typedef $$TradesTableUpdateCompanionBuilder =
       Value<bool> isManual,
       Value<bool> isEdited,
       Value<bool> isIpo,
+      Value<bool> isAdjustment,
       Value<int> rowid,
     });
 
@@ -3510,6 +3568,11 @@ class $$TradesTableFilterComposer
 
   ColumnFilters<bool> get isIpo => $composableBuilder(
     column: $table.isIpo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAdjustment => $composableBuilder(
+    column: $table.isAdjustment,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3611,6 +3674,11 @@ class $$TradesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isAdjustment => $composableBuilder(
+    column: $table.isAdjustment,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ChannelsTableOrderingComposer get channelId {
     final $$ChannelsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3689,6 +3757,11 @@ class $$TradesTableAnnotationComposer
   GeneratedColumn<bool> get isIpo =>
       $composableBuilder(column: $table.isIpo, builder: (column) => column);
 
+  GeneratedColumn<bool> get isAdjustment => $composableBuilder(
+    column: $table.isAdjustment,
+    builder: (column) => column,
+  );
+
   $$ChannelsTableAnnotationComposer get channelId {
     final $$ChannelsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -3755,6 +3828,7 @@ class $$TradesTableTableManager
                 Value<bool> isManual = const Value.absent(),
                 Value<bool> isEdited = const Value.absent(),
                 Value<bool> isIpo = const Value.absent(),
+                Value<bool> isAdjustment = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TradesCompanion(
                 id: id,
@@ -3771,6 +3845,7 @@ class $$TradesTableTableManager
                 isManual: isManual,
                 isEdited: isEdited,
                 isIpo: isIpo,
+                isAdjustment: isAdjustment,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3789,6 +3864,7 @@ class $$TradesTableTableManager
                 Value<bool> isManual = const Value.absent(),
                 Value<bool> isEdited = const Value.absent(),
                 Value<bool> isIpo = const Value.absent(),
+                Value<bool> isAdjustment = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TradesCompanion.insert(
                 id: id,
@@ -3805,6 +3881,7 @@ class $$TradesTableTableManager
                 isManual: isManual,
                 isEdited: isEdited,
                 isIpo: isIpo,
+                isAdjustment: isAdjustment,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

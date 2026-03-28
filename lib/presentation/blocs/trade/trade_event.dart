@@ -19,6 +19,8 @@ class AddTrade extends TradeEvent {
   final bool isManual;
   /// Whether this trade is an IPO purchase. Charges do NOT apply when true.
   final bool isIpo;
+  /// Whether this trade is a holdings adjustment entry.
+  final bool isAdjustment;
 
   const AddTrade({
     required this.channelId,
@@ -30,10 +32,11 @@ class AddTrade extends TradeEvent {
     this.rawSmsBody = '',
     this.isManual = true,
     this.isIpo = false,
+    this.isAdjustment = false,
   });
 
   @override
-  List<Object?> get props => [channelId, action, symbol, quantity, price, smsDate, isIpo];
+  List<Object?> get props => [channelId, action, symbol, quantity, price, smsDate, isIpo, isAdjustment];
 }
 
 class UpdateTrade extends TradeEvent {

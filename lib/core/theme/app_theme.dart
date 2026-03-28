@@ -20,6 +20,7 @@ class AppTheme {
   static const Color _warning = Color(0xFFFFB84D);
 
   // Public accessors
+  static Color get textPrimary => _textPrimary;
   static Color get accent => _accent;
   static Color get accentLight => _accentLight;
   static Color get sellRed => _sellRed;
