@@ -31,7 +31,11 @@ class AddFundTransfer extends FundTransferEvent {
 
 class DeleteFundTransfer extends FundTransferEvent {
   final String id;
-  const DeleteFundTransfer(this.id);
+  final String? reason;
+  final String? reasonOther;
+
+  const DeleteFundTransfer(this.id, {this.reason, this.reasonOther});
+
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, reason, reasonOther];
 }

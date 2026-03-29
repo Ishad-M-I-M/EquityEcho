@@ -83,6 +83,9 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
         isIpo: existing.isIpo,
         isAdjustment: existing.isAdjustment,
         targetSymbol: event.targetSymbol ?? existing.targetSymbol,
+        isDeleted: existing.isDeleted,
+        deleteReason: existing.deleteReason,
+        deleteReasonOther: existing.deleteReasonOther,
       );
 
       await _tradeDao.updateTrade(updated);
@@ -98,7 +101,7 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
     Emitter<TradeState> emit,
   ) async {
     try {
-      await _tradeDao.deleteTrade(event.id);
+      await _tradeDao.deleteTrade(event.id, reason: event.reason, reasonOther: event.reasonOther);
       emit(const TradeOperationSuccess('Trade deleted'));
       add(LoadTrades());
     } catch (e) {

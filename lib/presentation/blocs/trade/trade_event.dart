@@ -68,7 +68,11 @@ class UpdateTrade extends TradeEvent {
 
 class DeleteTrade extends TradeEvent {
   final String id;
-  const DeleteTrade(this.id);
+  final String? reason;
+  final String? reasonOther;
+
+  const DeleteTrade(this.id, {this.reason, this.reasonOther});
+
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, reason, reasonOther];
 }

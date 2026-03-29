@@ -33,6 +33,7 @@ import 'package:equity_echo/presentation/screens/deposits_screen.dart';
 import 'package:equity_echo/presentation/screens/realized_gains_screen.dart';
 import 'package:equity_echo/presentation/screens/dividends_screen.dart';
 import 'package:equity_echo/presentation/screens/dividend_history_screen.dart';
+import 'package:equity_echo/presentation/screens/deleted_entries_screen.dart';
 import 'package:equity_echo/core/theme/theme_cubit.dart';
 
 class EquityEchoApp extends StatelessWidget {
@@ -217,6 +218,11 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => DividendHistoryScreen(
         symbol: state.pathParameters['symbol']!,
       ),
+    ),
+    GoRoute(
+      path: '/deleted-entries',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DeletedEntriesScreen(),
     ),
   ],
 );

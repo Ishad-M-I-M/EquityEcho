@@ -11,26 +11,27 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
 
   /// Get all trades, newest first
   Future<List<Trade>> getAllTrades() =>
-      (select(trades)..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).get();
+      (select(trades)..where((t) => t.isDeleted.equals(false))..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).get();
 
   /// Watch all trades (reactive)
   Stream<List<Trade>> watchAllTrades() =>
-      (select(trades)..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).watch();
+      (select(trades)..where((t) => t.isDeleted.equals(false))..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).watch();
 
   /// Get trades for a specific symbol
   Future<List<Trade>> getTradesForSymbol(String symbol) =>
       (select(trades)
             ..where((t) =>
-                t.symbol.equals(symbol) |
+                t.isDeleted.equals(false) &
+                (t.symbol.equals(symbol) |
                 (t.targetSymbol.equals(symbol) &
-                    t.action.equals('rights_convert')))
+                    t.action.equals('rights_convert'))))
             ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
           .get();
 
   /// Get trades for a specific channel
   Future<List<Trade>> getTradesForChannel(String channelId) =>
       (select(trades)
-            ..where((t) => t.channelId.equals(channelId))
+            ..where((t) => t.isDeleted.equals(false) & t.channelId.equals(channelId))
             ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
           .get();
 
@@ -41,9 +42,30 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   /// Update a trade
   Future<bool> updateTrade(Trade trade) => update(trades).replace(trade);
 
-  /// Delete a trade
-  Future<int> deleteTrade(String id) =>
-      (delete(trades)..where((t) => t.id.equals(id))).go();
+  Future<int> deleteTrade(String id, {String? reason, String? reasonOther}) async {
+    return (update(trades)..where((t) => t.id.equals(id))).write(
+      TradesCompanion(
+        isDeleted: const Value(true),
+        deleteReason: Value(reason),
+        deleteReasonOther: Value(reasonOther),
+      ),
+    );
+  }
+
+  /// Restore a trade
+  Future<int> restoreTrade(String id) async {
+    return (update(trades)..where((t) => t.id.equals(id))).write(
+      const TradesCompanion(
+        isDeleted: Value(false),
+        deleteReason: Value(null),
+        deleteReasonOther: Value(null),
+      ),
+    );
+  }
+
+  /// Get deleted trades
+  Future<List<Trade>> getDeletedTrades() =>
+      (select(trades)..where((t) => t.isDeleted.equals(true))..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).get();
 
   /// Delete all trades (for resync)
   Future<int> deleteAllTrades() => delete(trades).go();
@@ -80,8 +102,8 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   /// - BUY (IPO):      no charges at all.
   /// - Normal trades:   full 1.120% charged.
   Future<List<Holding>> getHoldings() async {
-    final allTrades = await (select(trades)..orderBy([(t) => OrderingTerm.asc(t.smsDate)])).get();
-    final allSplits = await (select(stockSplits)..orderBy([(s) => OrderingTerm.asc(s.splitDate)])).get();
+    final allTrades = await (select(trades)..where((t) => t.isDeleted.equals(false))..orderBy([(t) => OrderingTerm.asc(t.smsDate)])).get();
+    final allSplits = await (select(stockSplits)..where((s) => s.isDeleted.equals(false))..orderBy([(s) => OrderingTerm.asc(s.splitDate)])).get();
 
     // Pre-compute intra-day exemptions
     final exemptIds = TransactionCharges.findIntraDayExemptions(

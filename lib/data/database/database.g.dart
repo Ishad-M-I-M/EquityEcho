@@ -778,6 +778,44 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _deleteReasonMeta = const VerificationMeta(
+    'deleteReason',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReason = GeneratedColumn<String>(
+    'delete_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deleteReasonOtherMeta = const VerificationMeta(
+    'deleteReasonOther',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReasonOther =
+      GeneratedColumn<String>(
+        'delete_reason_other',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -796,6 +834,9 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
     isIpo,
     isAdjustment,
     targetSymbol,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -930,6 +971,30 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
         ),
       );
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('delete_reason')) {
+      context.handle(
+        _deleteReasonMeta,
+        deleteReason.isAcceptableOrUnknown(
+          data['delete_reason']!,
+          _deleteReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delete_reason_other')) {
+      context.handle(
+        _deleteReasonOtherMeta,
+        deleteReasonOther.isAcceptableOrUnknown(
+          data['delete_reason_other']!,
+          _deleteReasonOtherMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1003,6 +1068,18 @@ class $TradesTable extends Trades with TableInfo<$TradesTable, Trade> {
         DriftSqlType.string,
         data['${effectivePrefix}target_symbol'],
       ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      deleteReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason'],
+      ),
+      deleteReasonOther: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason_other'],
+      ),
     );
   }
 
@@ -1035,6 +1112,9 @@ class Trade extends DataClass implements Insertable<Trade> {
 
   /// Specifies the target symbol for a rights conversion.
   final String? targetSymbol;
+  final bool isDeleted;
+  final String? deleteReason;
+  final String? deleteReasonOther;
   const Trade({
     required this.id,
     required this.channelId,
@@ -1052,6 +1132,9 @@ class Trade extends DataClass implements Insertable<Trade> {
     required this.isIpo,
     required this.isAdjustment,
     this.targetSymbol,
+    required this.isDeleted,
+    this.deleteReason,
+    this.deleteReasonOther,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1075,6 +1158,13 @@ class Trade extends DataClass implements Insertable<Trade> {
     map['is_adjustment'] = Variable<bool>(isAdjustment);
     if (!nullToAbsent || targetSymbol != null) {
       map['target_symbol'] = Variable<String>(targetSymbol);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    if (!nullToAbsent || deleteReason != null) {
+      map['delete_reason'] = Variable<String>(deleteReason);
+    }
+    if (!nullToAbsent || deleteReasonOther != null) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther);
     }
     return map;
   }
@@ -1101,6 +1191,13 @@ class Trade extends DataClass implements Insertable<Trade> {
       targetSymbol: targetSymbol == null && nullToAbsent
           ? const Value.absent()
           : Value(targetSymbol),
+      isDeleted: Value(isDeleted),
+      deleteReason: deleteReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReason),
+      deleteReasonOther: deleteReasonOther == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReasonOther),
     );
   }
 
@@ -1126,6 +1223,11 @@ class Trade extends DataClass implements Insertable<Trade> {
       isIpo: serializer.fromJson<bool>(json['isIpo']),
       isAdjustment: serializer.fromJson<bool>(json['isAdjustment']),
       targetSymbol: serializer.fromJson<String?>(json['targetSymbol']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      deleteReason: serializer.fromJson<String?>(json['deleteReason']),
+      deleteReasonOther: serializer.fromJson<String?>(
+        json['deleteReasonOther'],
+      ),
     );
   }
   @override
@@ -1148,6 +1250,9 @@ class Trade extends DataClass implements Insertable<Trade> {
       'isIpo': serializer.toJson<bool>(isIpo),
       'isAdjustment': serializer.toJson<bool>(isAdjustment),
       'targetSymbol': serializer.toJson<String?>(targetSymbol),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'deleteReason': serializer.toJson<String?>(deleteReason),
+      'deleteReasonOther': serializer.toJson<String?>(deleteReasonOther),
     };
   }
 
@@ -1168,6 +1273,9 @@ class Trade extends DataClass implements Insertable<Trade> {
     bool? isIpo,
     bool? isAdjustment,
     Value<String?> targetSymbol = const Value.absent(),
+    bool? isDeleted,
+    Value<String?> deleteReason = const Value.absent(),
+    Value<String?> deleteReasonOther = const Value.absent(),
   }) => Trade(
     id: id ?? this.id,
     channelId: channelId ?? this.channelId,
@@ -1187,6 +1295,11 @@ class Trade extends DataClass implements Insertable<Trade> {
     isIpo: isIpo ?? this.isIpo,
     isAdjustment: isAdjustment ?? this.isAdjustment,
     targetSymbol: targetSymbol.present ? targetSymbol.value : this.targetSymbol,
+    isDeleted: isDeleted ?? this.isDeleted,
+    deleteReason: deleteReason.present ? deleteReason.value : this.deleteReason,
+    deleteReasonOther: deleteReasonOther.present
+        ? deleteReasonOther.value
+        : this.deleteReasonOther,
   );
   Trade copyWithCompanion(TradesCompanion data) {
     return Trade(
@@ -1216,6 +1329,13 @@ class Trade extends DataClass implements Insertable<Trade> {
       targetSymbol: data.targetSymbol.present
           ? data.targetSymbol.value
           : this.targetSymbol,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      deleteReason: data.deleteReason.present
+          ? data.deleteReason.value
+          : this.deleteReason,
+      deleteReasonOther: data.deleteReasonOther.present
+          ? data.deleteReasonOther.value
+          : this.deleteReasonOther,
     );
   }
 
@@ -1237,7 +1357,10 @@ class Trade extends DataClass implements Insertable<Trade> {
           ..write('isEdited: $isEdited, ')
           ..write('isIpo: $isIpo, ')
           ..write('isAdjustment: $isAdjustment, ')
-          ..write('targetSymbol: $targetSymbol')
+          ..write('targetSymbol: $targetSymbol, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther')
           ..write(')'))
         .toString();
   }
@@ -1260,6 +1383,9 @@ class Trade extends DataClass implements Insertable<Trade> {
     isIpo,
     isAdjustment,
     targetSymbol,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
   );
   @override
   bool operator ==(Object other) =>
@@ -1280,7 +1406,10 @@ class Trade extends DataClass implements Insertable<Trade> {
           other.isEdited == this.isEdited &&
           other.isIpo == this.isIpo &&
           other.isAdjustment == this.isAdjustment &&
-          other.targetSymbol == this.targetSymbol);
+          other.targetSymbol == this.targetSymbol &&
+          other.isDeleted == this.isDeleted &&
+          other.deleteReason == this.deleteReason &&
+          other.deleteReasonOther == this.deleteReasonOther);
 }
 
 class TradesCompanion extends UpdateCompanion<Trade> {
@@ -1300,6 +1429,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
   final Value<bool> isIpo;
   final Value<bool> isAdjustment;
   final Value<String?> targetSymbol;
+  final Value<bool> isDeleted;
+  final Value<String?> deleteReason;
+  final Value<String?> deleteReasonOther;
   final Value<int> rowid;
   const TradesCompanion({
     this.id = const Value.absent(),
@@ -1318,6 +1450,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     this.isIpo = const Value.absent(),
     this.isAdjustment = const Value.absent(),
     this.targetSymbol = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TradesCompanion.insert({
@@ -1337,6 +1472,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     this.isIpo = const Value.absent(),
     this.isAdjustment = const Value.absent(),
     this.targetSymbol = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        channelId = Value(channelId),
@@ -1363,6 +1501,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     Expression<bool>? isIpo,
     Expression<bool>? isAdjustment,
     Expression<String>? targetSymbol,
+    Expression<bool>? isDeleted,
+    Expression<String>? deleteReason,
+    Expression<String>? deleteReasonOther,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1382,6 +1523,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
       if (isIpo != null) 'is_ipo': isIpo,
       if (isAdjustment != null) 'is_adjustment': isAdjustment,
       if (targetSymbol != null) 'target_symbol': targetSymbol,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (deleteReason != null) 'delete_reason': deleteReason,
+      if (deleteReasonOther != null) 'delete_reason_other': deleteReasonOther,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1403,6 +1547,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     Value<bool>? isIpo,
     Value<bool>? isAdjustment,
     Value<String?>? targetSymbol,
+    Value<bool>? isDeleted,
+    Value<String?>? deleteReason,
+    Value<String?>? deleteReasonOther,
     Value<int>? rowid,
   }) {
     return TradesCompanion(
@@ -1422,6 +1569,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
       isIpo: isIpo ?? this.isIpo,
       isAdjustment: isAdjustment ?? this.isAdjustment,
       targetSymbol: targetSymbol ?? this.targetSymbol,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deleteReason: deleteReason ?? this.deleteReason,
+      deleteReasonOther: deleteReasonOther ?? this.deleteReasonOther,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1477,6 +1627,15 @@ class TradesCompanion extends UpdateCompanion<Trade> {
     if (targetSymbol.present) {
       map['target_symbol'] = Variable<String>(targetSymbol.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (deleteReason.present) {
+      map['delete_reason'] = Variable<String>(deleteReason.value);
+    }
+    if (deleteReasonOther.present) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1502,6 +1661,9 @@ class TradesCompanion extends UpdateCompanion<Trade> {
           ..write('isIpo: $isIpo, ')
           ..write('isAdjustment: $isAdjustment, ')
           ..write('targetSymbol: $targetSymbol, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1617,6 +1779,44 @@ class $FundTransfersTable extends FundTransfers
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _deleteReasonMeta = const VerificationMeta(
+    'deleteReason',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReason = GeneratedColumn<String>(
+    'delete_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deleteReasonOtherMeta = const VerificationMeta(
+    'deleteReasonOther',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReasonOther =
+      GeneratedColumn<String>(
+        'delete_reason_other',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1628,6 +1828,9 @@ class $FundTransfersTable extends FundTransfers
     rawSmsBody,
     createdAt,
     isManual,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1708,6 +1911,30 @@ class $FundTransfersTable extends FundTransfers
         isManual.isAcceptableOrUnknown(data['is_manual']!, _isManualMeta),
       );
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('delete_reason')) {
+      context.handle(
+        _deleteReasonMeta,
+        deleteReason.isAcceptableOrUnknown(
+          data['delete_reason']!,
+          _deleteReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delete_reason_other')) {
+      context.handle(
+        _deleteReasonOtherMeta,
+        deleteReasonOther.isAcceptableOrUnknown(
+          data['delete_reason_other']!,
+          _deleteReasonOtherMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1753,6 +1980,18 @@ class $FundTransfersTable extends FundTransfers
         DriftSqlType.bool,
         data['${effectivePrefix}is_manual'],
       )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      deleteReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason'],
+      ),
+      deleteReasonOther: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason_other'],
+      ),
     );
   }
 
@@ -1772,6 +2011,9 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
   final String rawSmsBody;
   final DateTime createdAt;
   final bool isManual;
+  final bool isDeleted;
+  final String? deleteReason;
+  final String? deleteReasonOther;
   const FundTransfer({
     required this.id,
     required this.channelId,
@@ -1782,6 +2024,9 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
     required this.rawSmsBody,
     required this.createdAt,
     required this.isManual,
+    required this.isDeleted,
+    this.deleteReason,
+    this.deleteReasonOther,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1797,6 +2042,13 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
     map['raw_sms_body'] = Variable<String>(rawSmsBody);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['is_manual'] = Variable<bool>(isManual);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    if (!nullToAbsent || deleteReason != null) {
+      map['delete_reason'] = Variable<String>(deleteReason);
+    }
+    if (!nullToAbsent || deleteReasonOther != null) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther);
+    }
     return map;
   }
 
@@ -1813,6 +2065,13 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
       rawSmsBody: Value(rawSmsBody),
       createdAt: Value(createdAt),
       isManual: Value(isManual),
+      isDeleted: Value(isDeleted),
+      deleteReason: deleteReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReason),
+      deleteReasonOther: deleteReasonOther == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReasonOther),
     );
   }
 
@@ -1831,6 +2090,11 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
       rawSmsBody: serializer.fromJson<String>(json['rawSmsBody']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       isManual: serializer.fromJson<bool>(json['isManual']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      deleteReason: serializer.fromJson<String?>(json['deleteReason']),
+      deleteReasonOther: serializer.fromJson<String?>(
+        json['deleteReasonOther'],
+      ),
     );
   }
   @override
@@ -1846,6 +2110,9 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
       'rawSmsBody': serializer.toJson<String>(rawSmsBody),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'isManual': serializer.toJson<bool>(isManual),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'deleteReason': serializer.toJson<String?>(deleteReason),
+      'deleteReasonOther': serializer.toJson<String?>(deleteReasonOther),
     };
   }
 
@@ -1859,6 +2126,9 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
     String? rawSmsBody,
     DateTime? createdAt,
     bool? isManual,
+    bool? isDeleted,
+    Value<String?> deleteReason = const Value.absent(),
+    Value<String?> deleteReasonOther = const Value.absent(),
   }) => FundTransfer(
     id: id ?? this.id,
     channelId: channelId ?? this.channelId,
@@ -1871,6 +2141,11 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
     rawSmsBody: rawSmsBody ?? this.rawSmsBody,
     createdAt: createdAt ?? this.createdAt,
     isManual: isManual ?? this.isManual,
+    isDeleted: isDeleted ?? this.isDeleted,
+    deleteReason: deleteReason.present ? deleteReason.value : this.deleteReason,
+    deleteReasonOther: deleteReasonOther.present
+        ? deleteReasonOther.value
+        : this.deleteReasonOther,
   );
   FundTransfer copyWithCompanion(FundTransfersCompanion data) {
     return FundTransfer(
@@ -1887,6 +2162,13 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
           : this.rawSmsBody,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isManual: data.isManual.present ? data.isManual.value : this.isManual,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      deleteReason: data.deleteReason.present
+          ? data.deleteReason.value
+          : this.deleteReason,
+      deleteReasonOther: data.deleteReasonOther.present
+          ? data.deleteReasonOther.value
+          : this.deleteReasonOther,
     );
   }
 
@@ -1901,7 +2183,10 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
           ..write('smsReceivedDate: $smsReceivedDate, ')
           ..write('rawSmsBody: $rawSmsBody, ')
           ..write('createdAt: $createdAt, ')
-          ..write('isManual: $isManual')
+          ..write('isManual: $isManual, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther')
           ..write(')'))
         .toString();
   }
@@ -1917,6 +2202,9 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
     rawSmsBody,
     createdAt,
     isManual,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
   );
   @override
   bool operator ==(Object other) =>
@@ -1930,7 +2218,10 @@ class FundTransfer extends DataClass implements Insertable<FundTransfer> {
           other.smsReceivedDate == this.smsReceivedDate &&
           other.rawSmsBody == this.rawSmsBody &&
           other.createdAt == this.createdAt &&
-          other.isManual == this.isManual);
+          other.isManual == this.isManual &&
+          other.isDeleted == this.isDeleted &&
+          other.deleteReason == this.deleteReason &&
+          other.deleteReasonOther == this.deleteReasonOther);
 }
 
 class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
@@ -1943,6 +2234,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
   final Value<String> rawSmsBody;
   final Value<DateTime> createdAt;
   final Value<bool> isManual;
+  final Value<bool> isDeleted;
+  final Value<String?> deleteReason;
+  final Value<String?> deleteReasonOther;
   final Value<int> rowid;
   const FundTransfersCompanion({
     this.id = const Value.absent(),
@@ -1954,6 +2248,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
     this.rawSmsBody = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isManual = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   FundTransfersCompanion.insert({
@@ -1966,6 +2263,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
     this.rawSmsBody = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isManual = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        channelId = Value(channelId),
@@ -1982,6 +2282,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
     Expression<String>? rawSmsBody,
     Expression<DateTime>? createdAt,
     Expression<bool>? isManual,
+    Expression<bool>? isDeleted,
+    Expression<String>? deleteReason,
+    Expression<String>? deleteReasonOther,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1994,6 +2297,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
       if (rawSmsBody != null) 'raw_sms_body': rawSmsBody,
       if (createdAt != null) 'created_at': createdAt,
       if (isManual != null) 'is_manual': isManual,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (deleteReason != null) 'delete_reason': deleteReason,
+      if (deleteReasonOther != null) 'delete_reason_other': deleteReasonOther,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2008,6 +2314,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
     Value<String>? rawSmsBody,
     Value<DateTime>? createdAt,
     Value<bool>? isManual,
+    Value<bool>? isDeleted,
+    Value<String?>? deleteReason,
+    Value<String?>? deleteReasonOther,
     Value<int>? rowid,
   }) {
     return FundTransfersCompanion(
@@ -2020,6 +2329,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
       rawSmsBody: rawSmsBody ?? this.rawSmsBody,
       createdAt: createdAt ?? this.createdAt,
       isManual: isManual ?? this.isManual,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deleteReason: deleteReason ?? this.deleteReason,
+      deleteReasonOther: deleteReasonOther ?? this.deleteReasonOther,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2054,6 +2366,15 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
     if (isManual.present) {
       map['is_manual'] = Variable<bool>(isManual.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (deleteReason.present) {
+      map['delete_reason'] = Variable<String>(deleteReason.value);
+    }
+    if (deleteReasonOther.present) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2072,6 +2393,9 @@ class FundTransfersCompanion extends UpdateCompanion<FundTransfer> {
           ..write('rawSmsBody: $rawSmsBody, ')
           ..write('createdAt: $createdAt, ')
           ..write('isManual: $isManual, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2147,6 +2471,44 @@ class $StockSplitsTable extends StockSplits
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _deleteReasonMeta = const VerificationMeta(
+    'deleteReason',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReason = GeneratedColumn<String>(
+    'delete_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deleteReasonOtherMeta = const VerificationMeta(
+    'deleteReasonOther',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReasonOther =
+      GeneratedColumn<String>(
+        'delete_reason_other',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2155,6 +2517,9 @@ class $StockSplitsTable extends StockSplits
     oldShares,
     newShares,
     createdAt,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2211,6 +2576,30 @@ class $StockSplitsTable extends StockSplits
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('delete_reason')) {
+      context.handle(
+        _deleteReasonMeta,
+        deleteReason.isAcceptableOrUnknown(
+          data['delete_reason']!,
+          _deleteReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delete_reason_other')) {
+      context.handle(
+        _deleteReasonOtherMeta,
+        deleteReasonOther.isAcceptableOrUnknown(
+          data['delete_reason_other']!,
+          _deleteReasonOtherMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2244,6 +2633,18 @@ class $StockSplitsTable extends StockSplits
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      deleteReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason'],
+      ),
+      deleteReasonOther: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason_other'],
+      ),
     );
   }
 
@@ -2260,6 +2661,9 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
   final int oldShares;
   final int newShares;
   final DateTime createdAt;
+  final bool isDeleted;
+  final String? deleteReason;
+  final String? deleteReasonOther;
   const StockSplit({
     required this.id,
     required this.symbol,
@@ -2267,6 +2671,9 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
     required this.oldShares,
     required this.newShares,
     required this.createdAt,
+    required this.isDeleted,
+    this.deleteReason,
+    this.deleteReasonOther,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2277,6 +2684,13 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
     map['old_shares'] = Variable<int>(oldShares);
     map['new_shares'] = Variable<int>(newShares);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    if (!nullToAbsent || deleteReason != null) {
+      map['delete_reason'] = Variable<String>(deleteReason);
+    }
+    if (!nullToAbsent || deleteReasonOther != null) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther);
+    }
     return map;
   }
 
@@ -2288,6 +2702,13 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
       oldShares: Value(oldShares),
       newShares: Value(newShares),
       createdAt: Value(createdAt),
+      isDeleted: Value(isDeleted),
+      deleteReason: deleteReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReason),
+      deleteReasonOther: deleteReasonOther == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReasonOther),
     );
   }
 
@@ -2303,6 +2724,11 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
       oldShares: serializer.fromJson<int>(json['oldShares']),
       newShares: serializer.fromJson<int>(json['newShares']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      deleteReason: serializer.fromJson<String?>(json['deleteReason']),
+      deleteReasonOther: serializer.fromJson<String?>(
+        json['deleteReasonOther'],
+      ),
     );
   }
   @override
@@ -2315,6 +2741,9 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
       'oldShares': serializer.toJson<int>(oldShares),
       'newShares': serializer.toJson<int>(newShares),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'deleteReason': serializer.toJson<String?>(deleteReason),
+      'deleteReasonOther': serializer.toJson<String?>(deleteReasonOther),
     };
   }
 
@@ -2325,6 +2754,9 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
     int? oldShares,
     int? newShares,
     DateTime? createdAt,
+    bool? isDeleted,
+    Value<String?> deleteReason = const Value.absent(),
+    Value<String?> deleteReasonOther = const Value.absent(),
   }) => StockSplit(
     id: id ?? this.id,
     symbol: symbol ?? this.symbol,
@@ -2332,6 +2764,11 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
     oldShares: oldShares ?? this.oldShares,
     newShares: newShares ?? this.newShares,
     createdAt: createdAt ?? this.createdAt,
+    isDeleted: isDeleted ?? this.isDeleted,
+    deleteReason: deleteReason.present ? deleteReason.value : this.deleteReason,
+    deleteReasonOther: deleteReasonOther.present
+        ? deleteReasonOther.value
+        : this.deleteReasonOther,
   );
   StockSplit copyWithCompanion(StockSplitsCompanion data) {
     return StockSplit(
@@ -2341,6 +2778,13 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
       oldShares: data.oldShares.present ? data.oldShares.value : this.oldShares,
       newShares: data.newShares.present ? data.newShares.value : this.newShares,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      deleteReason: data.deleteReason.present
+          ? data.deleteReason.value
+          : this.deleteReason,
+      deleteReasonOther: data.deleteReasonOther.present
+          ? data.deleteReasonOther.value
+          : this.deleteReasonOther,
     );
   }
 
@@ -2352,14 +2796,26 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
           ..write('splitDate: $splitDate, ')
           ..write('oldShares: $oldShares, ')
           ..write('newShares: $newShares, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, symbol, splitDate, oldShares, newShares, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    symbol,
+    splitDate,
+    oldShares,
+    newShares,
+    createdAt,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2369,7 +2825,10 @@ class StockSplit extends DataClass implements Insertable<StockSplit> {
           other.splitDate == this.splitDate &&
           other.oldShares == this.oldShares &&
           other.newShares == this.newShares &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.isDeleted == this.isDeleted &&
+          other.deleteReason == this.deleteReason &&
+          other.deleteReasonOther == this.deleteReasonOther);
 }
 
 class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
@@ -2379,6 +2838,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
   final Value<int> oldShares;
   final Value<int> newShares;
   final Value<DateTime> createdAt;
+  final Value<bool> isDeleted;
+  final Value<String?> deleteReason;
+  final Value<String?> deleteReasonOther;
   final Value<int> rowid;
   const StockSplitsCompanion({
     this.id = const Value.absent(),
@@ -2387,6 +2849,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
     this.oldShares = const Value.absent(),
     this.newShares = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StockSplitsCompanion.insert({
@@ -2396,6 +2861,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
     required int oldShares,
     required int newShares,
     this.createdAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        symbol = Value(symbol),
@@ -2409,6 +2877,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
     Expression<int>? oldShares,
     Expression<int>? newShares,
     Expression<DateTime>? createdAt,
+    Expression<bool>? isDeleted,
+    Expression<String>? deleteReason,
+    Expression<String>? deleteReasonOther,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2418,6 +2889,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
       if (oldShares != null) 'old_shares': oldShares,
       if (newShares != null) 'new_shares': newShares,
       if (createdAt != null) 'created_at': createdAt,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (deleteReason != null) 'delete_reason': deleteReason,
+      if (deleteReasonOther != null) 'delete_reason_other': deleteReasonOther,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2429,6 +2903,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
     Value<int>? oldShares,
     Value<int>? newShares,
     Value<DateTime>? createdAt,
+    Value<bool>? isDeleted,
+    Value<String?>? deleteReason,
+    Value<String?>? deleteReasonOther,
     Value<int>? rowid,
   }) {
     return StockSplitsCompanion(
@@ -2438,6 +2915,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
       oldShares: oldShares ?? this.oldShares,
       newShares: newShares ?? this.newShares,
       createdAt: createdAt ?? this.createdAt,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deleteReason: deleteReason ?? this.deleteReason,
+      deleteReasonOther: deleteReasonOther ?? this.deleteReasonOther,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2463,6 +2943,15 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (deleteReason.present) {
+      map['delete_reason'] = Variable<String>(deleteReason.value);
+    }
+    if (deleteReasonOther.present) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2478,6 +2967,9 @@ class StockSplitsCompanion extends UpdateCompanion<StockSplit> {
           ..write('oldShares: $oldShares, ')
           ..write('newShares: $newShares, ')
           ..write('createdAt: $createdAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2570,6 +3062,44 @@ class $DividendsTable extends Dividends
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _deleteReasonMeta = const VerificationMeta(
+    'deleteReason',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReason = GeneratedColumn<String>(
+    'delete_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deleteReasonOtherMeta = const VerificationMeta(
+    'deleteReasonOther',
+  );
+  @override
+  late final GeneratedColumn<String> deleteReasonOther =
+      GeneratedColumn<String>(
+        'delete_reason_other',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2580,6 +3110,9 @@ class $DividendsTable extends Dividends
     dividendPerShare,
     date,
     createdAt,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2649,6 +3182,30 @@ class $DividendsTable extends Dividends
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('delete_reason')) {
+      context.handle(
+        _deleteReasonMeta,
+        deleteReason.isAcceptableOrUnknown(
+          data['delete_reason']!,
+          _deleteReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delete_reason_other')) {
+      context.handle(
+        _deleteReasonOtherMeta,
+        deleteReasonOther.isAcceptableOrUnknown(
+          data['delete_reason_other']!,
+          _deleteReasonOtherMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2690,6 +3247,18 @@ class $DividendsTable extends Dividends
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      deleteReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason'],
+      ),
+      deleteReasonOther: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delete_reason_other'],
+      ),
     );
   }
 
@@ -2708,6 +3277,9 @@ class Dividend extends DataClass implements Insertable<Dividend> {
   final double dividendPerShare;
   final DateTime date;
   final DateTime createdAt;
+  final bool isDeleted;
+  final String? deleteReason;
+  final String? deleteReasonOther;
   const Dividend({
     required this.id,
     required this.symbol,
@@ -2717,6 +3289,9 @@ class Dividend extends DataClass implements Insertable<Dividend> {
     required this.dividendPerShare,
     required this.date,
     required this.createdAt,
+    required this.isDeleted,
+    this.deleteReason,
+    this.deleteReasonOther,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2729,6 +3304,13 @@ class Dividend extends DataClass implements Insertable<Dividend> {
     map['dividend_per_share'] = Variable<double>(dividendPerShare);
     map['date'] = Variable<DateTime>(date);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    if (!nullToAbsent || deleteReason != null) {
+      map['delete_reason'] = Variable<String>(deleteReason);
+    }
+    if (!nullToAbsent || deleteReasonOther != null) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther);
+    }
     return map;
   }
 
@@ -2742,6 +3324,13 @@ class Dividend extends DataClass implements Insertable<Dividend> {
       dividendPerShare: Value(dividendPerShare),
       date: Value(date),
       createdAt: Value(createdAt),
+      isDeleted: Value(isDeleted),
+      deleteReason: deleteReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReason),
+      deleteReasonOther: deleteReasonOther == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleteReasonOther),
     );
   }
 
@@ -2759,6 +3348,11 @@ class Dividend extends DataClass implements Insertable<Dividend> {
       dividendPerShare: serializer.fromJson<double>(json['dividendPerShare']),
       date: serializer.fromJson<DateTime>(json['date']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      deleteReason: serializer.fromJson<String?>(json['deleteReason']),
+      deleteReasonOther: serializer.fromJson<String?>(
+        json['deleteReasonOther'],
+      ),
     );
   }
   @override
@@ -2773,6 +3367,9 @@ class Dividend extends DataClass implements Insertable<Dividend> {
       'dividendPerShare': serializer.toJson<double>(dividendPerShare),
       'date': serializer.toJson<DateTime>(date),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'deleteReason': serializer.toJson<String?>(deleteReason),
+      'deleteReasonOther': serializer.toJson<String?>(deleteReasonOther),
     };
   }
 
@@ -2785,6 +3382,9 @@ class Dividend extends DataClass implements Insertable<Dividend> {
     double? dividendPerShare,
     DateTime? date,
     DateTime? createdAt,
+    bool? isDeleted,
+    Value<String?> deleteReason = const Value.absent(),
+    Value<String?> deleteReasonOther = const Value.absent(),
   }) => Dividend(
     id: id ?? this.id,
     symbol: symbol ?? this.symbol,
@@ -2794,6 +3394,11 @@ class Dividend extends DataClass implements Insertable<Dividend> {
     dividendPerShare: dividendPerShare ?? this.dividendPerShare,
     date: date ?? this.date,
     createdAt: createdAt ?? this.createdAt,
+    isDeleted: isDeleted ?? this.isDeleted,
+    deleteReason: deleteReason.present ? deleteReason.value : this.deleteReason,
+    deleteReasonOther: deleteReasonOther.present
+        ? deleteReasonOther.value
+        : this.deleteReasonOther,
   );
   Dividend copyWithCompanion(DividendsCompanion data) {
     return Dividend(
@@ -2807,6 +3412,13 @@ class Dividend extends DataClass implements Insertable<Dividend> {
           : this.dividendPerShare,
       date: data.date.present ? data.date.value : this.date,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      deleteReason: data.deleteReason.present
+          ? data.deleteReason.value
+          : this.deleteReason,
+      deleteReasonOther: data.deleteReasonOther.present
+          ? data.deleteReasonOther.value
+          : this.deleteReasonOther,
     );
   }
 
@@ -2820,7 +3432,10 @@ class Dividend extends DataClass implements Insertable<Dividend> {
           ..write('shares: $shares, ')
           ..write('dividendPerShare: $dividendPerShare, ')
           ..write('date: $date, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther')
           ..write(')'))
         .toString();
   }
@@ -2835,6 +3450,9 @@ class Dividend extends DataClass implements Insertable<Dividend> {
     dividendPerShare,
     date,
     createdAt,
+    isDeleted,
+    deleteReason,
+    deleteReasonOther,
   );
   @override
   bool operator ==(Object other) =>
@@ -2847,7 +3465,10 @@ class Dividend extends DataClass implements Insertable<Dividend> {
           other.shares == this.shares &&
           other.dividendPerShare == this.dividendPerShare &&
           other.date == this.date &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.isDeleted == this.isDeleted &&
+          other.deleteReason == this.deleteReason &&
+          other.deleteReasonOther == this.deleteReasonOther);
 }
 
 class DividendsCompanion extends UpdateCompanion<Dividend> {
@@ -2859,6 +3480,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
   final Value<double> dividendPerShare;
   final Value<DateTime> date;
   final Value<DateTime> createdAt;
+  final Value<bool> isDeleted;
+  final Value<String?> deleteReason;
+  final Value<String?> deleteReasonOther;
   final Value<int> rowid;
   const DividendsCompanion({
     this.id = const Value.absent(),
@@ -2869,6 +3493,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
     this.dividendPerShare = const Value.absent(),
     this.date = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DividendsCompanion.insert({
@@ -2880,6 +3507,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
     this.dividendPerShare = const Value.absent(),
     required DateTime date,
     this.createdAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.deleteReason = const Value.absent(),
+    this.deleteReasonOther = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        symbol = Value(symbol),
@@ -2894,6 +3524,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
     Expression<double>? dividendPerShare,
     Expression<DateTime>? date,
     Expression<DateTime>? createdAt,
+    Expression<bool>? isDeleted,
+    Expression<String>? deleteReason,
+    Expression<String>? deleteReasonOther,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2905,6 +3538,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
       if (dividendPerShare != null) 'dividend_per_share': dividendPerShare,
       if (date != null) 'date': date,
       if (createdAt != null) 'created_at': createdAt,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (deleteReason != null) 'delete_reason': deleteReason,
+      if (deleteReasonOther != null) 'delete_reason_other': deleteReasonOther,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2918,6 +3554,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
     Value<double>? dividendPerShare,
     Value<DateTime>? date,
     Value<DateTime>? createdAt,
+    Value<bool>? isDeleted,
+    Value<String?>? deleteReason,
+    Value<String?>? deleteReasonOther,
     Value<int>? rowid,
   }) {
     return DividendsCompanion(
@@ -2929,6 +3568,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
       dividendPerShare: dividendPerShare ?? this.dividendPerShare,
       date: date ?? this.date,
       createdAt: createdAt ?? this.createdAt,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deleteReason: deleteReason ?? this.deleteReason,
+      deleteReasonOther: deleteReasonOther ?? this.deleteReasonOther,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2960,6 +3602,15 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (deleteReason.present) {
+      map['delete_reason'] = Variable<String>(deleteReason.value);
+    }
+    if (deleteReasonOther.present) {
+      map['delete_reason_other'] = Variable<String>(deleteReasonOther.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2977,6 +3628,9 @@ class DividendsCompanion extends UpdateCompanion<Dividend> {
           ..write('dividendPerShare: $dividendPerShare, ')
           ..write('date: $date, ')
           ..write('createdAt: $createdAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('deleteReason: $deleteReason, ')
+          ..write('deleteReasonOther: $deleteReasonOther, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3510,6 +4164,9 @@ typedef $$TradesTableCreateCompanionBuilder =
       Value<bool> isIpo,
       Value<bool> isAdjustment,
       Value<String?> targetSymbol,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 typedef $$TradesTableUpdateCompanionBuilder =
@@ -3530,6 +4187,9 @@ typedef $$TradesTableUpdateCompanionBuilder =
       Value<bool> isIpo,
       Value<bool> isAdjustment,
       Value<String?> targetSymbol,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 
@@ -3636,6 +4296,21 @@ class $$TradesTableFilterComposer
 
   ColumnFilters<String> get targetSymbol => $composableBuilder(
     column: $table.targetSymbol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3747,6 +4422,21 @@ class $$TradesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ChannelsTableOrderingComposer get channelId {
     final $$ChannelsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3835,6 +4525,19 @@ class $$TradesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => column,
+  );
+
   $$ChannelsTableAnnotationComposer get channelId {
     final $$ChannelsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -3903,6 +4606,9 @@ class $$TradesTableTableManager
                 Value<bool> isIpo = const Value.absent(),
                 Value<bool> isAdjustment = const Value.absent(),
                 Value<String?> targetSymbol = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TradesCompanion(
                 id: id,
@@ -3921,6 +4627,9 @@ class $$TradesTableTableManager
                 isIpo: isIpo,
                 isAdjustment: isAdjustment,
                 targetSymbol: targetSymbol,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3941,6 +4650,9 @@ class $$TradesTableTableManager
                 Value<bool> isIpo = const Value.absent(),
                 Value<bool> isAdjustment = const Value.absent(),
                 Value<String?> targetSymbol = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TradesCompanion.insert(
                 id: id,
@@ -3959,6 +4671,9 @@ class $$TradesTableTableManager
                 isIpo: isIpo,
                 isAdjustment: isAdjustment,
                 targetSymbol: targetSymbol,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4037,6 +4752,9 @@ typedef $$FundTransfersTableCreateCompanionBuilder =
       Value<String> rawSmsBody,
       Value<DateTime> createdAt,
       Value<bool> isManual,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 typedef $$FundTransfersTableUpdateCompanionBuilder =
@@ -4050,6 +4768,9 @@ typedef $$FundTransfersTableUpdateCompanionBuilder =
       Value<String> rawSmsBody,
       Value<DateTime> createdAt,
       Value<bool> isManual,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 
@@ -4130,6 +4851,21 @@ class $$FundTransfersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$ChannelsTableFilterComposer get channelId {
     final $$ChannelsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -4203,6 +4939,21 @@ class $$FundTransfersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ChannelsTableOrderingComposer get channelId {
     final $$ChannelsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4263,6 +5014,19 @@ class $$FundTransfersTableAnnotationComposer
 
   GeneratedColumn<bool> get isManual =>
       $composableBuilder(column: $table.isManual, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => column,
+  );
 
   $$ChannelsTableAnnotationComposer get channelId {
     final $$ChannelsTableAnnotationComposer composer = $composerBuilder(
@@ -4325,6 +5089,9 @@ class $$FundTransfersTableTableManager
                 Value<String> rawSmsBody = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> isManual = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => FundTransfersCompanion(
                 id: id,
@@ -4336,6 +5103,9 @@ class $$FundTransfersTableTableManager
                 rawSmsBody: rawSmsBody,
                 createdAt: createdAt,
                 isManual: isManual,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4349,6 +5119,9 @@ class $$FundTransfersTableTableManager
                 Value<String> rawSmsBody = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> isManual = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => FundTransfersCompanion.insert(
                 id: id,
@@ -4360,6 +5133,9 @@ class $$FundTransfersTableTableManager
                 rawSmsBody: rawSmsBody,
                 createdAt: createdAt,
                 isManual: isManual,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4437,6 +5213,9 @@ typedef $$StockSplitsTableCreateCompanionBuilder =
       required int oldShares,
       required int newShares,
       Value<DateTime> createdAt,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 typedef $$StockSplitsTableUpdateCompanionBuilder =
@@ -4447,6 +5226,9 @@ typedef $$StockSplitsTableUpdateCompanionBuilder =
       Value<int> oldShares,
       Value<int> newShares,
       Value<DateTime> createdAt,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 
@@ -4486,6 +5268,21 @@ class $$StockSplitsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -4528,6 +5325,21 @@ class $$StockSplitsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StockSplitsTableAnnotationComposer
@@ -4556,6 +5368,19 @@ class $$StockSplitsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => column,
+  );
 }
 
 class $$StockSplitsTableTableManager
@@ -4595,6 +5420,9 @@ class $$StockSplitsTableTableManager
                 Value<int> oldShares = const Value.absent(),
                 Value<int> newShares = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockSplitsCompanion(
                 id: id,
@@ -4603,6 +5431,9 @@ class $$StockSplitsTableTableManager
                 oldShares: oldShares,
                 newShares: newShares,
                 createdAt: createdAt,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4613,6 +5444,9 @@ class $$StockSplitsTableTableManager
                 required int oldShares,
                 required int newShares,
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockSplitsCompanion.insert(
                 id: id,
@@ -4621,6 +5455,9 @@ class $$StockSplitsTableTableManager
                 oldShares: oldShares,
                 newShares: newShares,
                 createdAt: createdAt,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4658,6 +5495,9 @@ typedef $$DividendsTableCreateCompanionBuilder =
       Value<double> dividendPerShare,
       required DateTime date,
       Value<DateTime> createdAt,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 typedef $$DividendsTableUpdateCompanionBuilder =
@@ -4670,6 +5510,9 @@ typedef $$DividendsTableUpdateCompanionBuilder =
       Value<double> dividendPerShare,
       Value<DateTime> date,
       Value<DateTime> createdAt,
+      Value<bool> isDeleted,
+      Value<String?> deleteReason,
+      Value<String?> deleteReasonOther,
       Value<int> rowid,
     });
 
@@ -4719,6 +5562,21 @@ class $$DividendsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -4771,6 +5629,21 @@ class $$DividendsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DividendsTableAnnotationComposer
@@ -4807,6 +5680,19 @@ class $$DividendsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<String> get deleteReason => $composableBuilder(
+    column: $table.deleteReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deleteReasonOther => $composableBuilder(
+    column: $table.deleteReasonOther,
+    builder: (column) => column,
+  );
 }
 
 class $$DividendsTableTableManager
@@ -4845,6 +5731,9 @@ class $$DividendsTableTableManager
                 Value<double> dividendPerShare = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DividendsCompanion(
                 id: id,
@@ -4855,6 +5744,9 @@ class $$DividendsTableTableManager
                 dividendPerShare: dividendPerShare,
                 date: date,
                 createdAt: createdAt,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4867,6 +5759,9 @@ class $$DividendsTableTableManager
                 Value<double> dividendPerShare = const Value.absent(),
                 required DateTime date,
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> deleteReason = const Value.absent(),
+                Value<String?> deleteReasonOther = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DividendsCompanion.insert(
                 id: id,
@@ -4877,6 +5772,9 @@ class $$DividendsTableTableManager
                 dividendPerShare: dividendPerShare,
                 date: date,
                 createdAt: createdAt,
+                isDeleted: isDeleted,
+                deleteReason: deleteReason,
+                deleteReasonOther: deleteReasonOther,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

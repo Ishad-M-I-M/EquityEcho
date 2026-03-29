@@ -20,6 +20,7 @@ import 'widgets/trade_card.dart';
 import 'dialogs/adjust_holdings_dialog.dart';
 import 'dialogs/add_split_dialog.dart';
 import 'dialogs/convert_rights_dialog.dart';
+import '../../widgets/delete_confirmation_dialog.dart';
 
 class HoldingDetailScreen extends StatefulWidget {
   final String symbol;
@@ -274,62 +275,48 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
     );
   }
 
-  void _confirmDeleteTrade(BuildContext context, Trade trade) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).cardColor,
-        title: const Text('Delete Transaction'),
-        content: const Text('Are you sure you want to delete this transaction? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.read<TradeBloc>().add(DeleteTrade(trade.id));
-              context.read<DashboardBloc>().add(RefreshDashboard());
-              _loadEvents();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Transaction scheduled for deletion')),
-              );
-            },
-            child: Text('Delete', style: TextStyle(color: AppTheme.sellRed)),
-          ),
-        ],
-      ),
+  Future<void> _confirmDeleteTrade(BuildContext context, Trade trade) async {
+    final result = await DeleteConfirmationDialog.show(
+      context,
+      title: 'Delete Transaction',
+      content: 'Are you sure you want to delete this transaction?',
     );
+
+    if (result != null && result.confirmed) {
+      if (!context.mounted) return;
+      context.read<TradeBloc>().add(DeleteTrade(
+        trade.id,
+        reason: result.reason,
+        reasonOther: result.reasonOther,
+      ));
+      context.read<DashboardBloc>().add(RefreshDashboard());
+      _loadEvents();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Transaction deleted')),
+      );
+    }
   }
 
-  void _confirmDeleteSplit(BuildContext context, StockSplit split) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).cardColor,
-        title: const Text('Delete Sub-division'),
-        content: const Text('Are you sure you want to delete this sub-division event?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await getIt<StockSplitDao>().deleteSplit(split.id);
-              if (!context.mounted) return;
-              context.read<DashboardBloc>().add(RefreshDashboard());
-              _loadEvents();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sub-division deleted')),
-              );
-            },
-            child: Text('Delete', style: TextStyle(color: AppTheme.sellRed)),
-          ),
-        ],
-      ),
+  Future<void> _confirmDeleteSplit(BuildContext context, StockSplit split) async {
+    final result = await DeleteConfirmationDialog.show(
+      context,
+      title: 'Delete Sub-division',
+      content: 'Are you sure you want to delete this sub-division event?',
     );
+
+    if (result != null && result.confirmed) {
+      if (!context.mounted) return;
+      await getIt<StockSplitDao>().deleteSplit(
+        split.id,
+        reason: result.reason,
+        reasonOther: result.reasonOther,
+      );
+      if (!context.mounted) return;
+      context.read<DashboardBloc>().add(RefreshDashboard());
+      _loadEvents();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sub-division deleted')),
+      );
+    }
   }
 }

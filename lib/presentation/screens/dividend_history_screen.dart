@@ -8,6 +8,7 @@ import 'package:equity_echo/data/database/daos/dividend_dao.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_state.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
+import '../widgets/delete_confirmation_dialog.dart';
 
 class DividendHistoryScreen extends StatefulWidget {
   final String symbol;
@@ -144,33 +145,26 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
     );
   }
 
-  void _confirmDeleteDividend(BuildContext context, Dividend div) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).cardColor,
-        title: const Text('Delete Dividend'),
-        content: const Text('Are you sure you want to delete this dividend payout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await getIt<DividendDao>().deleteDividend(div.id);
-              if (!context.mounted) return;
-              context.read<DashboardBloc>().add(RefreshDashboard());
-              _loadHistory();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Dividend deleted')),
-              );
-            },
-            child: Text('Delete', style: TextStyle(color: AppTheme.sellRed)),
-          ),
-        ],
-      ),
+  Future<void> _confirmDeleteDividend(BuildContext context, Dividend div) async {
+    final result = await DeleteConfirmationDialog.show(
+      context,
+      title: 'Delete Dividend',
+      content: 'Are you sure you want to delete this dividend payout?',
     );
+
+    if (result != null && result.confirmed) {
+      if (!context.mounted) return;
+      await getIt<DividendDao>().deleteDividend(
+        div.id,
+        reason: result.reason,
+        reasonOther: result.reasonOther,
+      );
+      if (!context.mounted) return;
+      context.read<DashboardBloc>().add(RefreshDashboard());
+      _loadHistory();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dividend deleted')),
+      );
+    }
   }
 }

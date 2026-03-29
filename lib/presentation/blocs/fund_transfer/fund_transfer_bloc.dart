@@ -57,7 +57,7 @@ class FundTransferBloc extends Bloc<FundTransferEvent, FundTransferState> {
     Emitter<FundTransferState> emit,
   ) async {
     try {
-      await _fundTransferDao.deleteFundTransfer(event.id);
+      await _fundTransferDao.deleteFundTransfer(event.id, reason: event.reason, reasonOther: event.reasonOther);
       emit(const FundTransferOperationSuccess('Fund transfer deleted'));
       add(LoadFundTransfers());
     } catch (e) {

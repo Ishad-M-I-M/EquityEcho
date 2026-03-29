@@ -213,6 +213,13 @@ class SettingsScreen extends StatelessWidget {
           _SectionTitle('Data Management'),
           const SizedBox(height: 8),
           _SettingsTile(
+            icon: Icons.auto_delete,
+            title: 'Deleted Entries',
+            subtitle: 'View and restore soft-deleted items',
+            onTap: () => context.push('/deleted-entries'),
+          ),
+          const SizedBox(height: 6),
+          _SettingsTile(
             icon: Icons.refresh,
             title: 'Clear & Re-sync',
             subtitle: 'Delete all trades/funds and resync from SMS',
