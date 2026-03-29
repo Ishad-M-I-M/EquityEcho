@@ -65,7 +65,7 @@ class _TradeCardState extends State<TradeCard> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -159,7 +159,7 @@ class _TradeCardState extends State<TradeCard> {
                       Text(
                         DateFormat('MMM dd, yyyy').format(trade.smsDate),
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                         ),
                       ),
@@ -186,7 +186,7 @@ class _TradeCardState extends State<TradeCard> {
                         Text(
                           isBuy ? 'Total Cost' : 'Net Proceeds',
                           style: TextStyle(
-                            color: AppTheme.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 10,
                           ),
                         ),
@@ -204,13 +204,13 @@ class _TradeCardState extends State<TradeCard> {
                 child: Icon(
                   Icons.keyboard_arrow_down,
                   size: 16,
-                  color: AppTheme.textSecondary.withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
               ),
 
             // Expandable charges breakdown
             if (hasCharges && _expanded && breakdown != null) ...[
-              Divider(height: 1, color: AppTheme.divider),
+              Divider(height: 1, color: Theme.of(context).dividerColor),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                 child: Column(
@@ -274,7 +274,7 @@ class _TradeCardState extends State<TradeCard> {
                 child: Icon(
                   Icons.keyboard_arrow_up,
                   size: 16,
-                  color: AppTheme.textSecondary.withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
               ),
             ],
@@ -307,7 +307,7 @@ class _TradeChargeRow extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: isHeader ? Colors.white70 : AppTheme.textSecondary,
+                  color: isHeader ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: isHeader ? 12 : 11,
                   fontWeight: isHeader ? FontWeight.w600 : FontWeight.normal,
                 ),
@@ -317,13 +317,13 @@ class _TradeChargeRow extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   decoration: BoxDecoration(
-                    color: AppTheme.divider,
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(3),
                   ),
                   child: Text(
                     rate,
                     style: TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 9,
                       fontWeight: FontWeight.w500,
                     ),
@@ -335,7 +335,7 @@ class _TradeChargeRow extends StatelessWidget {
           Text(
             formatter.format(amount),
             style: TextStyle(
-              color: isHeader ? Colors.white70 : AppTheme.textSecondary,
+              color: isHeader ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: isHeader ? 12 : 11,
             ),
           ),

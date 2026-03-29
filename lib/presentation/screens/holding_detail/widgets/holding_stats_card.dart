@@ -18,25 +18,25 @@ class HoldingStatsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.cardDark,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.divider),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
           _StatRow('Net Quantity', '${holding.netQuantity.toStringAsFixed(0)} shares'),
-          Divider(height: 24, color: AppTheme.divider),
+          Divider(height: 24, color: Theme.of(context).dividerColor),
           _StatRow('Average Price', currencyFormatter.format(holding.avgBuyPrice)),
-          Divider(height: 24, color: AppTheme.divider),
+          Divider(height: 24, color: Theme.of(context).dividerColor),
           _StatRow('Average Cost', currencyFormatter.format(holding.avgCostWithCharges),
               subtitle: 'incl. charges'),
-          Divider(height: 24, color: AppTheme.divider),
+          Divider(height: 24, color: Theme.of(context).dividerColor),
           _StatRow('Total Invested', currencyFormatter.format(holding.totalInvested),
               color: AppTheme.buyGreen, subtitle: 'incl. charges'),
-          Divider(height: 24, color: AppTheme.divider),
+          Divider(height: 24, color: Theme.of(context).dividerColor),
           _StatRow('Total Sold', currencyFormatter.format(holding.totalSoldValue),
-              color: AppTheme.textSecondary, subtitle: 'net of charges'),
-          Divider(height: 24, color: AppTheme.divider),
+              color: Theme.of(context).colorScheme.onSurfaceVariant, subtitle: 'net of charges'),
+          Divider(height: 24, color: Theme.of(context).dividerColor),
           _StatRow(
             'Realized Gain',
             currencyFormatter.format(holding.realizedGain),
@@ -66,19 +66,19 @@ class _StatRow extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
             ),
             if (subtitle != null)
               Text(
                 subtitle!,
-                style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.6), fontSize: 10),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 10),
               ),
           ],
         ),
         Text(
           value,
           style: TextStyle(
-            color: color ?? Colors.white,
+            color: color ?? Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: 15,
           ),

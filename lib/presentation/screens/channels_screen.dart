@@ -57,7 +57,7 @@ class ChannelsScreen extends StatelessWidget {
                     Text(
                       'Add your broker\'s SMS channel to start tracking',
                       style: TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
@@ -80,7 +80,7 @@ class ChannelsScreen extends StatelessWidget {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(
-                    color: AppTheme.cardDark,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: ListTile(
@@ -102,7 +102,7 @@ class ChannelsScreen extends StatelessWidget {
                     subtitle: Text(
                       'Sender: ${channel.senderAddress}',
                       style: TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),

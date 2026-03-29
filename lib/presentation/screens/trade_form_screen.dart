@@ -105,12 +105,12 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                             decoration: BoxDecoration(
                               color: _action == 'buy'
                                   ? AppTheme.buyGreen.withValues(alpha: 0.15)
-                                  : AppTheme.surfaceDark,
+                                  : Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: _action == 'buy'
                                     ? AppTheme.buyGreen
-                                    : AppTheme.divider,
+                                    : Theme.of(context).dividerColor,
                                 width: _action == 'buy' ? 2 : 1,
                               ),
                             ),
@@ -120,7 +120,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                 style: TextStyle(
                                   color: _action == 'buy'
                                       ? AppTheme.buyGreen
-                                      : AppTheme.textSecondary,
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
                                 ),
@@ -139,12 +139,12 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                             decoration: BoxDecoration(
                               color: _action == 'sell'
                                   ? AppTheme.sellRed.withValues(alpha: 0.15)
-                                  : AppTheme.surfaceDark,
+                                  : Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: _action == 'sell'
                                     ? AppTheme.sellRed
-                                    : AppTheme.divider,
+                                    : Theme.of(context).dividerColor,
                                 width: _action == 'sell' ? 2 : 1,
                               ),
                             ),
@@ -154,7 +154,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                 style: TextStyle(
                                   color: _action == 'sell'
                                       ? AppTheme.sellRed
-                                      : AppTheme.textSecondary,
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
                                 ),
@@ -368,7 +368,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                 Text(
                                   'Total Value',
                                   style: TextStyle(
-                                    color: AppTheme.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -424,7 +424,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                           Text(
                                             effectiveLabel,
                                             style: TextStyle(
-                                              color: Colors.white,
+                                              color: Theme.of(context).colorScheme.onSurface,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w700,
                                             ),
@@ -435,7 +435,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                                 ? Icons.keyboard_arrow_up
                                                 : Icons.keyboard_arrow_down,
                                             size: 18,
-                                            color: AppTheme.textSecondary,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           ),
                                         ],
                                       ),
@@ -460,12 +460,12 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                     children: [
                                       Text('Trade Value',
                                           style: TextStyle(
-                                            color: AppTheme.textSecondary,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             fontSize: 13,
                                           )),
                                       Text(total.toStringAsFixed(2),
                                           style: TextStyle(
-                                            color: Colors.white70,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
                                           )),
@@ -478,7 +478,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                       amount: rawPrice,
                                     ),
                                   ],
-                                  Divider(height: 16, color: AppTheme.divider),
+                                  Divider(height: 16, color: Theme.of(context).dividerColor),
                                   _ChargeRow(
                                     label: 'Brokerage Fee',
                                     rate: '0.640%',
@@ -504,7 +504,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                     rate: '0.300%',
                                     amount: breakdown.shareTransactionLevy,
                                   ),
-                                  Divider(height: 16, color: AppTheme.divider),
+                                  Divider(height: 16, color: Theme.of(context).dividerColor),
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -640,7 +640,7 @@ class _ChargeRow extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: AppTheme.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 12,
                 ),
               ),
@@ -648,13 +648,13 @@ class _ChargeRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
-                  color: AppTheme.divider,
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   rate,
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                   ),
@@ -665,7 +665,7 @@ class _ChargeRow extends StatelessWidget {
           Text(
             amount.toStringAsFixed(2),
             style: TextStyle(
-              color: AppTheme.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
             ),
           ),

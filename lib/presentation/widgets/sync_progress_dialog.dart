@@ -35,7 +35,7 @@ void showSyncProgressDialog(BuildContext context) {
         final progress = total > 0 ? (processed / total) : null;
 
         return AlertDialog(
-          backgroundColor: AppTheme.cardDark,
+          backgroundColor: Theme.of(context).cardColor,
           title: const Text('Syncing SMS...'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -43,14 +43,14 @@ void showSyncProgressDialog(BuildContext context) {
               LinearProgressIndicator(
                 value: progress,
                 color: AppTheme.accent,
-                backgroundColor: AppTheme.surfaceDark,
+                backgroundColor: Theme.of(context).colorScheme.surface,
               ),
               const SizedBox(height: 16),
               Text(
                 total > 0
                     ? 'Processed $processed of $total messages'
                     : 'Preparing sync...',
-                style: TextStyle(color: AppTheme.textSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ],
           ),

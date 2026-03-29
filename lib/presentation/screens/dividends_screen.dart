@@ -55,7 +55,7 @@ class _DividendsScreenState extends State<DividendsScreen> {
             return Center(
               child: Text(
                 'No dividends recorded yet.',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
               ),
             );
           }
@@ -94,9 +94,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
                     ),
                     child: Column(
                       children: [
-                        const Text(
+                        Text(
                           'Total Received',
-                          style: TextStyle(fontSize: 14, color: Colors.white70),
+                          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -126,9 +126,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppTheme.surfaceDark,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppTheme.divider),
+                          border: Border.all(color: Theme.of(context).dividerColor),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,7 +206,7 @@ class _DividendsScreenState extends State<DividendsScreen> {
             double net = gross - taxAmount;
 
             return AlertDialog(
-              backgroundColor: AppTheme.cardDark,
+              backgroundColor: Theme.of(context).cardColor,
               title: const Text('Add Dividend'),
               content: SingleChildScrollView(
                 child: Column(
@@ -278,7 +278,7 @@ class _DividendsScreenState extends State<DividendsScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.surfaceDark,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
@@ -286,7 +286,7 @@ class _DividendsScreenState extends State<DividendsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Gross Dividend', style: TextStyle(color: AppTheme.textSecondary)),
+                              Text('Gross Dividend', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                               Text(net > 0 ? gross.toStringAsFixed(2) : '0.00'),
                             ],
                           ),
@@ -342,7 +342,7 @@ class _DividendsScreenState extends State<DividendsScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+                  child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
                 TextButton(
                   onPressed: () async {

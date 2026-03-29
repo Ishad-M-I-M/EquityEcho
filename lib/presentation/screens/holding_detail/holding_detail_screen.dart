@@ -134,7 +134,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
           context.read<DashboardBloc>().add(RefreshDashboard());
         },
         backgroundColor: AppTheme.accent,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
       ),
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
@@ -142,7 +142,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
             final holding = state.holdings.where((h) => h.symbol == widget.symbol).firstOrNull;
             if (holding == null) {
               return Center(
-                child: Text('Holding not found.', style: TextStyle(color: AppTheme.textSecondary)),
+                child: Text('Holding not found.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               );
             }
 
@@ -176,7 +176,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
 
                     final events = snapshot.data ?? [];
                     if (events.isEmpty) {
-                      return Text('No transactions found.', style: TextStyle(color: AppTheme.textSecondary));
+                      return Text('No transactions found.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant));
                     }
 
                     return Column(
@@ -188,7 +188,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: AppTheme.surfaceDark,
+                                color: Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
@@ -211,7 +211,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             DateFormat('MMM dd, yyyy').format(event.split.splitDate),
-                                            style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                                           ),
                                         ],
                                       ),
@@ -222,18 +222,18 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                     children: [
                                       Text(
                                         'Ratio ${event.split.oldShares} : ${event.split.newShares}',
-                                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                                       ),
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
                                           Text(
                                             event.beforeQty.toStringAsFixed(0),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14,
                                               decoration: TextDecoration.lineThrough,
-                                              color: Colors.white54,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                                             ),
                                           ),
                                           const SizedBox(width: 6),
@@ -278,13 +278,13 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardDark,
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text('Delete Transaction'),
         content: const Text('Are you sure you want to delete this transaction? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           TextButton(
             onPressed: () {
@@ -307,13 +307,13 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardDark,
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text('Delete Sub-division'),
         content: const Text('Are you sure you want to delete this sub-division event?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           TextButton(
             onPressed: () async {

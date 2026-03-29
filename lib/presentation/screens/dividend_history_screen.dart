@@ -54,7 +54,7 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
             return Center(
               child: Text(
                 'No dividend history found.',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
               ),
             );
           }
@@ -82,9 +82,9 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.surfaceDark,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.divider),
+                        border: Border.all(color: Theme.of(context).dividerColor),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +115,7 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
                                   Text(
                                     DateFormat('MMM dd, yyyy').format(div.date),
                                     style: TextStyle(
-                                      color: AppTheme.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -148,13 +148,13 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardDark,
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text('Delete Dividend'),
         content: const Text('Are you sure you want to delete this dividend payout?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           TextButton(
             onPressed: () async {

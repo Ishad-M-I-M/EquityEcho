@@ -147,7 +147,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
                     hintText:
                         'Paste a BUY SMS and replace symbol, qty, price with placeholders',
                     hintStyle: TextStyle(
-                        color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -179,7 +179,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
                     hintText:
                         'Paste a SELL SMS and replace symbol, qty, price with placeholders',
                     hintStyle: TextStyle(
-                        color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -211,7 +211,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
                   decoration: InputDecoration(
                     hintText: 'Paste a fund transfer SMS and replace amount with {{amount}}',
                     hintStyle: TextStyle(
-                        color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -284,7 +284,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardDark,
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text('Delete Channel?'),
         content: const Text(
             'This will remove the channel configuration. Existing trades and fund transfers will NOT be deleted.'),
@@ -354,9 +354,9 @@ class _PlaceholderHints extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppTheme.divider),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                 ),
                 child: Text(
                   p,
@@ -382,11 +382,11 @@ class _TestButton extends StatelessWidget {
       alignment: Alignment.centerRight,
       child: TextButton.icon(
         onPressed: onPressed,
-        icon: Icon(Icons.science, size: 16, color: AppTheme.textSecondary),
+        icon: Icon(Icons.science, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
         label: Text(
           'Test Template',
           style:
-              TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
         ),
       ),
     );
@@ -406,9 +406,9 @@ class _TemplateInstructions extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.divider.withValues(alpha: 0.5)),
+        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,7 +433,7 @@ class _TemplateInstructions extends StatelessWidget {
             'Paste a real SMS and replace $fields with placeholders. '
             'Dates and times are auto-detected — no need to replace them.',
             style: TextStyle(
-              color: AppTheme.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 11,
               height: 1.4,
             ),

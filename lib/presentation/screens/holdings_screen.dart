@@ -43,12 +43,12 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.pie_chart_outline,
-                        size: 64, color: AppTheme.textSecondary),
+                        size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(height: 16),
                     Text(
                       'No holdings yet',
                       style: TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 16,
                       ),
                     ),
@@ -56,7 +56,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                     Text(
                       'Your stock holdings will appear here',
                       style: TextStyle(
-                        color: AppTheme.textSecondary.withValues(alpha: 0.6),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                         fontSize: 13,
                       ),
                     ),
@@ -87,7 +87,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                       gradient: LinearGradient(
                         colors: [
                           AppTheme.accent.withValues(alpha: 0.1),
-                          AppTheme.surfaceDark,
+                          Theme.of(context).colorScheme.surface,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -105,7 +105,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                         Container(
                           width: 1,
                           height: 30,
-                          color: AppTheme.divider,
+                          color: Theme.of(context).dividerColor,
                         ),
                         _SummaryItem(
                           label: 'Total Invested',
@@ -115,7 +115,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                         Container(
                           width: 1,
                           height: 30,
-                          color: AppTheme.divider,
+                          color: Theme.of(context).dividerColor,
                         ),
                         _SummaryItem(
                           label: 'Book Value',
@@ -131,10 +131,10 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Search symbol...',
-                      prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
+                      prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: Icon(Icons.clear, color: AppTheme.textSecondary),
+                              icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() {
@@ -144,7 +144,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                             )
                           : null,
                       filled: true,
-                      fillColor: AppTheme.surfaceDark,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -182,7 +182,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -202,7 +202,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                         padding: const EdgeInsets.only(top: 40),
                         child: Text(
                           'No matching holdings found',
-                          style: TextStyle(color: AppTheme.textSecondary),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ),
                     ),
@@ -236,7 +236,7 @@ class _SummaryItem extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: AppTheme.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 11,
           ),
         ),

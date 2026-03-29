@@ -168,7 +168,7 @@ class _TemplateTestWidgetState extends State<TemplateTestWidget> {
             title: Text(
               'Generated Regex',
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -177,7 +177,7 @@ class _TemplateTestWidgetState extends State<TemplateTestWidget> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: SelectableText(
@@ -214,7 +214,7 @@ class _ExtractedField extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),

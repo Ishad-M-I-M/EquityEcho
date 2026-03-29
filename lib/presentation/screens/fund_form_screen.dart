@@ -87,12 +87,12 @@ class _FundFormScreenState extends State<FundFormScreen> {
                           decoration: BoxDecoration(
                             color: _action == 'deposit'
                                 ? AppTheme.fundBlue.withValues(alpha: 0.15)
-                                : AppTheme.surfaceDark,
+                                : Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _action == 'deposit'
                                   ? AppTheme.fundBlue
-                                  : AppTheme.divider,
+                                  : Theme.of(context).dividerColor,
                               width: _action == 'deposit' ? 2 : 1,
                             ),
                           ),
@@ -102,7 +102,7 @@ class _FundFormScreenState extends State<FundFormScreen> {
                               style: TextStyle(
                                 color: _action == 'deposit'
                                     ? AppTheme.fundBlue
-                                    : AppTheme.textSecondary,
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                               ),
@@ -121,12 +121,12 @@ class _FundFormScreenState extends State<FundFormScreen> {
                           decoration: BoxDecoration(
                             color: _action == 'withdrawal'
                                 ? AppTheme.warning.withValues(alpha: 0.15)
-                                : AppTheme.surfaceDark,
+                                : Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _action == 'withdrawal'
                                   ? AppTheme.warning
-                                  : AppTheme.divider,
+                                  : Theme.of(context).dividerColor,
                               width: _action == 'withdrawal' ? 2 : 1,
                             ),
                           ),
@@ -136,7 +136,7 @@ class _FundFormScreenState extends State<FundFormScreen> {
                               style: TextStyle(
                                 color: _action == 'withdrawal'
                                     ? AppTheme.warning
-                                    : AppTheme.textSecondary,
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                               ),

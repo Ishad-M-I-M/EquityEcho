@@ -23,10 +23,10 @@ class HoldingCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.cardDark,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: AppTheme.divider,
+            color: Theme.of(context).dividerColor,
             width: 0.5,
           ),
         ),
@@ -69,7 +69,7 @@ class HoldingCard extends StatelessWidget {
                       Text(
                         'Avg Cost: $currency ${holding.avgCostWithCharges.toStringAsFixed(2)}',
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -136,7 +136,7 @@ class _MetricChip extends StatelessWidget {
           Text(
             '$label: ',
             style: TextStyle(
-              color: AppTheme.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 11,
             ),
           ),

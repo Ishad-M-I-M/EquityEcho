@@ -47,7 +47,7 @@ class ActivityTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppTheme.cardDark,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -136,7 +136,7 @@ class ActivityTile extends StatelessWidget {
                       const Spacer(),
                       if (item.isManual)
                         Icon(Icons.edit_note,
-                            size: 14, color: AppTheme.textSecondary),
+                            size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -144,7 +144,7 @@ class ActivityTile extends StatelessWidget {
                     Text(
                       '${item.quantity?.toStringAsFixed(0)} × ${item.price?.toStringAsFixed(2)} = ${item.totalValue?.toStringAsFixed(2)}',
                       style: TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     )
@@ -168,14 +168,14 @@ class ActivityTile extends StatelessWidget {
                 Text(
                   DateFormat('MMM dd').format(item.date),
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 11,
                   ),
                 ),
                 Text(
                   DateFormat('HH:mm').format(item.date),
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 10,
                   ),
                 ),
@@ -183,7 +183,7 @@ class ActivityTile extends StatelessWidget {
                 Text(
                   item.channelName,
                   style: TextStyle(
-                    color: AppTheme.textSecondary.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                     fontSize: 9,
                   ),
                 ),

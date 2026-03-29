@@ -25,7 +25,7 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppTheme.cardDark,
+    backgroundColor: Theme.of(context).cardColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -69,10 +69,10 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(label,
-                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                   Text(value,
                       style: TextStyle(
-                          color: color ?? AppTheme.textPrimary,
+                          color: color ?? Theme.of(context).colorScheme.onSurface,
                           fontSize: 13,
                           fontWeight: FontWeight.w600)),
                 ],
@@ -98,7 +98,7 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -127,7 +127,7 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
                           Text(
                             'Correct your tracked portfolio to match your actual statement.',
                             style: TextStyle(
-                              color: AppTheme.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 13,
                             ),
                           ),
@@ -135,7 +135,7 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
                           Text(
                             'Current state: ${currentQty.toStringAsFixed(0)} shares @ ${currentAvgCost.toStringAsFixed(2)} average',
                             style: TextStyle(
-                              color: AppTheme.textSecondary.withValues(alpha: 0.7),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
                             ),
@@ -206,11 +206,11 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
                                         ? 'Creating a BUY entry to increase cost basis to your target.'
                                         : 'Creating a SELL entry to reduce holdings and cost basis.',
                                     style: TextStyle(
-                                      color: AppTheme.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontSize: 11,
                                     ),
                                   ),
-                                  Divider(height: 20, color: AppTheme.divider),
+                                  Divider(height: 20, color: Theme.of(context).dividerColor),
                                   detailRow(
                                     'Raw Trade Value',
                                     adjustmentTotalValueForRecord.toStringAsFixed(2),
@@ -270,7 +270,7 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
                                   Text(
                                     'The target states requires increasing quantity while decreasing total value (or vice-versa), which cannot be mapped to a single trade. Please check your targets.',
                                     style: TextStyle(
-                                      color: AppTheme.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -328,7 +328,7 @@ void showAdjustDialog(BuildContext context, String symbol, VoidCallback onAdjust
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: isValid
                                     ? (isAddition ? AppTheme.buyGreen : AppTheme.sellRed)
-                                    : AppTheme.divider,
+                                    : Theme.of(context).dividerColor,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),

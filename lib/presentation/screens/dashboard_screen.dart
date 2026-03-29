@@ -153,7 +153,7 @@ class DashboardScreen extends StatelessWidget {
                         Text(
                           '${state.holdings.length} stocks',
                           style: TextStyle(
-                            color: AppTheme.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 13,
                           ),
                         ),
@@ -189,7 +189,7 @@ class DashboardScreen extends StatelessWidget {
                               Text(
                                 'Portfolio Book Value',
                                 style: TextStyle(
-                                  color: AppTheme.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                               ),
@@ -223,7 +223,7 @@ class DashboardScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -255,7 +255,7 @@ class DashboardScreen extends StatelessWidget {
   void _showAddMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.cardDark,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -268,7 +268,7 @@ class DashboardScreen extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -285,7 +285,7 @@ class DashboardScreen extends StatelessWidget {
               title: const Text('Add Trade'),
               subtitle: Text(
                 'Manually add a buy or sell trade',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -305,7 +305,7 @@ class DashboardScreen extends StatelessWidget {
               title: const Text('Add IPO Purchase'),
               subtitle: Text(
                 'Record an IPO allotment and deposit',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -326,7 +326,7 @@ class DashboardScreen extends StatelessWidget {
               title: const Text('Add Fund Transfer'),
               subtitle: Text(
                 'Record a deposit or withdrawal',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -385,7 +385,7 @@ class _EmptyState extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),

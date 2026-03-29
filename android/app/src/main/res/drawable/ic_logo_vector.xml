@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group android:name="logo_group" android:pivotX="12" android:pivotY="12">
+        <path
+            android:name="background_circle"
+            android:fillColor="#0D1B2A"
+            android:pathData="M12,12m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"/>
+        <path
+            android:name="icon_path"
+            android:fillColor="#00E5A0"
+            android:pathData="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+    </group>
+</vector>

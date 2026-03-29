@@ -19,7 +19,7 @@ void showAddSplitDialog(BuildContext context, String symbol, VoidCallback onAdde
       return StatefulBuilder(
         builder: (context, setStateLocal) {
           return AlertDialog(
-            backgroundColor: AppTheme.cardDark,
+            backgroundColor: Theme.of(context).cardColor,
             title: Text('Sub-division for $symbol'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -62,14 +62,14 @@ void showAddSplitDialog(BuildContext context, String symbol, VoidCallback onAdde
                 const SizedBox(height: 8),
                 Text(
                   'Rule: 10 old into 1 new => Ratio 10:1',
-                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                 ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogCtx),
-                child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+                child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               TextButton(
                 onPressed: () async {

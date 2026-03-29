@@ -79,12 +79,12 @@ class ActivityLogScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.history,
-                        size: 64, color: AppTheme.textSecondary),
+                        size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(height: 16),
                     Text(
                       'No activity found',
                       style: TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 16,
                       ),
                     ),
@@ -115,7 +115,7 @@ class ActivityLogScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -147,7 +147,7 @@ class ActivityLogScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.cardDark,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -190,7 +190,7 @@ class ActivityLogScreen extends StatelessWidget {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -306,9 +306,9 @@ class ActivityLogScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: AppTheme.surfaceDark,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppTheme.divider),
+                              border: Border.all(color: Theme.of(context).dividerColor),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +334,7 @@ class ActivityLogScreen extends StatelessWidget {
                                           ? Icons.keyboard_arrow_up
                                           : Icons.keyboard_arrow_down,
                                       size: 18,
-                                      color: AppTheme.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ],
                                 ),
@@ -350,7 +350,7 @@ class ActivityLogScreen extends StatelessWidget {
                                       'SEC Cess', '0.072%', breakdown.secCess),
                                   _SheetChargeRow('Share Trans. Levy', '0.300%',
                                       breakdown.shareTransactionLevy),
-                                  Divider(height: 16, color: AppTheme.divider),
+                                  Divider(height: 16, color: Theme.of(context).dividerColor),
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -385,7 +385,7 @@ class ActivityLogScreen extends StatelessWidget {
                         Text(
                           'Original SMS',
                           style: TextStyle(
-                            color: AppTheme.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                           ),
                         ),
@@ -394,7 +394,7 @@ class ActivityLogScreen extends StatelessWidget {
                           width: double.infinity,
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppTheme.surfaceDark,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -419,7 +419,7 @@ class ActivityLogScreen extends StatelessWidget {
   void _showFundDetails(BuildContext context, ActivityItem item) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.cardDark,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -434,7 +434,7 @@ class ActivityLogScreen extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -462,7 +462,7 @@ class ActivityLogScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.cardDark,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -491,7 +491,7 @@ class ActivityLogScreen extends StatelessWidget {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -706,7 +706,7 @@ class _DetailRow extends StatelessWidget {
             width: 100,
             child: Text(
               label,
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
             ),
           ),
           Expanded(
@@ -740,20 +740,20 @@ class _SheetChargeRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
               ),
               const SizedBox(width: 6),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
-                  color: AppTheme.divider,
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   rate,
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                   ),
@@ -763,7 +763,7 @@ class _SheetChargeRow extends StatelessWidget {
           ),
           Text(
             amount.toStringAsFixed(2),
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
           ),
         ],
       ),

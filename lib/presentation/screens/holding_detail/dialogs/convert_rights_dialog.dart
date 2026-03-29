@@ -30,7 +30,7 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppTheme.cardDark,
+    backgroundColor: Theme.of(context).cardColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -58,7 +58,7 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppTheme.textSecondary.withValues(alpha: 0.3),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -87,7 +87,7 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                           Text(
                             'Convert your $symbol rights into regular shares.',
                             style: TextStyle(
-                              color: AppTheme.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 13,
                             ),
                           ),
@@ -229,7 +229,7 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: isValid ? Colors.deepPurpleAccent : AppTheme.divider,
+                                backgroundColor: isValid ? Colors.deepPurpleAccent : Theme.of(context).dividerColor,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),

@@ -33,6 +33,7 @@ import 'package:equity_echo/presentation/screens/deposits_screen.dart';
 import 'package:equity_echo/presentation/screens/realized_gains_screen.dart';
 import 'package:equity_echo/presentation/screens/dividends_screen.dart';
 import 'package:equity_echo/presentation/screens/dividend_history_screen.dart';
+import 'package:equity_echo/core/theme/theme_cubit.dart';
 
 class EquityEchoApp extends StatelessWidget {
   const EquityEchoApp({super.key});
@@ -77,12 +78,21 @@ class EquityEchoApp extends StatelessWidget {
             fundTransferDao: getIt<FundTransferDao>(),
           ),
         ),
+        BlocProvider(
+          create: (_) => ThemeCubit(),
+        ),
       ],
-      child: MaterialApp.router(
-        title: 'EquityEcho',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        routerConfig: _router,
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp.router(
+            title: 'EquityEcho',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeMode,
+            routerConfig: _router,
+          );
+        },
       ),
     );
   }

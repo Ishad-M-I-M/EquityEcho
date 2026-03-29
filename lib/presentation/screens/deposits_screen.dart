@@ -70,9 +70,9 @@ class _DepositsScreenState extends State<DepositsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.account_balance_wallet_outlined, size: 64, color: AppTheme.textSecondary),
+                  Icon(Icons.account_balance_wallet_outlined, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
-                  Text('No deposits found', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+                  Text('No deposits found', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16)),
                 ],
               ),
             );
@@ -94,7 +94,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: dColor.withValues(alpha: 0.15)),
                 ),
@@ -140,7 +140,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
                           Text(
                             dateFormatter.format(deposit.smsDate),
                             style: TextStyle(
-                              color: AppTheme.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 13,
                             ),
                           ),

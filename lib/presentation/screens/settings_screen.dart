@@ -8,6 +8,7 @@ import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
 import 'package:equity_echo/presentation/blocs/sms_sync/sms_sync_bloc.dart';
 import 'package:equity_echo/presentation/widgets/sync_progress_dialog.dart';
+import 'package:equity_echo/core/theme/theme_cubit.dart';
 
 
 class SettingsScreen extends StatelessWidget {
@@ -29,7 +30,7 @@ class SettingsScreen extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   AppTheme.accent.withValues(alpha: 0.12),
-                  AppTheme.surfaceDark,
+                  Theme.of(context).colorScheme.surface,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -66,6 +67,68 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 24),
+
+          const SizedBox(height: 24),
+
+          // Appearance section
+          _SectionTitle('Appearance'),
+          const SizedBox(height: 8),
+          BlocBuilder<ThemeCubit, ThemeMode>(
+            builder: (context, themeMode) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.palette, color: AppTheme.accent, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Theme',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<ThemeMode>(
+                        value: themeMode,
+                        icon: Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        dropdownColor: Theme.of(context).cardColor,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+                          DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+                          DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+                        ],
+                        onChanged: (mode) {
+                          if (mode != null) {
+                            context.read<ThemeCubit>().setTheme(mode);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           const SizedBox(height: 24),
 
@@ -172,7 +235,7 @@ class SettingsScreen extends StatelessWidget {
             child: Text(
               'Built with ❤️ for equity tracking',
               style: TextStyle(
-                color: AppTheme.textSecondary.withValues(alpha: 0.5),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 fontSize: 12,
               ),
             ),
@@ -187,7 +250,7 @@ class SettingsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardDark,
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text('Clear All Data?'),
         content: const Text(
             'This will permanently delete all trades and fund transfers. Channel configurations will be kept.'),
@@ -220,7 +283,7 @@ class SettingsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardDark,
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text('Clear & Re-sync?'),
         content: const Text(
             'This will delete all existing trades and fund transfers, then re-sync from your SMS inbox.'),
@@ -258,7 +321,7 @@ class _SectionTitle extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        color: AppTheme.textSecondary,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
@@ -290,7 +353,7 @@ class _SettingsTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppTheme.cardDark,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -319,7 +382,7 @@ class _SettingsTile extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
@@ -327,7 +390,7 @@ class _SettingsTile extends StatelessWidget {
               ),
             ),
             Icon(Icons.chevron_right,
-                color: AppTheme.textSecondary, size: 20),
+                color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
           ],
         ),
       ),
