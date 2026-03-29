@@ -27,7 +27,7 @@ import 'package:equity_echo/presentation/screens/channels_screen.dart';
 import 'package:equity_echo/presentation/screens/channel_config_screen.dart';
 import 'package:equity_echo/presentation/screens/trade_form_screen.dart';
 import 'package:equity_echo/presentation/screens/fund_form_screen.dart';
-import 'package:equity_echo/presentation/screens/holding_detail_screen.dart';
+import 'package:equity_echo/presentation/screens/holding_detail/holding_detail_screen.dart';
 import 'package:equity_echo/presentation/screens/splash_screen.dart';
 import 'package:equity_echo/presentation/screens/deposits_screen.dart';
 import 'package:equity_echo/presentation/screens/realized_gains_screen.dart';
