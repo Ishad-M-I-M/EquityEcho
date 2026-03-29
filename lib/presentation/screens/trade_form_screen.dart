@@ -272,7 +272,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                     ),
                     value: _priceIncludesCharges,
                     onChanged: (v) => setState(() => _priceIncludesCharges = v),
-                    activeColor: AppTheme.accent,
+                    activeThumbColor: AppTheme.accent,
                     contentPadding: EdgeInsets.zero,
                     dense: true,
                   ),

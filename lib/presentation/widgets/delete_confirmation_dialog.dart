@@ -67,13 +67,8 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
             const SizedBox(height: 20),
             Text('Please select a reason (optional):', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 8),
-            ..._reasons.map((reason) => RadioListTile<String>(
-              title: Text(reason, style: const TextStyle(fontSize: 14)),
-              value: reason,
+            RadioGroup<String?>(
               groupValue: _selectedReason,
-              contentPadding: EdgeInsets.zero,
-              activeColor: AppTheme.sellRed,
-              visualDensity: VisualDensity.compact,
               onChanged: (value) {
                 setState(() {
                   _selectedReason = value;
@@ -82,7 +77,16 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
                   }
                 });
               },
-            )),
+              child: Column(
+                children: _reasons.map((reason) => RadioListTile<String>(
+                  title: Text(reason, style: const TextStyle(fontSize: 14)),
+                  value: reason,
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: AppTheme.sellRed,
+                  visualDensity: VisualDensity.compact,
+                )).toList(),
+              ),
+            ),
             if (_selectedReason == 'Other') ...[
               const SizedBox(height: 8),
               TextField(

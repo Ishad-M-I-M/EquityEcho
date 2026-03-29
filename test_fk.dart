@@ -1,6 +1,7 @@
 import 'package:equity_echo/data/database/database.dart';
 import 'package:drift/native.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   final db = AppDatabase.forTesting(NativeDatabase.memory());
@@ -16,8 +17,8 @@ void main() async {
       smsDate: DateTime.now(),
       rawSmsBody: const Value(''),
     ));
-    print('SUCCESS_INSERT');
+    debugPrint('SUCCESS_INSERT');
   } catch (e) {
-    print('ERROR_INSERT: \$e');
+    debugPrint('ERROR_INSERT: $e');
   }
 }
