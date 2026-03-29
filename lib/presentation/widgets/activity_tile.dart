@@ -132,6 +132,14 @@ class ActivityTile extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                           ),
+                        )
+                      else if (isIpoDeposit && item.rawSmsBody.isNotEmpty)
+                        Text(
+                          item.rawSmsBody,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
                       const Spacer(),
                       if (item.isManual)

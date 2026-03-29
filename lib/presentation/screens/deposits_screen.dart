@@ -123,7 +123,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              if (isIpo) ...[
+                            if (isIpo) ...[
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -131,7 +131,10 @@ class _DepositsScreenState extends State<DepositsScreen> {
                                     color: AppTheme.accent.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: Text('IPO', style: TextStyle(color: AppTheme.accent, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  child: Text(
+                                    deposit.rawSmsBody.isNotEmpty ? 'IPO: ${deposit.rawSmsBody}' : 'IPO', 
+                                    style: TextStyle(color: AppTheme.accent, fontSize: 10, fontWeight: FontWeight.bold)
+                                  ),
                                 ),
                               ],
                             ],

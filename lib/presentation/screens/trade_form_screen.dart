@@ -586,7 +586,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
             id: widget.tradeId!,
             channelId: _channelId!,
             action: _action,
-            symbol: _symbolController.text.toUpperCase(),
+            symbol: _symbolController.text.trim().toUpperCase(),
             quantity: double.parse(_quantityController.text),
             price: rawPrice,
             smsDate: dateTime,
@@ -595,7 +595,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
       context.read<TradeBloc>().add(AddTrade(
             channelId: _channelId!,
             action: _action,
-            symbol: _symbolController.text.toUpperCase(),
+            symbol: _symbolController.text.trim().toUpperCase(),
             quantity: double.parse(_quantityController.text),
             price: rawPrice,
             smsDate: dateTime,
@@ -609,6 +609,7 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
               action: 'ipo_deposit',
               amount: double.parse(_quantityController.text) * rawPrice,
               smsDate: dateTime,
+              rawSmsBody: _symbolController.text.trim().toUpperCase(),
               isManual: true,
             ));
       }

@@ -201,7 +201,7 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                                             channelId: channelId,
                                             action: 'rights_convert',
                                             symbol: symbol,
-                                            targetSymbol: targetSymbolController.text.toUpperCase(),
+                                            targetSymbol: targetSymbolController.text.trim().toUpperCase(),
                                             quantity: qty,
                                             price: price,
                                             smsDate: selectedDate,
