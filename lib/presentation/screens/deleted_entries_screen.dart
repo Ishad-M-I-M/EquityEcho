@@ -53,16 +53,26 @@ class _DeletedEntriesScreenState extends State<DeletedEntriesScreen> {
     // Sort logic (if required, rough sort by timestamp)
     allEntries.sort((a, b) {
       DateTime dateA;
-      if (a is Trade) dateA = a.smsDate;
-      else if (a is FundTransfer) dateA = a.smsDate;
-      else if (a is Dividend) dateA = a.date;
-      else dateA = (a as StockSplit).splitDate;
+      if (a is Trade) {
+        dateA = a.smsDate;
+      } else if (a is FundTransfer) {
+        dateA = a.smsDate;
+      } else if (a is Dividend) {
+        dateA = a.date;
+      } else {
+        dateA = (a as StockSplit).splitDate;
+      }
 
       DateTime dateB;
-      if (b is Trade) dateB = b.smsDate;
-      else if (b is FundTransfer) dateB = b.smsDate;
-      else if (b is Dividend) dateB = b.date;
-      else dateB = (b as StockSplit).splitDate;
+      if (b is Trade) {
+        dateB = b.smsDate;
+      } else if (b is FundTransfer) {
+        dateB = b.smsDate;
+      } else if (b is Dividend) {
+        dateB = b.date;
+      } else {
+        dateB = (b as StockSplit).splitDate;
+      }
 
       return dateB.compareTo(dateA); // Newest first
     });
