@@ -8,6 +8,9 @@ import 'package:equity_echo/data/database/database.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
+import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_bloc.dart';
+import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_event.dart';
+import 'package:equity_echo/presentation/widgets/delete_confirmation_dialog.dart';
 
 class DepositsScreen extends StatefulWidget {
   const DepositsScreen({super.key});
@@ -90,69 +93,106 @@ class _DepositsScreenState extends State<DepositsScreen> {
               final dColor = isIpo ? AppTheme.accent : AppTheme.fundBlue;
               final dIcon = isIpo ? Icons.new_releases : Icons.arrow_downward;
               
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: dColor.withValues(alpha: 0.15)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: dColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+              return GestureDetector(
+                onLongPress: () async {
+                  final result = await DeleteConfirmationDialog.show(
+                    context,
+                    title: 'Delete Deposit',
+                    content: 'Are you sure you want to delete this deposit of ${currencyFormatter.format(deposit.amount)}?',
+                  );
+
+                  if (result != null && result.confirmed) {
+                    if (!context.mounted) return;
+                    context.read<FundTransferBloc>().add(DeleteFundTransfer(
+                          deposit.id,
+                          reason: result.reason,
+                          reasonOther: result.reasonOther,
+                        ));
+                    
+                    context.read<DashboardBloc>().add(RefreshDashboard());
+                    
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Deposit deleted')),
+                    );
+                    
+                    setState(() {
+                      _loadDeposits();
+                    });
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: dColor.withValues(alpha: 0.15)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: dColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(dIcon, color: dColor),
                       ),
-                      child: Icon(dIcon, color: dColor),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                '+ ${currencyFormatter.format(deposit.amount)}',
-                                style: TextStyle(
-                                  color: dColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            if (isIpo) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.accent.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    deposit.rawSmsBody.isNotEmpty ? 'IPO: ${deposit.rawSmsBody}' : 'IPO', 
-                                    style: TextStyle(color: AppTheme.accent, fontSize: 10, fontWeight: FontWeight.bold)
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  '+ ${currencyFormatter.format(deposit.amount)}',
+                                  style: TextStyle(
+                                    color: dColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                if (isIpo) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          AppTheme.accent.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                        deposit.rawSmsBody.isNotEmpty
+                                            ? 'IPO: ${deposit.rawSmsBody}'
+                                            : 'IPO',
+                                        style: TextStyle(
+                                            color: AppTheme.accent,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
                               ],
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            dateFormatter.format(deposit.smsDate),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontSize: 13,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              dateFormatter.format(deposit.smsDate),
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
+
             },
           );
         },
