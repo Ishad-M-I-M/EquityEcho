@@ -138,6 +138,47 @@ class SmsService {
     }
   }
 
+  /// Get all distinct SMS sender addresses from the inbox.
+  /// Returns a list of unique sender addresses sorted alphabetically.
+  Future<List<String>> getDistinctSenders() async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      debugPrint('[SmsService] Not Android — returning empty senders');
+      return [];
+    }
+
+    final hasPerms = await requestPermission();
+    if (!hasPerms) {
+      debugPrint('[SmsService] SMS permission not granted — cannot read senders');
+      return [];
+    }
+
+    debugPrint('[SmsService] Reading distinct senders...');
+
+    try {
+      final rawMessages = await _telephony.getInboxSms(
+        columns: [tel.SmsColumn.ADDRESS],
+        sortOrder: [
+          tel.OrderBy(tel.SmsColumn.ADDRESS, sort: tel.Sort.ASC),
+        ],
+      );
+
+      final senders = <String>{};
+      for (final msg in rawMessages) {
+        final address = msg.address;
+        if (address != null && address.isNotEmpty) {
+          senders.add(address);
+        }
+      }
+
+      final sorted = senders.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+      debugPrint('[SmsService] Found ${sorted.length} distinct senders');
+      return sorted;
+    } catch (e) {
+      debugPrint('[SmsService] Error reading senders: $e');
+      return [];
+    }
+  }
+
   /// Start listening for incoming SMS in the foreground.
   void startListening() {
     if (defaultTargetPlatform != TargetPlatform.android) return;
