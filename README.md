@@ -252,6 +252,12 @@ lib/
 
 ---
 
+## Privacy Policy
+
+EquityEcho processes SMS messages **entirely on your device** — no data is ever transmitted to any server. Read the full [Privacy Policy](docs/PRIVACY_POLICY.md).
+
+---
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 — see [LICENSE](LICENSE) for details.
