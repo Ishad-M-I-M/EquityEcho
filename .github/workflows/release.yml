@@ -1,0 +1,115 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  JAVA_VERSION: '17'
+  FLUTTER_CHANNEL: 'stable'
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          # Validate semver format: 1.2.3 or 1.2.3-beta.1, 1.2.3-rc.2, etc.
+          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[0-9]+)?)?$ ]]; then
+            echo "::error::Tag must follow semver format: v<major>.<minor>.<patch>[-<pre>.<n>] (e.g. v1.2.3 or v0.1.0-beta.1)"
+            exit 1
+          fi
+
+          # Detect if this is a beta/prerelease tag
+          if [[ "$TAG" == *-* ]]; then
+            echo "is_beta=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_beta=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          BUILD_NUMBER=${{ github.run_number }}
+          echo "version_name=$TAG" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "📦 Version: $TAG+$BUILD_NUMBER (beta=${{ steps.version.outputs.is_beta || 'pending' }})"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Build App Bundle
+        run: |
+          flutter build appbundle \
+            --release \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ steps.version.outputs.build_number }}
+
+      - name: Upload App Bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ steps.version.outputs.version_name }}
+          path: build/app/outputs/bundle/release/app-release.aab
+
+      - name: Publish to Google Play
+        if: steps.version.outputs.is_beta == 'false'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          packageName: com.example.equity_echo
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: draft
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "v${{ steps.version.outputs.version_name }}"
+          prerelease: ${{ steps.version.outputs.is_beta == 'true' }}
+          draft: true
+          generate_release_notes: true
+          files: build/app/outputs/bundle/release/app-release.aab
+
+      - name: Publish Release
+        run: gh release edit "${{ github.ref_name }}" --draft=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
