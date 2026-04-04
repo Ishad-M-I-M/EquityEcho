@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_echo/core/theme/app_theme.dart';
+import 'package:equity_echo/core/constants/app_constants.dart';
 
 import 'package:equity_echo/presentation/blocs/channel/channel_bloc.dart';
 import 'package:equity_echo/presentation/blocs/channel/channel_event.dart';
@@ -25,6 +26,8 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
   final _sellTemplateController = TextEditingController();
   final _fundTemplateController = TextEditingController();
   String _currency = 'LKR';
+  bool _useDefaultBuyTemplate = true;
+  bool _useDefaultSellTemplate = true;
   String? _activeTestTemplate;
   bool _isEditing = false;
   bool _loaded = false;
@@ -52,6 +55,8 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
         _sellTemplateController.text = channel.sellTemplate ?? '';
         _fundTemplateController.text = channel.fundTemplate ?? '';
         _currency = channel.currency;
+        _useDefaultBuyTemplate = channel.useDefaultBuyTemplate;
+        _useDefaultSellTemplate = channel.useDefaultSellTemplate;
         _isEditing = true;
         _loaded = true;
       }
@@ -133,64 +138,103 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
 
                 // ── Buy Template ──
                 _SectionHeader('Buy Template', color: AppTheme.buyGreen),
-                const SizedBox(height: 4),
-                _PlaceholderHints(
-                  placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}', '{{*}}'],
-                ),
-                const SizedBox(height: 4),
-                const _TemplateInstructions(),
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: _buyTemplateController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText:
-                        'Paste a BUY SMS and replace symbol, qty, price with placeholders',
-                    hintStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                _DefaultTemplateToggle(
+                  label: 'Use Default Template',
+                  value: _useDefaultBuyTemplate,
+                  defaultTemplate: AppConstants.defaultBuyTemplate,
+                  onChanged: (v) => setState(() => _useDefaultBuyTemplate = v),
+                ),
+                if (!_useDefaultBuyTemplate) ...[
+                  const SizedBox(height: 8),
+                  _PlaceholderHints(
+                    placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}', '{{*}}'],
                   ),
-                ),
-                const SizedBox(height: 6),
-                _TestButton(
-                  onPressed: () => setState(
-                      () => _activeTestTemplate = _buyTemplateController.text),
-                ),
-                if (_activeTestTemplate == _buyTemplateController.text &&
-                    _buyTemplateController.text.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  TemplateTestWidget(template: _buyTemplateController.text),
+                  const SizedBox(height: 4),
+                  const _TemplateInstructions(),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _buyTemplateController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText:
+                          'Paste a BUY SMS and replace symbol, qty, price with placeholders',
+                      hintStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _TestButton(
+                    onPressed: () => setState(
+                        () => _activeTestTemplate = _buyTemplateController.text),
+                  ),
+                  if (_activeTestTemplate == _buyTemplateController.text &&
+                      _buyTemplateController.text.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    TemplateTestWidget(template: _buyTemplateController.text),
+                  ],
+                ] else ...[
+                  // Show test button for default template too
+                  const SizedBox(height: 6),
+                  _TestButton(
+                    onPressed: () => setState(
+                        () => _activeTestTemplate = AppConstants.defaultBuyTemplate),
+                  ),
+                  if (_activeTestTemplate == AppConstants.defaultBuyTemplate) ...[
+                    const SizedBox(height: 10),
+                    TemplateTestWidget(template: AppConstants.defaultBuyTemplate),
+                  ],
                 ],
 
                 const SizedBox(height: 28),
 
                 // ── Sell Template ──
                 _SectionHeader('Sell Template', color: AppTheme.sellRed),
-                const SizedBox(height: 4),
-                _PlaceholderHints(
-                  placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}', '{{*}}'],
-                ),
-                const SizedBox(height: 4),
-                const _TemplateInstructions(),
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: _sellTemplateController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText:
-                        'Paste a SELL SMS and replace symbol, qty, price with placeholders',
-                    hintStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                _DefaultTemplateToggle(
+                  label: 'Use Default Template',
+                  value: _useDefaultSellTemplate,
+                  defaultTemplate: AppConstants.defaultSellTemplate,
+                  onChanged: (v) => setState(() => _useDefaultSellTemplate = v),
+                ),
+                if (!_useDefaultSellTemplate) ...[
+                  const SizedBox(height: 8),
+                  _PlaceholderHints(
+                    placeholders: ['{{symbol}}', '{{quantity}}', '{{price}}', '{{date}}', '{{time}}', '{{*}}'],
                   ),
-                ),
-                const SizedBox(height: 6),
-                _TestButton(
-                  onPressed: () => setState(
-                      () => _activeTestTemplate = _sellTemplateController.text),
-                ),
-                if (_activeTestTemplate == _sellTemplateController.text &&
-                    _sellTemplateController.text.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  TemplateTestWidget(template: _sellTemplateController.text),
+                  const SizedBox(height: 4),
+                  const _TemplateInstructions(),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _sellTemplateController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText:
+                          'Paste a SELL SMS and replace symbol, qty, price with placeholders',
+                      hintStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _TestButton(
+                    onPressed: () => setState(
+                        () => _activeTestTemplate = _sellTemplateController.text),
+                  ),
+                  if (_activeTestTemplate == _sellTemplateController.text &&
+                      _sellTemplateController.text.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    TemplateTestWidget(template: _sellTemplateController.text),
+                  ],
+                ] else ...[
+                  const SizedBox(height: 6),
+                  _TestButton(
+                    onPressed: () => setState(
+                        () => _activeTestTemplate = AppConstants.defaultSellTemplate),
+                  ),
+                  if (_activeTestTemplate == AppConstants.defaultSellTemplate) ...[
+                    const SizedBox(height: 10),
+                    TemplateTestWidget(template: AppConstants.defaultSellTemplate),
+                  ],
                 ],
 
                 const SizedBox(height: 28),
@@ -267,6 +311,8 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
             sellTemplate: sellTemplate,
             fundTemplate: fundTemplate,
             currency: _currency,
+            useDefaultBuyTemplate: _useDefaultBuyTemplate,
+            useDefaultSellTemplate: _useDefaultSellTemplate,
           ));
     } else {
       context.read<ChannelBloc>().add(AddChannel(
@@ -276,6 +322,8 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
             sellTemplate: sellTemplate,
             fundTemplate: fundTemplate,
             currency: _currency,
+            useDefaultBuyTemplate: _useDefaultBuyTemplate,
+            useDefaultSellTemplate: _useDefaultSellTemplate,
           ));
     }
   }
@@ -335,6 +383,92 @@ class _SectionHeader extends StatelessWidget {
             color: color ?? AppTheme.accent,
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Toggle widget for switching between default and custom templates.
+/// Shows the default template as a read-only preview when enabled.
+class _DefaultTemplateToggle extends StatelessWidget {
+  final String label;
+  final bool value;
+  final String defaultTemplate;
+  final ValueChanged<bool> onChanged;
+
+  const _DefaultTemplateToggle({
+    required this.label,
+    required this.value,
+    required this.defaultTemplate,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+            ),
+          ],
+        ),
+        if (value) ...[
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: AppTheme.accent.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.auto_awesome, size: 14, color: AppTheme.accent),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Default Template',
+                      style: TextStyle(
+                        color: AppTheme.accent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  defaultTemplate,
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

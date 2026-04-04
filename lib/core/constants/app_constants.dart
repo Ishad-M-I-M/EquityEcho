@@ -15,6 +15,14 @@ class AppConstants {
   static const String amountPlaceholder = '{{amount}}';
   static const String datePlaceholder = '{{date}}';
   static const String timePlaceholder = '{{time}}';
+  static const String wildcardPlaceholder = '{{*}}';
+
+  /// Default SMS templates for standard CSE broker format
+  /// Format: BUY FILLED: MGT.N0000 10@32.90 , ARR/85479-LI/0,<17-03-2026 11:41>- Softlogic
+  static const String defaultBuyTemplate =
+      'BUY FILLED: {{symbol}} {{quantity}}@{{price}} , {{*}},<{{date}} {{time}}>- {{*}}';
+  static const String defaultSellTemplate =
+      'SELL FILLED: {{symbol}} {{quantity}}@{{price}} , {{*}},<{{date}} {{time}}>- {{*}}';
 
   /// All supported placeholders
   static const List<String> allPlaceholders = [

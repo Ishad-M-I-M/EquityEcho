@@ -48,6 +48,8 @@ class ChannelBloc extends Bloc<ChannelEvent, ChannelState> {
         sellTemplate: Value(event.sellTemplate),
         fundTemplate: Value(event.fundTemplate),
         currency: Value(event.currency),
+        useDefaultBuyTemplate: Value(event.useDefaultBuyTemplate),
+        useDefaultSellTemplate: Value(event.useDefaultSellTemplate),
         createdAt: Value(now),
         updatedAt: Value(now),
       ));
@@ -77,6 +79,8 @@ class ChannelBloc extends Bloc<ChannelEvent, ChannelState> {
         sellTemplate: Value(event.sellTemplate),
         fundTemplate: Value(event.fundTemplate),
         currency: Value(event.currency),
+        useDefaultBuyTemplate: Value(event.useDefaultBuyTemplate),
+        useDefaultSellTemplate: Value(event.useDefaultSellTemplate),
         createdAt: Value(existing.createdAt),
         updatedAt: Value(DateTime.now()),
       ));

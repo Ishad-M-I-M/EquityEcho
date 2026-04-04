@@ -90,6 +90,36 @@ class $ChannelsTable extends Channels with TableInfo<$ChannelsTable, Channel> {
     requiredDuringInsert: false,
     defaultValue: const Constant('LKR'),
   );
+  static const VerificationMeta _useDefaultBuyTemplateMeta =
+      const VerificationMeta('useDefaultBuyTemplate');
+  @override
+  late final GeneratedColumn<bool> useDefaultBuyTemplate =
+      GeneratedColumn<bool>(
+        'use_default_buy_template',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("use_default_buy_template" IN (0, 1))',
+        ),
+        defaultValue: const Constant(true),
+      );
+  static const VerificationMeta _useDefaultSellTemplateMeta =
+      const VerificationMeta('useDefaultSellTemplate');
+  @override
+  late final GeneratedColumn<bool> useDefaultSellTemplate =
+      GeneratedColumn<bool>(
+        'use_default_sell_template',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("use_default_sell_template" IN (0, 1))',
+        ),
+        defaultValue: const Constant(true),
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -123,6 +153,8 @@ class $ChannelsTable extends Channels with TableInfo<$ChannelsTable, Channel> {
     sellTemplate,
     fundTemplate,
     currency,
+    useDefaultBuyTemplate,
+    useDefaultSellTemplate,
     createdAt,
     updatedAt,
   ];
@@ -195,6 +227,24 @@ class $ChannelsTable extends Channels with TableInfo<$ChannelsTable, Channel> {
         currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
       );
     }
+    if (data.containsKey('use_default_buy_template')) {
+      context.handle(
+        _useDefaultBuyTemplateMeta,
+        useDefaultBuyTemplate.isAcceptableOrUnknown(
+          data['use_default_buy_template']!,
+          _useDefaultBuyTemplateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('use_default_sell_template')) {
+      context.handle(
+        _useDefaultSellTemplateMeta,
+        useDefaultSellTemplate.isAcceptableOrUnknown(
+          data['use_default_sell_template']!,
+          _useDefaultSellTemplateMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -244,6 +294,14 @@ class $ChannelsTable extends Channels with TableInfo<$ChannelsTable, Channel> {
         DriftSqlType.string,
         data['${effectivePrefix}currency'],
       )!,
+      useDefaultBuyTemplate: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}use_default_buy_template'],
+      )!,
+      useDefaultSellTemplate: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}use_default_sell_template'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -269,6 +327,8 @@ class Channel extends DataClass implements Insertable<Channel> {
   final String? sellTemplate;
   final String? fundTemplate;
   final String currency;
+  final bool useDefaultBuyTemplate;
+  final bool useDefaultSellTemplate;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Channel({
@@ -279,6 +339,8 @@ class Channel extends DataClass implements Insertable<Channel> {
     this.sellTemplate,
     this.fundTemplate,
     required this.currency,
+    required this.useDefaultBuyTemplate,
+    required this.useDefaultSellTemplate,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -298,6 +360,8 @@ class Channel extends DataClass implements Insertable<Channel> {
       map['fund_template'] = Variable<String>(fundTemplate);
     }
     map['currency'] = Variable<String>(currency);
+    map['use_default_buy_template'] = Variable<bool>(useDefaultBuyTemplate);
+    map['use_default_sell_template'] = Variable<bool>(useDefaultSellTemplate);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -318,6 +382,8 @@ class Channel extends DataClass implements Insertable<Channel> {
           ? const Value.absent()
           : Value(fundTemplate),
       currency: Value(currency),
+      useDefaultBuyTemplate: Value(useDefaultBuyTemplate),
+      useDefaultSellTemplate: Value(useDefaultSellTemplate),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -336,6 +402,12 @@ class Channel extends DataClass implements Insertable<Channel> {
       sellTemplate: serializer.fromJson<String?>(json['sellTemplate']),
       fundTemplate: serializer.fromJson<String?>(json['fundTemplate']),
       currency: serializer.fromJson<String>(json['currency']),
+      useDefaultBuyTemplate: serializer.fromJson<bool>(
+        json['useDefaultBuyTemplate'],
+      ),
+      useDefaultSellTemplate: serializer.fromJson<bool>(
+        json['useDefaultSellTemplate'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -351,6 +423,8 @@ class Channel extends DataClass implements Insertable<Channel> {
       'sellTemplate': serializer.toJson<String?>(sellTemplate),
       'fundTemplate': serializer.toJson<String?>(fundTemplate),
       'currency': serializer.toJson<String>(currency),
+      'useDefaultBuyTemplate': serializer.toJson<bool>(useDefaultBuyTemplate),
+      'useDefaultSellTemplate': serializer.toJson<bool>(useDefaultSellTemplate),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -364,6 +438,8 @@ class Channel extends DataClass implements Insertable<Channel> {
     Value<String?> sellTemplate = const Value.absent(),
     Value<String?> fundTemplate = const Value.absent(),
     String? currency,
+    bool? useDefaultBuyTemplate,
+    bool? useDefaultSellTemplate,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Channel(
@@ -374,6 +450,9 @@ class Channel extends DataClass implements Insertable<Channel> {
     sellTemplate: sellTemplate.present ? sellTemplate.value : this.sellTemplate,
     fundTemplate: fundTemplate.present ? fundTemplate.value : this.fundTemplate,
     currency: currency ?? this.currency,
+    useDefaultBuyTemplate: useDefaultBuyTemplate ?? this.useDefaultBuyTemplate,
+    useDefaultSellTemplate:
+        useDefaultSellTemplate ?? this.useDefaultSellTemplate,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -394,6 +473,12 @@ class Channel extends DataClass implements Insertable<Channel> {
           ? data.fundTemplate.value
           : this.fundTemplate,
       currency: data.currency.present ? data.currency.value : this.currency,
+      useDefaultBuyTemplate: data.useDefaultBuyTemplate.present
+          ? data.useDefaultBuyTemplate.value
+          : this.useDefaultBuyTemplate,
+      useDefaultSellTemplate: data.useDefaultSellTemplate.present
+          ? data.useDefaultSellTemplate.value
+          : this.useDefaultSellTemplate,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -409,6 +494,8 @@ class Channel extends DataClass implements Insertable<Channel> {
           ..write('sellTemplate: $sellTemplate, ')
           ..write('fundTemplate: $fundTemplate, ')
           ..write('currency: $currency, ')
+          ..write('useDefaultBuyTemplate: $useDefaultBuyTemplate, ')
+          ..write('useDefaultSellTemplate: $useDefaultSellTemplate, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -424,6 +511,8 @@ class Channel extends DataClass implements Insertable<Channel> {
     sellTemplate,
     fundTemplate,
     currency,
+    useDefaultBuyTemplate,
+    useDefaultSellTemplate,
     createdAt,
     updatedAt,
   );
@@ -438,6 +527,8 @@ class Channel extends DataClass implements Insertable<Channel> {
           other.sellTemplate == this.sellTemplate &&
           other.fundTemplate == this.fundTemplate &&
           other.currency == this.currency &&
+          other.useDefaultBuyTemplate == this.useDefaultBuyTemplate &&
+          other.useDefaultSellTemplate == this.useDefaultSellTemplate &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -450,6 +541,8 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
   final Value<String?> sellTemplate;
   final Value<String?> fundTemplate;
   final Value<String> currency;
+  final Value<bool> useDefaultBuyTemplate;
+  final Value<bool> useDefaultSellTemplate;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -461,6 +554,8 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
     this.sellTemplate = const Value.absent(),
     this.fundTemplate = const Value.absent(),
     this.currency = const Value.absent(),
+    this.useDefaultBuyTemplate = const Value.absent(),
+    this.useDefaultSellTemplate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -473,6 +568,8 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
     this.sellTemplate = const Value.absent(),
     this.fundTemplate = const Value.absent(),
     this.currency = const Value.absent(),
+    this.useDefaultBuyTemplate = const Value.absent(),
+    this.useDefaultSellTemplate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -487,6 +584,8 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
     Expression<String>? sellTemplate,
     Expression<String>? fundTemplate,
     Expression<String>? currency,
+    Expression<bool>? useDefaultBuyTemplate,
+    Expression<bool>? useDefaultSellTemplate,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -499,6 +598,10 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
       if (sellTemplate != null) 'sell_template': sellTemplate,
       if (fundTemplate != null) 'fund_template': fundTemplate,
       if (currency != null) 'currency': currency,
+      if (useDefaultBuyTemplate != null)
+        'use_default_buy_template': useDefaultBuyTemplate,
+      if (useDefaultSellTemplate != null)
+        'use_default_sell_template': useDefaultSellTemplate,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -513,6 +616,8 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
     Value<String?>? sellTemplate,
     Value<String?>? fundTemplate,
     Value<String>? currency,
+    Value<bool>? useDefaultBuyTemplate,
+    Value<bool>? useDefaultSellTemplate,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -525,6 +630,10 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
       sellTemplate: sellTemplate ?? this.sellTemplate,
       fundTemplate: fundTemplate ?? this.fundTemplate,
       currency: currency ?? this.currency,
+      useDefaultBuyTemplate:
+          useDefaultBuyTemplate ?? this.useDefaultBuyTemplate,
+      useDefaultSellTemplate:
+          useDefaultSellTemplate ?? this.useDefaultSellTemplate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -555,6 +664,16 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
     if (currency.present) {
       map['currency'] = Variable<String>(currency.value);
     }
+    if (useDefaultBuyTemplate.present) {
+      map['use_default_buy_template'] = Variable<bool>(
+        useDefaultBuyTemplate.value,
+      );
+    }
+    if (useDefaultSellTemplate.present) {
+      map['use_default_sell_template'] = Variable<bool>(
+        useDefaultSellTemplate.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -577,6 +696,8 @@ class ChannelsCompanion extends UpdateCompanion<Channel> {
           ..write('sellTemplate: $sellTemplate, ')
           ..write('fundTemplate: $fundTemplate, ')
           ..write('currency: $currency, ')
+          ..write('useDefaultBuyTemplate: $useDefaultBuyTemplate, ')
+          ..write('useDefaultSellTemplate: $useDefaultSellTemplate, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -3674,6 +3795,8 @@ typedef $$ChannelsTableCreateCompanionBuilder =
       Value<String?> sellTemplate,
       Value<String?> fundTemplate,
       Value<String> currency,
+      Value<bool> useDefaultBuyTemplate,
+      Value<bool> useDefaultSellTemplate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -3687,6 +3810,8 @@ typedef $$ChannelsTableUpdateCompanionBuilder =
       Value<String?> sellTemplate,
       Value<String?> fundTemplate,
       Value<String> currency,
+      Value<bool> useDefaultBuyTemplate,
+      Value<bool> useDefaultSellTemplate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -3775,6 +3900,16 @@ class $$ChannelsTableFilterComposer
 
   ColumnFilters<String> get currency => $composableBuilder(
     column: $table.currency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get useDefaultBuyTemplate => $composableBuilder(
+    column: $table.useDefaultBuyTemplate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get useDefaultSellTemplate => $composableBuilder(
+    column: $table.useDefaultSellTemplate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3883,6 +4018,16 @@ class $$ChannelsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get useDefaultBuyTemplate => $composableBuilder(
+    column: $table.useDefaultBuyTemplate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get useDefaultSellTemplate => $composableBuilder(
+    column: $table.useDefaultSellTemplate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3931,6 +4076,16 @@ class $$ChannelsTableAnnotationComposer
 
   GeneratedColumn<String> get currency =>
       $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<bool> get useDefaultBuyTemplate => $composableBuilder(
+    column: $table.useDefaultBuyTemplate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get useDefaultSellTemplate => $composableBuilder(
+    column: $table.useDefaultSellTemplate,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -4024,6 +4179,8 @@ class $$ChannelsTableTableManager
                 Value<String?> sellTemplate = const Value.absent(),
                 Value<String?> fundTemplate = const Value.absent(),
                 Value<String> currency = const Value.absent(),
+                Value<bool> useDefaultBuyTemplate = const Value.absent(),
+                Value<bool> useDefaultSellTemplate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4035,6 +4192,8 @@ class $$ChannelsTableTableManager
                 sellTemplate: sellTemplate,
                 fundTemplate: fundTemplate,
                 currency: currency,
+                useDefaultBuyTemplate: useDefaultBuyTemplate,
+                useDefaultSellTemplate: useDefaultSellTemplate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -4048,6 +4207,8 @@ class $$ChannelsTableTableManager
                 Value<String?> sellTemplate = const Value.absent(),
                 Value<String?> fundTemplate = const Value.absent(),
                 Value<String> currency = const Value.absent(),
+                Value<bool> useDefaultBuyTemplate = const Value.absent(),
+                Value<bool> useDefaultSellTemplate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4059,6 +4220,8 @@ class $$ChannelsTableTableManager
                 sellTemplate: sellTemplate,
                 fundTemplate: fundTemplate,
                 currency: currency,
+                useDefaultBuyTemplate: useDefaultBuyTemplate,
+                useDefaultSellTemplate: useDefaultSellTemplate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

@@ -25,6 +25,8 @@ class Channels extends Table {
   TextColumn get sellTemplate => text().nullable()();
   TextColumn get fundTemplate => text().nullable()();
   TextColumn get currency => text().withDefault(const Constant('LKR'))();
+  BoolColumn get useDefaultBuyTemplate => boolean().withDefault(const Constant(true))();
+  BoolColumn get useDefaultSellTemplate => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
@@ -129,7 +131,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -183,6 +185,10 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(dividends, dividends.isDeleted);
           await m.addColumn(dividends, dividends.deleteReason);
           await m.addColumn(dividends, dividends.deleteReasonOther);
+        }
+        if (from < 11) {
+          await m.addColumn(channels, channels.useDefaultBuyTemplate);
+          await m.addColumn(channels, channels.useDefaultSellTemplate);
         }
       },
       beforeOpen: (details) async {

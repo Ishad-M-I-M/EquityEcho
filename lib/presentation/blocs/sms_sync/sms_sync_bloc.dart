@@ -10,6 +10,7 @@ import 'package:equity_echo/data/database/database.dart';
 import 'package:equity_echo/data/database/daos/channel_dao.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
 import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
+import 'package:equity_echo/core/constants/app_constants.dart';
 
 // ─── Events ──────────────────────────────────────────────────────────────────
 
@@ -279,11 +280,16 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       debugPrint('[SmsSyncBloc] SMS Date: ${sms.date}');
       debugPrint('');
 
+      // Resolve effective buy template
+      final effectiveBuyTemplate = channel.useDefaultBuyTemplate
+          ? AppConstants.defaultBuyTemplate
+          : channel.buyTemplate;
+
       // Try buy template
-      if (channel.buyTemplate != null && channel.buyTemplate!.isNotEmpty) {
+      if (effectiveBuyTemplate != null && effectiveBuyTemplate.isNotEmpty) {
         try {
-          debugPrint('[SmsSyncBloc] [BUY] Template: "${channel.buyTemplate}"');
-          final parser = TemplateParser(channel.buyTemplate!);
+          debugPrint('[SmsSyncBloc] [BUY] Template (${channel.useDefaultBuyTemplate ? "default" : "custom"}): "$effectiveBuyTemplate"');
+          final parser = TemplateParser(effectiveBuyTemplate);
           debugPrint('[SmsSyncBloc] [BUY] Generated regex: ${parser.regexPattern}');
           final result = parser.parse(sms.body, smsReceivedDate: sms.date);
           debugPrint('[SmsSyncBloc] [BUY] Matched: ${result.matched}');
@@ -325,11 +331,16 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
         debugPrint('[SmsSyncBloc] [BUY] No template configured');
       }
 
+      // Resolve effective sell template
+      final effectiveSellTemplate = channel.useDefaultSellTemplate
+          ? AppConstants.defaultSellTemplate
+          : channel.sellTemplate;
+
       // Try sell template
-      if (channel.sellTemplate != null && channel.sellTemplate!.isNotEmpty) {
+      if (effectiveSellTemplate != null && effectiveSellTemplate.isNotEmpty) {
         try {
-          debugPrint('[SmsSyncBloc] [SELL] Template: "${channel.sellTemplate}"');
-          final parser = TemplateParser(channel.sellTemplate!);
+          debugPrint('[SmsSyncBloc] [SELL] Template (${channel.useDefaultSellTemplate ? "default" : "custom"}): "$effectiveSellTemplate"');
+          final parser = TemplateParser(effectiveSellTemplate);
           debugPrint('[SmsSyncBloc] [SELL] Generated regex: ${parser.regexPattern}');
           final result = parser.parse(sms.body, smsReceivedDate: sms.date);
           debugPrint('[SmsSyncBloc] [SELL] Matched: ${result.matched}');

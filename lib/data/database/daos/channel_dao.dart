@@ -47,6 +47,8 @@ class ChannelDao extends DatabaseAccessor<AppDatabase>
         sellTemplate: channel.sellTemplate.value,
         fundTemplate: channel.fundTemplate.value,
         currency: channel.currency.value,
+        useDefaultBuyTemplate: channel.useDefaultBuyTemplate.value,
+        useDefaultSellTemplate: channel.useDefaultSellTemplate.value,
         createdAt: channel.createdAt.value,
         updatedAt: DateTime.now(),
       ));

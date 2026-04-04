@@ -16,6 +16,8 @@ class AddChannel extends ChannelEvent {
   final String? sellTemplate;
   final String? fundTemplate;
   final String currency;
+  final bool useDefaultBuyTemplate;
+  final bool useDefaultSellTemplate;
 
   const AddChannel({
     required this.name,
@@ -24,11 +26,13 @@ class AddChannel extends ChannelEvent {
     this.sellTemplate,
     this.fundTemplate,
     this.currency = 'LKR',
+    this.useDefaultBuyTemplate = true,
+    this.useDefaultSellTemplate = true,
   });
 
   @override
   List<Object?> get props =>
-      [name, senderAddress, buyTemplate, sellTemplate, fundTemplate, currency];
+      [name, senderAddress, buyTemplate, sellTemplate, fundTemplate, currency, useDefaultBuyTemplate, useDefaultSellTemplate];
 }
 
 class UpdateChannel extends ChannelEvent {
@@ -39,6 +43,8 @@ class UpdateChannel extends ChannelEvent {
   final String? sellTemplate;
   final String? fundTemplate;
   final String currency;
+  final bool useDefaultBuyTemplate;
+  final bool useDefaultSellTemplate;
 
   const UpdateChannel({
     required this.id,
@@ -48,11 +54,13 @@ class UpdateChannel extends ChannelEvent {
     this.sellTemplate,
     this.fundTemplate,
     this.currency = 'LKR',
+    this.useDefaultBuyTemplate = true,
+    this.useDefaultSellTemplate = true,
   });
 
   @override
   List<Object?> get props =>
-      [id, name, senderAddress, buyTemplate, sellTemplate, fundTemplate, currency];
+      [id, name, senderAddress, buyTemplate, sellTemplate, fundTemplate, currency, useDefaultBuyTemplate, useDefaultSellTemplate];
 }
 
 class DeleteChannel extends ChannelEvent {
