@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.equity_echo"
+    namespace = "com.sa2s.equityecho"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.equity_echo"
+        applicationId = "com.sa2s.equityecho"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -52,7 +52,7 @@ android {
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
-                // Fallback to debug signing for local development
+                logger.warn("WARNING: key.properties not found — using debug signing!")
                 signingConfigs.getByName("debug")
             }
         }

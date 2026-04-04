@@ -1,5 +1,6 @@
-package com.example.equity_echo
+package com.sa2s.equityecho
 
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity : FlutterActivity()
+
