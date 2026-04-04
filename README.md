@@ -1,5 +1,7 @@
 # EquityEcho 📈
 
+![Feature Graphic](docs/screenshots/feature_graphic.png)
+
 > A Flutter app for tracking your equity portfolio on the Colombo Stock Exchange (CSE). EquityEcho automatically parses broker SMS messages to record trades and fund transfers, and gives you a clean dashboard view of your holdings, realized gains, and dividends.
 
 ---
