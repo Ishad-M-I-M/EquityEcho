@@ -60,8 +60,8 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Version 1.0.0',
-                      style: TextStyle(fontSize: 12),
+                      'Version ${String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0')}',
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),

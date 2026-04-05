@@ -83,12 +83,21 @@ jobs:
           echo "--- keystore verify ---"
           keytool -list -keystore android/app/upload-keystore.jks -storepass "${{ secrets.KEYSTORE_PASSWORD }}" || { echo "::error::Keystore verification failed"; exit 1; }
 
+      - name: Update pubspec.yaml version
+        run: |
+          if [ -f pubspec.yaml ]; then
+            sed -i -e "s/^version: .*/version: ${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.build_number }}/g" pubspec.yaml
+            echo "Updated pubspec.yaml version to ${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.build_number }}"
+            cat pubspec.yaml | grep version:
+          fi
+
       - name: Build App Bundle
         run: |
           flutter build appbundle \
             --release \
             --build-name=${{ steps.version.outputs.version_name }} \
-            --build-number=${{ steps.version.outputs.build_number }}
+            --build-number=${{ steps.version.outputs.build_number }} \
+            --dart-define=APP_VERSION=${{ steps.version.outputs.version_name }}
 
       - name: Upload App Bundle artifact
         uses: actions/upload-artifact@v4
