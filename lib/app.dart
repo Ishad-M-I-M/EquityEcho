@@ -34,6 +34,7 @@ import 'package:equity_echo/presentation/screens/realized_gains_screen.dart';
 import 'package:equity_echo/presentation/screens/dividends_screen.dart';
 import 'package:equity_echo/presentation/screens/dividend_history_screen.dart';
 import 'package:equity_echo/presentation/screens/deleted_entries_screen.dart';
+import 'package:equity_echo/presentation/screens/auth_screen.dart';
 import 'package:equity_echo/core/theme/theme_cubit.dart';
 
 class EquityEchoApp extends StatelessWidget {
@@ -223,6 +224,11 @@ final GoRouter _router = GoRouter(
       path: '/deleted-entries',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DeletedEntriesScreen(),
+    ),
+    GoRoute(
+      path: '/auth',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AuthScreen(),
     ),
   ],
 );

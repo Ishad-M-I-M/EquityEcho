@@ -7,6 +7,10 @@ part 'stock_split_dao.g.dart';
 class StockSplitDao extends DatabaseAccessor<AppDatabase> with _$StockSplitDaoMixin {
   StockSplitDao(super.db);
 
+  /// Get all stock splits
+  Future<List<StockSplit>> getAllStockSplits() =>
+      (select(stockSplits)..where((s) => s.isDeleted.equals(false))..orderBy([(s) => OrderingTerm.desc(s.splitDate)])).get();
+
   /// Get all stock splits for a specific symbol
   Future<List<StockSplit>> getSplitsForSymbol(String symbol) =>
       (select(stockSplits)

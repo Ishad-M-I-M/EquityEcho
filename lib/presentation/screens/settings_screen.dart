@@ -190,6 +190,18 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          // Cloud Sync section
+          _SectionTitle('Cloud Sync & Backup'),
+          const SizedBox(height: 8),
+          _SettingsTile(
+            icon: Icons.cloud_sync,
+            title: 'Cloud Sync',
+            subtitle: 'Backup or restore data from the cloud',
+            onTap: () => context.push('/auth'),
+          ),
+
+          const SizedBox(height: 24),
+
           // Data section
           _SectionTitle('Data'),
           const SizedBox(height: 8),
