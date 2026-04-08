@@ -11,7 +11,7 @@ class FirebaseAuthService implements AuthService {
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn();
+        _googleSignIn = googleSignIn ?? GoogleSignIn(serverClientId: '779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com');
 
   UserEntity? _userFromFirebase(User? user) {
     if (user == null) return null;

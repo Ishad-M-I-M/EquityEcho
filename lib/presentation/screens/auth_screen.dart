@@ -4,6 +4,9 @@ import 'package:equity_echo/core/services/auth_service.dart';
 import 'package:equity_echo/core/services/cloud_sync_service.dart';
 import 'package:equity_echo/core/di/injection.dart';
 import 'package:equity_echo/data/database/database.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
+import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,6 +18,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
   bool _isLogin = true;
 
@@ -25,7 +29,13 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _submitEmailPassword() async {
     final email = _emailController.text.trim();
     final pw = _passwordController.text;
+    final cpw = _confirmPasswordController.text;
     if (email.isEmpty || pw.isEmpty) return;
+
+    if (!_isLogin && pw != cpw) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
 
     setState(() => _isLoading = true);
     try {
@@ -67,7 +77,10 @@ class _AuthScreenState extends State<AuthScreen> {
         if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sync Up Complete')));
       } else {
         await syncService.syncDown(user.id, db);
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sync Down Complete')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sync Down Complete')));
+          context.read<DashboardBloc>().add(LoadDashboard());
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -147,6 +160,14 @@ class _AuthScreenState extends State<AuthScreen> {
                   decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
                   obscureText: true,
                 ),
+                if (!_isLogin) ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _confirmPasswordController,
+                    decoration: const InputDecoration(labelText: 'Confirm Password', border: OutlineInputBorder()),
+                    obscureText: true,
+                  ),
+                ],
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submitEmailPassword,
