@@ -46,7 +46,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -59,7 +59,7 @@ class _AuthScreenState extends State<AuthScreen> {
       await authService.signInWithGoogle();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Sign-In Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

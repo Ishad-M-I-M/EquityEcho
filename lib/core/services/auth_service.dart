@@ -8,3 +8,11 @@ abstract class AuthService {
   UserEntity? get currentUser;
   Stream<UserEntity?> get authStateChanges;
 }
+
+class AuthException implements Exception {
+  final String message;
+  AuthException(this.message);
+  
+  @override
+  String toString() => message;
+}
