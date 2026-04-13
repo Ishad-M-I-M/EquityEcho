@@ -82,10 +82,11 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       if (isUp) {
         await syncService.syncUp(user.id, db);
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Sync Up Complete')));
+        }
       } else {
         await syncService.syncDown(user.id, db);
         if (mounted) {
@@ -297,7 +298,8 @@ class _RealtimeSyncTileState extends State<_RealtimeSyncTile> {
           ),
           Switch(
             value: _isEnabled,
-            activeColor: AppTheme.accent,
+            activeTrackColor: AppTheme.accent.withValues(alpha: 0.5),
+            activeThumbColor: AppTheme.accent,
             onChanged: (val) {
               setState(() {
                 _isEnabled = val;

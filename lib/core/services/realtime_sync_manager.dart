@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
-import 'package:drift/drift.dart';
 import 'package:equity_echo/core/services/auth_service.dart';
 import 'package:equity_echo/core/services/cloud_sync_service.dart';
 import 'package:equity_echo/data/database/database.dart';

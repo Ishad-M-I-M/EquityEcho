@@ -616,18 +616,20 @@ class ActivityLogScreen extends StatelessWidget {
                           label: const Text('Trades'),
                           selected: selectedType == ActivityType.trade,
                           onSelected: (val) {
-                            if (val)
+                            if (val) {
                               setState(() => selectedType = ActivityType.trade);
+                            }
                           },
                         ),
                         ChoiceChip(
                           label: const Text('Funds'),
                           selected: selectedType == ActivityType.fundTransfer,
                           onSelected: (val) {
-                            if (val)
+                            if (val) {
                               setState(
                                 () => selectedType = ActivityType.fundTransfer,
                               );
+                            }
                           },
                         ),
                       ],
@@ -717,8 +719,9 @@ class ActivityLogScreen extends StatelessWidget {
                               label: Text(symbol),
                               selected: selectedSymbol == symbol,
                               onSelected: (val) {
-                                if (val)
+                                if (val) {
                                   setState(() => selectedSymbol = symbol);
+                                }
                               },
                             ),
                           ),
