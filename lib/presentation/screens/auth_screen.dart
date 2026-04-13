@@ -28,6 +28,14 @@ class _AuthScreenState extends State<AuthScreen> {
   final syncService = getIt<CloudSyncService>();
   final db = getIt<AppDatabase>();
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _submitEmailPassword() async {
     final email = _emailController.text.trim();
     final pw = _passwordController.text;
