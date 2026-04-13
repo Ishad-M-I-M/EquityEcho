@@ -207,10 +207,10 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(channels, channels.deleteReason);
           await m.addColumn(channels, channels.deleteReasonOther);
 
-          await m.addColumn(trades, trades.updatedAt);
-          await m.addColumn(fundTransfers, fundTransfers.updatedAt);
-          await m.addColumn(stockSplits, stockSplits.updatedAt);
-          await m.addColumn(dividends, dividends.updatedAt);
+          await m.alterTable(TableMigration(trades));
+          await m.alterTable(TableMigration(fundTransfers));
+          await m.alterTable(TableMigration(stockSplits));
+          await m.alterTable(TableMigration(dividends));
         }
       },
       beforeOpen: (details) async {
