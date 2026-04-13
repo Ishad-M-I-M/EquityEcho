@@ -10,6 +10,7 @@ import 'package:equity_echo/presentation/blocs/sms_sync/sms_sync_bloc.dart';
 import 'package:equity_echo/presentation/widgets/stat_card.dart';
 import 'package:equity_echo/presentation/widgets/holding_card.dart';
 import 'package:equity_echo/presentation/widgets/sync_progress_dialog.dart';
+import 'package:equity_echo/presentation/widgets/investment_breakdown_sheet.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -90,11 +91,15 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             child: StatCard(
                               label: 'Total Invested',
-                              value: currencyFormatter.format(
-                                state.totalInvested,
-                              ),
+                              value: currencyFormatter.format(state.totalBookValue),
                               icon: Icons.account_balance,
                               color: AppTheme.buyGreen,
+                              subtitle: 'Portfolio book value',
+                              onTap: () => InvestmentBreakdownSheet.show(
+                                context,
+                                state: state,
+                                currencyFormatter: currencyFormatter,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -161,7 +166,7 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          '${state.holdings.length} stocks',
+                          '${state.holdings.where((h) => h.netQuantity > 0).length} active',
                           style: TextStyle(
                             color: Theme.of(
                               context,

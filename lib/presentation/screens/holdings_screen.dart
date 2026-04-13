@@ -6,6 +6,7 @@ import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_state.dart';
 import 'package:equity_echo/presentation/widgets/holding_card.dart';
+import 'package:equity_echo/presentation/widgets/portfolio_allocation_chart.dart';
 
 class HoldingsScreen extends StatefulWidget {
   const HoldingsScreen({super.key});
@@ -177,6 +178,12 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
+
+                  if (activeHoldings.isNotEmpty && _searchQuery.isEmpty)
+                    PortfolioAllocationChart(
+                      holdings: activeHoldings,
+                      onHoldingTap: (symbol) => context.push('/holding/$symbol'),
+                    ),
 
                   if (activeHoldings.isNotEmpty) ...[
                     const Text(
