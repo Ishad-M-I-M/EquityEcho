@@ -10,7 +10,6 @@ import 'package:equity_echo/presentation/blocs/sms_sync/sms_sync_bloc.dart';
 import 'package:equity_echo/presentation/widgets/sync_progress_dialog.dart';
 import 'package:equity_echo/core/theme/theme_cubit.dart';
 
-
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 

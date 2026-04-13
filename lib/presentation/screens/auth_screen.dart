@@ -7,6 +7,8 @@ import 'package:equity_echo/data/database/database.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
+import 'package:equity_echo/core/theme/app_theme.dart';
+import 'package:equity_echo/core/services/realtime_sync_manager.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -123,6 +125,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     label: const Text('Restore Data from Cloud'),
                     onPressed: _isLoading ? null : () => _syncData(false),
                   ),
+                  const SizedBox(height: 16),
+                  const _RealtimeSyncTile(),
                   const Spacer(),
                   if (_isLoading) const Center(child: CircularProgressIndicator()),
                   const Spacer(),
@@ -192,6 +196,80 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _RealtimeSyncTile extends StatefulWidget {
+  const _RealtimeSyncTile();
+
+  @override
+  State<_RealtimeSyncTile> createState() => _RealtimeSyncTileState();
+}
+
+class _RealtimeSyncTileState extends State<_RealtimeSyncTile> {
+  late bool _isEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _isEnabled = getIt<RealtimeSyncManager>().isRealtimeSyncEnabled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(Icons.autorenew, color: AppTheme.accent, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Realtime Auto Sync',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Sync data in background instantly',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: _isEnabled,
+            activeColor: AppTheme.accent,
+            onChanged: (val) {
+              setState(() {
+                _isEnabled = val;
+              });
+              getIt<RealtimeSyncManager>().setRealtimeSyncEnabled(val);
+            },
+          ),
+        ],
       ),
     );
   }

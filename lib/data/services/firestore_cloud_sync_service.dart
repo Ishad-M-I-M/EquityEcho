@@ -72,10 +72,11 @@ class FirestoreCloudSyncService implements CloudSyncService {
       await commitBatchIfFull();
     }
 
-    // Commit any remaining operations
-    if (operationCount > 0) {
-      await batch.commit();
-    }
+    // Update user doc with sync timestamp
+    batch.set(userDoc, {'lastUpdatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+    
+    // Commit any remaining operations (even if just the userDoc timestamp)
+    await batch.commit();
   }
 
   @override
