@@ -8,11 +8,14 @@ class FirebaseAuthService implements AuthService {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
 
-  FirebaseAuthService({
-    FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn(serverClientId: '779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com');
+  FirebaseAuthService({FirebaseAuth? firebaseAuth, GoogleSignIn? googleSignIn})
+    : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+      _googleSignIn =
+          googleSignIn ??
+          GoogleSignIn(
+            serverClientId:
+                '779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com',
+          );
 
   UserEntity? _userFromFirebase(User? user) {
     if (user == null) return null;
@@ -47,18 +50,29 @@ class FirebaseAuthService implements AuthService {
         case 'invalid-email':
           return AuthException('The email address is not valid.');
         case 'invalid-credential':
-          return AuthException('The email or password you entered is incorrect.');
+          return AuthException(
+            'The email or password you entered is incorrect.',
+          );
         case 'network-request-failed':
-          return AuthException('Network error. Please check your internet connection.');
+          return AuthException(
+            'Network error. Please check your internet connection.',
+          );
         default:
-          return AuthException(e.message ?? 'An unknown authentication error occurred.');
+          return AuthException(
+            e.message ?? 'An unknown authentication error occurred.',
+          );
       }
     }
-    return AuthException('An unknown authentication error occurred. Please try again later.');
+    return AuthException(
+      'An unknown authentication error occurred. Please try again later.',
+    );
   }
 
   @override
-  Future<UserEntity?> signInWithEmailAndPassword(String email, String password) async {
+  Future<UserEntity?> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -71,7 +85,10 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  Future<UserEntity?> signUpWithEmailAndPassword(String email, String password) async {
+  Future<UserEntity?> signUpWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -89,14 +106,16 @@ class FirebaseAuthService implements AuthService {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null; // The user canceled the sign-in
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final UserCredential userCredential = await _firebaseAuth
+          .signInWithCredential(credential);
       return _userFromFirebase(userCredential.user);
     } catch (e, stackTrace) {
       throw _handleException(e, stackTrace);

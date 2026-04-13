@@ -7,7 +7,7 @@ class FirestoreCloudSyncService implements CloudSyncService {
   final FirebaseFirestore _firestore;
 
   FirestoreCloudSyncService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<void> syncUp(String userId, AppDatabase db) async {
@@ -34,7 +34,11 @@ class FirestoreCloudSyncService implements CloudSyncService {
       }
     }
 
-    void addToBatch(String collectionName, String id, Map<String, dynamic> data) {
+    void addToBatch(
+      String collectionName,
+      String id,
+      Map<String, dynamic> data,
+    ) {
       final docRef = userDoc.collection(collectionName).doc(id);
       batch.set(docRef, data, SetOptions(merge: true));
       operationCount++;
@@ -60,7 +64,7 @@ class FirestoreCloudSyncService implements CloudSyncService {
       await commitBatchIfFull();
     }
 
-    // Process Stock Splits 
+    // Process Stock Splits
     for (var item in splits) {
       addToBatch('stock_splits', item.id, item.toJson());
       await commitBatchIfFull();
@@ -73,8 +77,10 @@ class FirestoreCloudSyncService implements CloudSyncService {
     }
 
     // Update user doc with sync timestamp
-    batch.set(userDoc, {'lastUpdatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
-    
+    batch.set(userDoc, {
+      'lastUpdatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
     // Commit any remaining operations (even if just the userDoc timestamp)
     await batch.commit();
   }
@@ -84,12 +90,14 @@ class FirestoreCloudSyncService implements CloudSyncService {
     final userDoc = _firestore.collection('users').doc(userId);
 
     // For syncDown, we fetch from Firestore and insert/update in local Drift DB.
-    
+
     // 1. Fetch & sync Channels
     final channelsSnap = await userDoc.collection('channels').get();
     for (var doc in channelsSnap.docs) {
       final channel = Channel.fromJson(doc.data());
-      await db.into(db.channels).insert(channel, mode: InsertMode.insertOrReplace);
+      await db
+          .into(db.channels)
+          .insert(channel, mode: InsertMode.insertOrReplace);
     }
 
     // 2. Fetch & sync Trades
@@ -103,21 +111,27 @@ class FirestoreCloudSyncService implements CloudSyncService {
     final fundsSnap = await userDoc.collection('fund_transfers').get();
     for (var doc in fundsSnap.docs) {
       final fund = FundTransfer.fromJson(doc.data());
-      await db.into(db.fundTransfers).insert(fund, mode: InsertMode.insertOrReplace);
+      await db
+          .into(db.fundTransfers)
+          .insert(fund, mode: InsertMode.insertOrReplace);
     }
 
     // 4. Fetch & sync Stock Splits
     final splitsSnap = await userDoc.collection('stock_splits').get();
     for (var doc in splitsSnap.docs) {
       final split = StockSplit.fromJson(doc.data());
-      await db.into(db.stockSplits).insert(split, mode: InsertMode.insertOrReplace);
+      await db
+          .into(db.stockSplits)
+          .insert(split, mode: InsertMode.insertOrReplace);
     }
 
     // 5. Fetch & sync Dividends
     final divSnap = await userDoc.collection('dividends').get();
     for (var doc in divSnap.docs) {
       final dividend = Dividend.fromJson(doc.data());
-      await db.into(db.dividends).insert(dividend, mode: InsertMode.insertOrReplace);
+      await db
+          .into(db.dividends)
+          .insert(dividend, mode: InsertMode.insertOrReplace);
     }
   }
 }

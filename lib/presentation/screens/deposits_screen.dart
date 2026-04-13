@@ -30,19 +30,17 @@ class _DepositsScreenState extends State<DepositsScreen> {
 
   void _loadDeposits() {
     _depositsFuture = getIt<FundTransferDao>().getAllFundTransfers().then(
-          (transfers) => transfers.where((t) {
-            final a = t.action.toLowerCase();
-            return a == 'deposit' || a == 'ipo_deposit';
-          }).toList(),
-        );
+      (transfers) => transfers.where((t) {
+        final a = t.action.toLowerCase();
+        return a == 'deposit' || a == 'ipo_deposit';
+      }).toList(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Deposits Log'),
-      ),
+      appBar: AppBar(title: const Text('Deposits Log')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.push('/fund/new', extra: 'deposit').then((_) {
@@ -73,9 +71,19 @@ class _DepositsScreenState extends State<DepositsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.account_balance_wallet_outlined, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(height: 16),
-                  Text('No deposits found', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16)),
+                  Text(
+                    'No deposits found',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 16,
+                    ),
+                  ),
                 ],
               ),
             );
@@ -92,29 +100,32 @@ class _DepositsScreenState extends State<DepositsScreen> {
               final isIpo = deposit.action.toLowerCase() == 'ipo_deposit';
               final dColor = isIpo ? AppTheme.accent : AppTheme.fundBlue;
               final dIcon = isIpo ? Icons.new_releases : Icons.arrow_downward;
-              
+
               return GestureDetector(
                 onLongPress: () async {
                   final result = await DeleteConfirmationDialog.show(
                     context,
                     title: 'Delete Deposit',
-                    content: 'Are you sure you want to delete this deposit of ${currencyFormatter.format(deposit.amount)}?',
+                    content:
+                        'Are you sure you want to delete this deposit of ${currencyFormatter.format(deposit.amount)}?',
                   );
 
                   if (result != null && result.confirmed) {
                     if (!context.mounted) return;
-                    context.read<FundTransferBloc>().add(DeleteFundTransfer(
-                          deposit.id,
-                          reason: result.reason,
-                          reasonOther: result.reasonOther,
-                        ));
-                    
+                    context.read<FundTransferBloc>().add(
+                      DeleteFundTransfer(
+                        deposit.id,
+                        reason: result.reason,
+                        reasonOther: result.reasonOther,
+                      ),
+                    );
+
                     context.read<DashboardBloc>().add(RefreshDashboard());
-                    
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Deposit deleted')),
                     );
-                    
+
                     setState(() {
                       _loadDeposits();
                     });
@@ -157,20 +168,25 @@ class _DepositsScreenState extends State<DepositsScreen> {
                                   const SizedBox(width: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color:
-                                          AppTheme.accent.withValues(alpha: 0.1),
+                                      color: AppTheme.accent.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                        deposit.rawSmsBody.isNotEmpty
-                                            ? 'IPO: ${deposit.rawSmsBody}'
-                                            : 'IPO',
-                                        style: TextStyle(
-                                            color: AppTheme.accent,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)),
+                                      deposit.rawSmsBody.isNotEmpty
+                                          ? 'IPO: ${deposit.rawSmsBody}'
+                                          : 'IPO',
+                                      style: TextStyle(
+                                        color: AppTheme.accent,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ],
@@ -179,9 +195,9 @@ class _DepositsScreenState extends State<DepositsScreen> {
                             Text(
                               dateFormatter.format(deposit.smsDate),
                               style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                                 fontSize: 13,
                               ),
                             ),
@@ -192,7 +208,6 @@ class _DepositsScreenState extends State<DepositsScreen> {
                   ),
                 ),
               );
-
             },
           );
         },

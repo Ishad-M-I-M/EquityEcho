@@ -16,9 +16,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -44,8 +42,11 @@ class SettingsScreen extends StatelessWidget {
                     color: AppTheme.accent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.trending_up,
-                      color: AppTheme.accent, size: 28),
+                  child: Icon(
+                    Icons.trending_up,
+                    color: AppTheme.accent,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 const Column(
@@ -77,7 +78,10 @@ class SettingsScreen extends StatelessWidget {
           BlocBuilder<ThemeCubit, ThemeMode>(
             builder: (context, themeMode) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
@@ -90,7 +94,11 @@ class SettingsScreen extends StatelessWidget {
                         color: AppTheme.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(Icons.palette, color: AppTheme.accent, size: 20),
+                      child: Icon(
+                        Icons.palette,
+                        color: AppTheme.accent,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Expanded(
@@ -105,7 +113,10 @@ class SettingsScreen extends StatelessWidget {
                     DropdownButtonHideUnderline(
                       child: DropdownButton<ThemeMode>(
                         value: themeMode,
-                        icon: Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        icon: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                         dropdownColor: Theme.of(context).cardColor,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
@@ -113,9 +124,18 @@ class SettingsScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                         items: const [
-                          DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-                          DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                          DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+                          DropdownMenuItem(
+                            value: ThemeMode.system,
+                            child: Text('System'),
+                          ),
+                          DropdownMenuItem(
+                            value: ThemeMode.light,
+                            child: Text('Light'),
+                          ),
+                          DropdownMenuItem(
+                            value: ThemeMode.dark,
+                            child: Text('Dark'),
+                          ),
                         ],
                         onChanged: (mode) {
                           if (mode != null) {
@@ -162,8 +182,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               context.read<SmsSyncBloc>().add(StartRealtimeListener());
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Real-time SMS listener started')),
+                const SnackBar(content: Text('Real-time SMS listener started')),
               );
             },
           ),
@@ -178,9 +197,11 @@ class SettingsScreen extends StatelessWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(granted
-                        ? 'SMS permission granted'
-                        : 'SMS permission denied'),
+                    content: Text(
+                      granted
+                          ? 'SMS permission granted'
+                          : 'SMS permission denied',
+                    ),
                   ),
                 );
               }
@@ -253,7 +274,9 @@ class SettingsScreen extends StatelessWidget {
             child: Text(
               'Built with ❤️ for equity tracking',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 fontSize: 12,
               ),
             ),
@@ -271,7 +294,8 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).cardColor,
         title: const Text('Clear All Data?'),
         content: const Text(
-            'This will permanently delete all trades and fund transfers. Channel configurations will be kept.'),
+          'This will permanently delete all trades and fund transfers. Channel configurations will be kept.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -304,7 +328,8 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).cardColor,
         title: const Text('Clear & Re-sync?'),
         content: const Text(
-            'This will delete all existing trades and fund transfers, then re-sync from your SMS inbox.'),
+          'This will delete all existing trades and fund transfers, then re-sync from your SMS inbox.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -322,7 +347,10 @@ class SettingsScreen extends StatelessWidget {
                 showSyncProgressDialog(context);
               }
             },
-            child: Text('Clear & Sync', style: TextStyle(color: AppTheme.warning)),
+            child: Text(
+              'Clear & Sync',
+              style: TextStyle(color: AppTheme.warning),
+            ),
           ),
         ],
       ),
@@ -407,8 +435,11 @@ class _SettingsTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right,
-                color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+            Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 20,
+            ),
           ],
         ),
       ),

@@ -12,8 +12,8 @@ class ChannelBloc extends Bloc<ChannelEvent, ChannelState> {
   static const _uuid = Uuid();
 
   ChannelBloc({required ChannelDao channelDao})
-      : _channelDao = channelDao,
-        super(ChannelInitial()) {
+    : _channelDao = channelDao,
+      super(ChannelInitial()) {
     on<LoadChannels>(_onLoadChannels);
     on<AddChannel>(_onAddChannel);
     on<UpdateChannel>(_onUpdateChannel);
@@ -40,19 +40,21 @@ class ChannelBloc extends Bloc<ChannelEvent, ChannelState> {
   ) async {
     try {
       final now = DateTime.now();
-      await _channelDao.insertChannel(ChannelsCompanion.insert(
-        id: _uuid.v4(),
-        name: event.name,
-        senderAddress: event.senderAddress,
-        buyTemplate: Value(event.buyTemplate),
-        sellTemplate: Value(event.sellTemplate),
-        fundTemplate: Value(event.fundTemplate),
-        currency: Value(event.currency),
-        useDefaultBuyTemplate: Value(event.useDefaultBuyTemplate),
-        useDefaultSellTemplate: Value(event.useDefaultSellTemplate),
-        createdAt: Value(now),
-        updatedAt: Value(now),
-      ));
+      await _channelDao.insertChannel(
+        ChannelsCompanion.insert(
+          id: _uuid.v4(),
+          name: event.name,
+          senderAddress: event.senderAddress,
+          buyTemplate: Value(event.buyTemplate),
+          sellTemplate: Value(event.sellTemplate),
+          fundTemplate: Value(event.fundTemplate),
+          currency: Value(event.currency),
+          useDefaultBuyTemplate: Value(event.useDefaultBuyTemplate),
+          useDefaultSellTemplate: Value(event.useDefaultSellTemplate),
+          createdAt: Value(now),
+          updatedAt: Value(now),
+        ),
+      );
       emit(const ChannelOperationSuccess('Channel added successfully'));
       add(LoadChannels());
     } catch (e) {
@@ -71,19 +73,21 @@ class ChannelBloc extends Bloc<ChannelEvent, ChannelState> {
         return;
       }
 
-      await _channelDao.updateChannel(ChannelsCompanion(
-        id: Value(event.id),
-        name: Value(event.name),
-        senderAddress: Value(event.senderAddress),
-        buyTemplate: Value(event.buyTemplate),
-        sellTemplate: Value(event.sellTemplate),
-        fundTemplate: Value(event.fundTemplate),
-        currency: Value(event.currency),
-        useDefaultBuyTemplate: Value(event.useDefaultBuyTemplate),
-        useDefaultSellTemplate: Value(event.useDefaultSellTemplate),
-        createdAt: Value(existing.createdAt),
-        updatedAt: Value(DateTime.now()),
-      ));
+      await _channelDao.updateChannel(
+        ChannelsCompanion(
+          id: Value(event.id),
+          name: Value(event.name),
+          senderAddress: Value(event.senderAddress),
+          buyTemplate: Value(event.buyTemplate),
+          sellTemplate: Value(event.sellTemplate),
+          fundTemplate: Value(event.fundTemplate),
+          currency: Value(event.currency),
+          useDefaultBuyTemplate: Value(event.useDefaultBuyTemplate),
+          useDefaultSellTemplate: Value(event.useDefaultSellTemplate),
+          createdAt: Value(existing.createdAt),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
       emit(const ChannelOperationSuccess('Channel updated successfully'));
       add(LoadChannels());
     } catch (e) {
@@ -104,18 +108,20 @@ class ChannelBloc extends Bloc<ChannelEvent, ChannelState> {
     }
   }
 
-  void _onTestTemplate(
-    TestTemplate event,
-    Emitter<ChannelState> emit,
-  ) {
+  void _onTestTemplate(TestTemplate event, Emitter<ChannelState> emit) {
     try {
       final parser = TemplateParser(event.template);
-      final result = parser.parse(event.sampleSms, smsReceivedDate: DateTime.now());
-      emit(TemplateTestResult(
-        matched: result.matched,
-        result: result,
-        regexPattern: parser.regexPattern,
-      ));
+      final result = parser.parse(
+        event.sampleSms,
+        smsReceivedDate: DateTime.now(),
+      );
+      emit(
+        TemplateTestResult(
+          matched: result.matched,
+          result: result,
+          regexPattern: parser.regexPattern,
+        ),
+      );
     } catch (e) {
       emit(ChannelError('Template error: $e'));
     }

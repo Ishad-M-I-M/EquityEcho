@@ -6,17 +6,21 @@ import 'package:flutter/foundation.dart';
 void main() async {
   final db = AppDatabase.forTesting(NativeDatabase.memory());
   try {
-    await db.into(db.trades).insert(TradesCompanion.insert(
-      id: 'test_id',
-      channelId: 'other',
-      action: 'buy',
-      symbol: 'TEST',
-      quantity: 1.0,
-      price: 1.0,
-      totalValue: 1.0,
-      smsDate: DateTime.now(),
-      rawSmsBody: const Value(''),
-    ));
+    await db
+        .into(db.trades)
+        .insert(
+          TradesCompanion.insert(
+            id: 'test_id',
+            channelId: 'other',
+            action: 'buy',
+            symbol: 'TEST',
+            quantity: 1.0,
+            price: 1.0,
+            totalValue: 1.0,
+            smsDate: DateTime.now(),
+            rawSmsBody: const Value(''),
+          ),
+        );
     debugPrint('SUCCESS_INSERT');
   } catch (e) {
     debugPrint('ERROR_INSERT: $e');

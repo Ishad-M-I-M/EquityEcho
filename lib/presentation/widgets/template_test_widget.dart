@@ -7,11 +7,7 @@ class TemplateTestWidget extends StatefulWidget {
   final String? template;
   final Function(String template)? onTemplateChanged;
 
-  const TemplateTestWidget({
-    super.key,
-    this.template,
-    this.onTemplateChanged,
-  });
+  const TemplateTestWidget({super.key, this.template, this.onTemplateChanged});
 
   @override
   State<TemplateTestWidget> createState() => _TemplateTestWidgetState();
@@ -129,8 +125,9 @@ class _TemplateTestWidgetState extends State<TemplateTestWidget> {
                   children: [
                     Icon(
                       _result!.matched ? Icons.check_circle : Icons.cancel,
-                      color:
-                          _result!.matched ? AppTheme.buyGreen : AppTheme.sellRed,
+                      color: _result!.matched
+                          ? AppTheme.buyGreen
+                          : AppTheme.sellRed,
                       size: 18,
                     ),
                     const SizedBox(width: 8),
@@ -152,10 +149,7 @@ class _TemplateTestWidgetState extends State<TemplateTestWidget> {
                   _ExtractedField('Quantity', _result!.quantity?.toString()),
                   _ExtractedField('Price', _result!.price?.toString()),
                   _ExtractedField('Amount', _result!.amount?.toString()),
-                  _ExtractedField(
-                    'Date/Time',
-                    _result!.dateTime?.toString(),
-                  ),
+                  _ExtractedField('Date/Time', _result!.dateTime?.toString()),
                 ],
               ],
             ),
@@ -182,10 +176,7 @@ class _TemplateTestWidgetState extends State<TemplateTestWidget> {
                 ),
                 child: SelectableText(
                   _regexPattern!,
-                  style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 11,
-                  ),
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
                 ),
               ),
             ],

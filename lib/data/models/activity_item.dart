@@ -20,10 +20,13 @@ class ActivityItem extends Equatable {
   final double? quantity;
   final double? price;
   final double? totalValue;
+
   /// True when the trade was an IPO purchase — charges do NOT apply.
   final bool isIpo;
+
   /// True when the trade is intra-day exempt — only STL charged.
   final bool isIntraDayExempt;
+
   /// True when the trade is a holdings adjustment entry.
   final bool isAdjustment;
 

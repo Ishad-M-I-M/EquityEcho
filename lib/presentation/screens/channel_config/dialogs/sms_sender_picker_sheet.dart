@@ -60,9 +60,7 @@ class _SmsSenderPickerSheetState extends State<SmsSenderPickerSheet> {
     setState(() {
       _filteredSenders = query.isEmpty
           ? _allSenders
-          : _allSenders
-              .where((s) => s.toLowerCase().contains(query))
-              .toList();
+          : _allSenders.where((s) => s.toLowerCase().contains(query)).toList();
     });
   }
 
@@ -243,8 +241,10 @@ class _SmsSenderPickerSheetState extends State<SmsSenderPickerSheet> {
           ),
           onTap: () => widget.onSelected(sender),
           dense: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 2,
+          ),
         );
       },
     );

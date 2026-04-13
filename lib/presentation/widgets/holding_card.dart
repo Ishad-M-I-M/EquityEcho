@@ -25,10 +25,7 @@ class HoldingCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: Theme.of(context).dividerColor,
-            width: 0.5,
-          ),
+          border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
         ),
         child: Column(
           children: [
@@ -36,8 +33,10 @@ class HoldingCard extends StatelessWidget {
               children: [
                 // Symbol badge
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),

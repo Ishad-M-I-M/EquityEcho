@@ -12,9 +12,7 @@ class RealizedGainsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Realized Gains'),
-      ),
+      appBar: AppBar(title: const Text('Realized Gains')),
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoaded) {
@@ -24,16 +22,20 @@ class RealizedGainsScreen extends StatelessWidget {
             );
 
             // Filter out symbols that don't have any realized gains or losses
-            final symbolsWithGains = state.holdings
-                .where((h) => h.realizedGain != 0.0)
-                .toList()
-              ..sort((a, b) => b.realizedGain.compareTo(a.realizedGain)); // Sort: highest gains first
+            final symbolsWithGains =
+                state.holdings.where((h) => h.realizedGain != 0.0).toList()
+                  ..sort(
+                    (a, b) => b.realizedGain.compareTo(a.realizedGain),
+                  ); // Sort: highest gains first
 
             if (symbolsWithGains.isEmpty) {
               return Center(
                 child: Text(
                   'No realized gains yet.',
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 16,
+                  ),
                 ),
               );
             }
@@ -45,7 +47,9 @@ class RealizedGainsScreen extends StatelessWidget {
                 final holding = symbolsWithGains[index];
                 final isPositive = holding.realizedGain >= 0;
                 final color = isPositive ? AppTheme.accent : AppTheme.sellRed;
-                final icon = isPositive ? Icons.trending_up : Icons.trending_down;
+                final icon = isPositive
+                    ? Icons.trending_up
+                    : Icons.trending_down;
 
                 return GestureDetector(
                   onTap: () => context.push('/holding/${holding.symbol}'),

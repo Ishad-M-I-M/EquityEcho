@@ -10,20 +10,28 @@ import 'package:equity_echo/presentation/blocs/trade/trade_event.dart';
 import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_bloc.dart';
 import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_event.dart';
 
-void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback onConverted) {
+void showConvertRightsDialog(
+  BuildContext context,
+  String symbol,
+  VoidCallback onConverted,
+) {
   if (!symbol.contains('.R')) return;
   final defaultTargetSymbol = '${symbol.split('.').first}.N0000';
-  
+
   DateTime selectedDate = DateTime.now();
-  final targetSymbolController = TextEditingController(text: defaultTargetSymbol);
-  
+  final targetSymbolController = TextEditingController(
+    text: defaultTargetSymbol,
+  );
+
   final dashState = context.read<DashboardBloc>().state;
   final currentHolding = dashState is DashboardLoaded
       ? dashState.holdings.where((h) => h.symbol == symbol).firstOrNull
       : null;
   final currentQty = currentHolding?.netQuantity ?? 0.0;
-  
-  final qtyController = TextEditingController(text: currentQty > 0 ? currentQty.toStringAsFixed(0) : '');
+
+  final qtyController = TextEditingController(
+    text: currentQty > 0 ? currentQty.toStringAsFixed(0) : '',
+  );
   final priceController = TextEditingController();
   bool logDeposit = true;
 
@@ -39,7 +47,11 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
         builder: (ctx, setSheetState) {
           final qty = double.tryParse(qtyController.text) ?? 0;
           final price = double.tryParse(priceController.text) ?? 0;
-          final isValid = qty > 0 && qty <= currentQty && price > 0 && targetSymbolController.text.isNotEmpty;
+          final isValid =
+              qty > 0 &&
+              qty <= currentQty &&
+              price > 0 &&
+              targetSymbolController.text.isNotEmpty;
 
           return Padding(
             padding: EdgeInsets.only(
@@ -58,7 +70,9 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -72,7 +86,11 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.autorenew, color: Colors.deepPurpleAccent, size: 20),
+                              const Icon(
+                                Icons.autorenew,
+                                color: Colors.deepPurpleAccent,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               const Text(
                                 'Convert Rights',
@@ -87,12 +105,14 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                           Text(
                             'Convert your $symbol rights into regular shares.',
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 13,
                             ),
                           ),
                           const SizedBox(height: 20),
-                          
+
                           TextField(
                             controller: targetSymbolController,
                             textCapitalization: TextCapitalization.characters,
@@ -103,12 +123,17 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                             onChanged: (_) => setSheetState(() {}),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           ListTile(
                             contentPadding: EdgeInsets.zero,
                             title: const Text('Conversion Date'),
-                            subtitle: Text(DateFormat('yyyy-MM-dd').format(selectedDate)),
-                            trailing: const Icon(Icons.calendar_today, size: 20),
+                            subtitle: Text(
+                              DateFormat('yyyy-MM-dd').format(selectedDate),
+                            ),
+                            trailing: const Icon(
+                              Icons.calendar_today,
+                              size: 20,
+                            ),
                             onTap: () async {
                               final picked = await showDatePicker(
                                 context: context,
@@ -122,16 +147,20 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                             },
                           ),
                           const SizedBox(height: 16),
-                          
+
                           Row(
                             children: [
                               Expanded(
                                 child: TextField(
                                   controller: qtyController,
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
                                   decoration: InputDecoration(
                                     labelText: 'Target Quantity',
-                                    hintText: 'Max: ${currentQty.toStringAsFixed(0)}',
+                                    hintText:
+                                        'Max: ${currentQty.toStringAsFixed(0)}',
                                   ),
                                   onChanged: (_) => setSheetState(() {}),
                                 ),
@@ -140,7 +169,10 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                               Expanded(
                                 child: TextField(
                                   controller: priceController,
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
                                   decoration: const InputDecoration(
                                     labelText: 'Price Per Share',
                                     hintText: 'e.g., 10.00',
@@ -151,10 +183,16 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                             ],
                           ),
                           const SizedBox(height: 16),
-                          
+
                           CheckboxListTile(
-                            title: const Text('Log external deposit', style: TextStyle(fontSize: 14)),
-                            subtitle: const Text('Automatically add a deposit for the conversion cost.', style: TextStyle(fontSize: 11)),
+                            title: const Text(
+                              'Log external deposit',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            subtitle: const Text(
+                              'Automatically add a deposit for the conversion cost.',
+                              style: TextStyle(fontSize: 11),
+                            ),
                             value: logDeposit,
                             activeColor: AppTheme.accent,
                             contentPadding: EdgeInsets.zero,
@@ -176,7 +214,11 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.warning, color: AppTheme.sellRed, size: 16),
+                                  Icon(
+                                    Icons.warning,
+                                    color: AppTheme.sellRed,
+                                    size: 16,
+                                  ),
                                   const SizedBox(width: 8),
                                   const Expanded(
                                     child: Text(
@@ -197,40 +239,57 @@ void showConvertRightsDialog(BuildContext context, String symbol, VoidCallback o
                                       Navigator.pop(sheetCtx);
                                       const channelId = 'other'; // default
                                       // 1. Add Conversion Trade
-                                      context.read<TradeBloc>().add(AddTrade(
-                                            channelId: channelId,
-                                            action: 'rights_convert',
-                                            symbol: symbol,
-                                            targetSymbol: targetSymbolController.text.trim().toUpperCase(),
-                                            quantity: qty,
-                                            price: price,
-                                            smsDate: selectedDate,
-                                            isManual: true,
-                                          ));
-                                          
+                                      context.read<TradeBloc>().add(
+                                        AddTrade(
+                                          channelId: channelId,
+                                          action: 'rights_convert',
+                                          symbol: symbol,
+                                          targetSymbol: targetSymbolController
+                                              .text
+                                              .trim()
+                                              .toUpperCase(),
+                                          quantity: qty,
+                                          price: price,
+                                          smsDate: selectedDate,
+                                          isManual: true,
+                                        ),
+                                      );
+
                                       // 2. Add Deposit
                                       if (logDeposit) {
-                                        context.read<FundTransferBloc>().add(AddFundTransfer(
+                                        context.read<FundTransferBloc>().add(
+                                          AddFundTransfer(
                                             channelId: channelId,
                                             action: 'deposit',
                                             amount: qty * price,
                                             smsDate: selectedDate,
                                             isManual: true,
-                                        ));
+                                          ),
+                                        );
                                       }
 
-                                      context.read<DashboardBloc>().add(RefreshDashboard());
+                                      context.read<DashboardBloc>().add(
+                                        RefreshDashboard(),
+                                      );
                                       onConverted();
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          content: Text('Rights conversion submitted to ${targetSymbolController.text}'),
+                                          content: Text(
+                                            'Rights conversion submitted to ${targetSymbolController.text}',
+                                          ),
                                         ),
                                       );
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: isValid ? Colors.deepPurpleAccent : Theme.of(context).dividerColor,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                backgroundColor: isValid
+                                    ? Colors.deepPurpleAccent
+                                    : Theme.of(context).dividerColor,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

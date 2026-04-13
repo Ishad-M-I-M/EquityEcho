@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '779114244435',
     projectId: 'equity-echo',
     storageBucket: 'equity-echo.firebasestorage.app',
-    iosClientId: '779114244435-cbhequ6kl9eb49elgig2q64nd7r8tcjj.apps.googleusercontent.com',
+    iosClientId:
+        '779114244435-cbhequ6kl9eb49elgig2q64nd7r8tcjj.apps.googleusercontent.com',
     iosBundleId: 'com.sa2s.equityecho',
   );
 }

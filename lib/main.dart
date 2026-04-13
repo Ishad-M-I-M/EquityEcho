@@ -7,13 +7,11 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupDependencies();
-  
+
   // Initialize realtime sync manager so it starts background listeners if enabled
   getIt<RealtimeSyncManager>();
-  
+
   runApp(const EquityEchoApp());
 }

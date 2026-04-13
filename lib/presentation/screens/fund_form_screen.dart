@@ -58,14 +58,14 @@ class _FundFormScreenState extends State<FundFormScreen> {
           if (state is FundTransferOperationSuccess) {
             context.read<DashboardBloc>().add(RefreshDashboard());
             context.read<ActivityLogBloc>().add(RefreshActivityLog());
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
             context.pop();
           } else if (state is FundTransferError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         child: Form(
@@ -102,7 +102,9 @@ class _FundFormScreenState extends State<FundFormScreen> {
                               style: TextStyle(
                                 color: _action == 'deposit'
                                     ? AppTheme.fundBlue
-                                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                               ),
@@ -136,7 +138,9 @@ class _FundFormScreenState extends State<FundFormScreen> {
                               style: TextStyle(
                                 color: _action == 'withdrawal'
                                     ? AppTheme.warning
-                                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                               ),
@@ -156,11 +160,16 @@ class _FundFormScreenState extends State<FundFormScreen> {
                       _channelId ??= state.channels.first.id;
                       return DropdownButtonFormField<String>(
                         initialValue: _channelId,
-                        decoration:
-                            const InputDecoration(labelText: 'Broker Channel'),
+                        decoration: const InputDecoration(
+                          labelText: 'Broker Channel',
+                        ),
                         items: state.channels
-                            .map((c) => DropdownMenuItem(
-                                value: c.id, child: Text(c.name)))
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c.id,
+                                child: Text(c.name),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) => setState(() => _channelId = v),
                       );
@@ -173,8 +182,11 @@ class _FundFormScreenState extends State<FundFormScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.warning_amber,
-                              color: AppTheme.warning, size: 18),
+                          Icon(
+                            Icons.warning_amber,
+                            color: AppTheme.warning,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                           const Expanded(
                             child: Text(
@@ -192,8 +204,9 @@ class _FundFormScreenState extends State<FundFormScreen> {
                 // Amount
                 TextFormField(
                   controller: _amountController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Amount',
                     hintText: '0.00',
@@ -287,12 +300,14 @@ class _FundFormScreenState extends State<FundFormScreen> {
       _time.minute,
     );
 
-    context.read<FundTransferBloc>().add(AddFundTransfer(
-          channelId: _channelId!,
-          action: _action,
-          amount: double.parse(_amountController.text),
-          smsDate: dateTime,
-          isManual: true,
-        ));
+    context.read<FundTransferBloc>().add(
+      AddFundTransfer(
+        channelId: _channelId!,
+        action: _action,
+        amount: double.parse(_amountController.text),
+        smsDate: dateTime,
+        isManual: true,
+      ),
+    );
   }
 }

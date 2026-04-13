@@ -20,7 +20,8 @@ class ActivityLogScreen extends StatelessWidget {
           BlocBuilder<ActivityLogBloc, ActivityLogState>(
             builder: (context, state) {
               if (state is ActivityLogLoaded) {
-                final hasFilters = state.monthFilter != null ||
+                final hasFilters =
+                    state.monthFilter != null ||
                     state.yearFilter != null ||
                     state.symbolFilter != null ||
                     state.typeFilter != null;
@@ -78,8 +79,11 @@ class ActivityLogScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.history,
-                        size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.history,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'No activity found',
@@ -109,26 +113,34 @@ class ActivityLogScreen extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: Text(
                           key,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
-                      ...items.map((item) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 4),
-                            child: ActivityTile(
-                              item: item,
-                              onTap: item.type == ActivityType.trade
-                                  ? () => _showTradeDetails(context, item)
-                                  : () => _showFundDetails(context, item),
-                            ),
-                          )),
+                      ...items.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          child: ActivityTile(
+                            item: item,
+                            onTap: item.type == ActivityType.trade
+                                ? () => _showTradeDetails(context, item)
+                                : () => _showFundDetails(context, item),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 8),
                     ],
                   );
@@ -159,13 +171,16 @@ class ActivityLogScreen extends StatelessWidget {
         final isExempt = item.isIntraDayExempt;
         final breakdown = hasCharges
             ? (isExempt
-                ? TransactionCharges.computeExempt(totalValue)
-                : TransactionCharges.compute(totalValue))
+                  ? TransactionCharges.computeExempt(totalValue)
+                  : TransactionCharges.compute(totalValue))
             : null;
         final effectiveTotal = hasCharges
             ? (isBuy
-                ? TransactionCharges.buyCost(totalValue, isExempt: isExempt)
-                : TransactionCharges.sellProceeds(totalValue, isExempt: isExempt))
+                  ? TransactionCharges.buyCost(totalValue, isExempt: isExempt)
+                  : TransactionCharges.sellProceeds(
+                      totalValue,
+                      isExempt: isExempt,
+                    ))
             : totalValue;
 
         return StatefulBuilder(
@@ -190,7 +205,10 @@ class ActivityLogScreen extends StatelessWidget {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -200,7 +218,9 @@ class ActivityLogScreen extends StatelessWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: tradeColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
@@ -218,7 +238,9 @@ class ActivityLogScreen extends StatelessWidget {
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.purple.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
@@ -237,7 +259,9 @@ class ActivityLogScreen extends StatelessWidget {
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.teal.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
@@ -256,7 +280,9 @@ class ActivityLogScreen extends StatelessWidget {
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.orange.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
@@ -285,8 +311,14 @@ class ActivityLogScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _DetailRow('Quantity', item.quantity?.toStringAsFixed(0) ?? '-'),
-                      _DetailRow('Price', item.price?.toStringAsFixed(2) ?? '-'),
+                      _DetailRow(
+                        'Quantity',
+                        item.quantity?.toStringAsFixed(0) ?? '-',
+                      ),
+                      _DetailRow(
+                        'Price',
+                        item.price?.toStringAsFixed(2) ?? '-',
+                      ),
                       _DetailRow('Trade Value', totalValue.toStringAsFixed(2)),
                       if (hasCharges)
                         _DetailRow(
@@ -294,29 +326,42 @@ class ActivityLogScreen extends StatelessWidget {
                           effectiveTotal.toStringAsFixed(2),
                           valueColor: tradeColor,
                         ),
-                      _DetailRow('Date', item.date.toLocal().toString().split('.').first),
+                      _DetailRow(
+                        'Date',
+                        item.date.toLocal().toString().split('.').first,
+                      ),
                       _DetailRow('Channel', item.channelName),
-                      _DetailRow('Source', item.isManual ? 'Manual Entry' : 'SMS'),
+                      _DetailRow(
+                        'Source',
+                        item.isManual ? 'Manual Entry' : 'SMS',
+                      ),
 
                       // Collapsible charges breakdown
                       if (hasCharges && breakdown != null) ...[
                         const SizedBox(height: 16),
                         GestureDetector(
-                          onTap: () => setInnerState(() => chargesExpanded = !chargesExpanded),
+                          onTap: () => setInnerState(
+                            () => chargesExpanded = !chargesExpanded,
+                          ),
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Theme.of(context).dividerColor),
+                              border: Border.all(
+                                color: Theme.of(context).dividerColor,
+                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.receipt_long,
-                                        size: 14, color: AppTheme.accent),
+                                    Icon(
+                                      Icons.receipt_long,
+                                      size: 14,
+                                      color: AppTheme.accent,
+                                    ),
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
@@ -334,23 +379,43 @@ class ActivityLogScreen extends StatelessWidget {
                                           ? Icons.keyboard_arrow_up
                                           : Icons.keyboard_arrow_down,
                                       size: 18,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
                                   ],
                                 ),
                                 if (chargesExpanded) ...[
                                   const SizedBox(height: 10),
-                                  _SheetChargeRow('Brokerage Fee', '0.640%',
-                                      breakdown.brokerageFee),
                                   _SheetChargeRow(
-                                      'CSE Fees', '0.084%', breakdown.cseFee),
+                                    'Brokerage Fee',
+                                    '0.640%',
+                                    breakdown.brokerageFee,
+                                  ),
                                   _SheetChargeRow(
-                                      'CDS Fees', '0.024%', breakdown.cdsFee),
+                                    'CSE Fees',
+                                    '0.084%',
+                                    breakdown.cseFee,
+                                  ),
                                   _SheetChargeRow(
-                                      'SEC Cess', '0.072%', breakdown.secCess),
-                                  _SheetChargeRow('Share Trans. Levy', '0.300%',
-                                      breakdown.shareTransactionLevy),
-                                  Divider(height: 16, color: Theme.of(context).dividerColor),
+                                    'CDS Fees',
+                                    '0.024%',
+                                    breakdown.cdsFee,
+                                  ),
+                                  _SheetChargeRow(
+                                    'SEC Cess',
+                                    '0.072%',
+                                    breakdown.secCess,
+                                  ),
+                                  _SheetChargeRow(
+                                    'Share Trans. Levy',
+                                    '0.300%',
+                                    breakdown.shareTransactionLevy,
+                                  ),
+                                  Divider(
+                                    height: 16,
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -364,7 +429,9 @@ class ActivityLogScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        breakdown.totalCharges.toStringAsFixed(2),
+                                        breakdown.totalCharges.toStringAsFixed(
+                                          2,
+                                        ),
                                         style: TextStyle(
                                           color: AppTheme.warning,
                                           fontSize: 13,
@@ -385,7 +452,9 @@ class ActivityLogScreen extends StatelessWidget {
                         Text(
                           'Original SMS',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                           ),
                         ),
@@ -399,8 +468,10 @@ class ActivityLogScreen extends StatelessWidget {
                           ),
                           child: Text(
                             item.rawSmsBody,
-                            style:
-                                const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'monospace',
+                            ),
                           ),
                         ),
                       ],
@@ -434,7 +505,9 @@ class ActivityLogScreen extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -442,10 +515,7 @@ class ActivityLogScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               '${item.fundAction?.label ?? ''} — ${item.amount?.toStringAsFixed(2)}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             _DetailRow('Date', '${item.date}'),
@@ -491,7 +561,9 @@ class ActivityLogScreen extends StatelessWidget {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -525,8 +597,10 @@ class ActivityLogScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    const Text('Type',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Type',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -542,14 +616,18 @@ class ActivityLogScreen extends StatelessWidget {
                           label: const Text('Trades'),
                           selected: selectedType == ActivityType.trade,
                           onSelected: (val) {
-                            if (val) setState(() => selectedType = ActivityType.trade);
+                            if (val)
+                              setState(() => selectedType = ActivityType.trade);
                           },
                         ),
                         ChoiceChip(
                           label: const Text('Funds'),
                           selected: selectedType == ActivityType.fundTransfer,
                           onSelected: (val) {
-                            if (val) setState(() => selectedType = ActivityType.fundTransfer);
+                            if (val)
+                              setState(
+                                () => selectedType = ActivityType.fundTransfer,
+                              );
                           },
                         ),
                       ],
@@ -557,8 +635,10 @@ class ActivityLogScreen extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     if (state.availableYears.isNotEmpty) ...[
-                      const Text('Year',
-                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const Text(
+                        'Year',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
@@ -570,20 +650,24 @@ class ActivityLogScreen extends StatelessWidget {
                               if (val) setState(() => selectedYear = null);
                             },
                           ),
-                          ...state.availableYears.map((year) => ChoiceChip(
-                                label: Text(year.toString()),
-                                selected: selectedYear == year,
-                                onSelected: (val) {
-                                  if (val) setState(() => selectedYear = year);
-                                },
-                              )),
+                          ...state.availableYears.map(
+                            (year) => ChoiceChip(
+                              label: Text(year.toString()),
+                              selected: selectedYear == year,
+                              onSelected: (val) {
+                                if (val) setState(() => selectedYear = year);
+                              },
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
                     ],
 
-                    const Text('Month',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Month',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -612,8 +696,10 @@ class ActivityLogScreen extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     if (state.availableSymbols.isNotEmpty) ...[
-                      const Text('Symbol',
-                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const Text(
+                        'Symbol',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
@@ -626,13 +712,16 @@ class ActivityLogScreen extends StatelessWidget {
                               if (val) setState(() => selectedSymbol = null);
                             },
                           ),
-                          ...state.availableSymbols.map((symbol) => ChoiceChip(
-                                label: Text(symbol),
-                                selected: selectedSymbol == symbol,
-                                onSelected: (val) {
-                                  if (val) setState(() => selectedSymbol = symbol);
-                                },
-                              )),
+                          ...state.availableSymbols.map(
+                            (symbol) => ChoiceChip(
+                              label: Text(symbol),
+                              selected: selectedSymbol == symbol,
+                              onSelected: (val) {
+                                if (val)
+                                  setState(() => selectedSymbol = symbol);
+                              },
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -652,13 +741,13 @@ class ActivityLogScreen extends StatelessWidget {
                         ),
                         onPressed: () {
                           context.read<ActivityLogBloc>().add(
-                                FilterActivityLog(
-                                  month: selectedMonth,
-                                  year: selectedYear,
-                                  symbol: selectedSymbol,
-                                  type: selectedType,
-                                ),
-                              );
+                            FilterActivityLog(
+                              month: selectedMonth,
+                              year: selectedYear,
+                              symbol: selectedSymbol,
+                              type: selectedType,
+                            ),
+                          );
                           Navigator.pop(context);
                         },
                         child: const Text(
@@ -683,8 +772,18 @@ class ActivityLogScreen extends StatelessWidget {
 
   String _getMonthName(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[month - 1];
   }
@@ -706,15 +805,21 @@ class _DetailRow extends StatelessWidget {
             width: 100,
             child: Text(
               label,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 13,
+              ),
             ),
           ),
           Expanded(
-            child: Text(value, style: TextStyle(
-              fontSize: 14,
-              color: valueColor,
-              fontWeight: valueColor != null ? FontWeight.w700 : null,
-            )),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                color: valueColor,
+                fontWeight: valueColor != null ? FontWeight.w700 : null,
+              ),
+            ),
           ),
         ],
       ),
@@ -740,12 +845,14 @@ class _SheetChargeRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
                   color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(4),
@@ -763,7 +870,10 @@ class _SheetChargeRow extends StatelessWidget {
           ),
           Text(
             amount.toStringAsFixed(2),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
           ),
         ],
       ),

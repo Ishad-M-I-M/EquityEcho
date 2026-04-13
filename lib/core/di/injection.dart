@@ -32,11 +32,11 @@ Future<void> setupDependencies() async {
   // Services
   final prefs = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(prefs);
-  
+
   getIt.registerSingleton<SmsService>(SmsService());
   getIt.registerSingleton<AuthService>(FirebaseAuthService());
   getIt.registerSingleton<CloudSyncService>(FirestoreCloudSyncService());
-  
+
   getIt.registerSingleton<RealtimeSyncManager>(
     RealtimeSyncManager(
       prefs: getIt<SharedPreferences>(),

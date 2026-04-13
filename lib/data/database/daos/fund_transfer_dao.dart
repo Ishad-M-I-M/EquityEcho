@@ -25,7 +25,9 @@ class FundTransferDao extends DatabaseAccessor<AppDatabase>
   /// Get fund transfers for a specific channel
   Future<List<FundTransfer>> getTransfersForChannel(String channelId) =>
       (select(fundTransfers)
-            ..where((f) => f.isDeleted.equals(false) & f.channelId.equals(channelId))
+            ..where(
+              (f) => f.isDeleted.equals(false) & f.channelId.equals(channelId),
+            )
             ..orderBy([(f) => OrderingTerm.desc(f.smsDate)]))
           .get();
 
@@ -37,7 +39,11 @@ class FundTransferDao extends DatabaseAccessor<AppDatabase>
   Future<bool> updateFundTransfer(FundTransfer transfer) =>
       update(fundTransfers).replace(transfer);
 
-  Future<int> deleteFundTransfer(String id, {String? reason, String? reasonOther}) async {
+  Future<int> deleteFundTransfer(
+    String id, {
+    String? reason,
+    String? reasonOther,
+  }) async {
     return (update(fundTransfers)..where((f) => f.id.equals(id))).write(
       FundTransfersCompanion(
         isDeleted: const Value(true),
@@ -69,11 +75,17 @@ class FundTransferDao extends DatabaseAccessor<AppDatabase>
   Future<int> deleteAllFundTransfers() => delete(fundTransfers).go();
 
   /// Check for duplicate using SMS body + received date
-  Future<bool> existsByRawSms(String rawSmsBody, DateTime smsReceivedDate) async {
-    final results = await (select(fundTransfers)
-          ..where(
-              (f) => f.rawSmsBody.equals(rawSmsBody) & f.smsReceivedDate.equals(smsReceivedDate)))
-        .get();
+  Future<bool> existsByRawSms(
+    String rawSmsBody,
+    DateTime smsReceivedDate,
+  ) async {
+    final results =
+        await (select(fundTransfers)..where(
+              (f) =>
+                  f.rawSmsBody.equals(rawSmsBody) &
+                  f.smsReceivedDate.equals(smsReceivedDate),
+            ))
+            .get();
     return results.isNotEmpty;
   }
 
@@ -81,7 +93,10 @@ class FundTransferDao extends DatabaseAccessor<AppDatabase>
   Future<double> getTotalDeposits() async {
     final result = await customSelect(
       'SELECT COALESCE(SUM(amount), 0.0) as total FROM fund_transfers WHERE action IN (?, ?) AND is_deleted = 0',
-      variables: [Variable.withString('deposit'), Variable.withString('ipo_deposit')],
+      variables: [
+        Variable.withString('deposit'),
+        Variable.withString('ipo_deposit'),
+      ],
       readsFrom: {fundTransfers},
     ).getSingle();
     return result.read<double>('total');

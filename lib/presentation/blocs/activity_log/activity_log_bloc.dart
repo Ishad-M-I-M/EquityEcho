@@ -24,10 +24,10 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
     required TradeDao tradeDao,
     required FundTransferDao fundTransferDao,
     required ChannelDao channelDao,
-  })  : _tradeDao = tradeDao,
-        _fundTransferDao = fundTransferDao,
-        _channelDao = channelDao,
-        super(ActivityLogInitial()) {
+  }) : _tradeDao = tradeDao,
+       _fundTransferDao = fundTransferDao,
+       _channelDao = channelDao,
+       super(ActivityLogInitial()) {
     on<LoadActivityLog>(_onLoad);
     on<RefreshActivityLog>(_onLoad);
     on<FilterActivityLog>(_onFilter);
@@ -49,52 +49,61 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
 
       // Compute intra-day exemptions
       final tradeDataList = trades
-          .map((t) => TradeData(
-                id: t.id,
-                symbol: t.symbol,
-                channelId: t.channelId,
-                action: t.action,
-                quantity: t.quantity,
-                date: t.smsDate,
-                isIpo: t.isIpo,
-              ))
+          .map(
+            (t) => TradeData(
+              id: t.id,
+              symbol: t.symbol,
+              channelId: t.channelId,
+              action: t.action,
+              quantity: t.quantity,
+              date: t.smsDate,
+              isIpo: t.isIpo,
+            ),
+          )
           .toList();
-      final exemptIds = TransactionCharges.findIntraDayExemptions(tradeDataList);
+      final exemptIds = TransactionCharges.findIntraDayExemptions(
+        tradeDataList,
+      );
 
-      final tradeItems = trades.map((t) => ActivityItem(
-            id: t.id,
-            type: ActivityType.trade,
-            channelName: channelMap[t.channelId] ?? 'Unknown',
-            date: t.smsDate,
-            createdAt: t.createdAt,
-            rawSmsBody: t.rawSmsBody,
-            isManual: t.isManual,
-            tradeAction:
-                t.action == 'buy' ? TradeAction.buy : TradeAction.sell,
-            symbol: t.symbol,
-            quantity: t.quantity,
-            price: t.price,
-            totalValue: t.totalValue,
-            isIpo: t.isIpo,
-            isIntraDayExempt: exemptIds.contains(t.id),
-            isAdjustment: t.isAdjustment,
-          ));
+      final tradeItems = trades.map(
+        (t) => ActivityItem(
+          id: t.id,
+          type: ActivityType.trade,
+          channelName: channelMap[t.channelId] ?? 'Unknown',
+          date: t.smsDate,
+          createdAt: t.createdAt,
+          rawSmsBody: t.rawSmsBody,
+          isManual: t.isManual,
+          tradeAction: t.action == 'buy' ? TradeAction.buy : TradeAction.sell,
+          symbol: t.symbol,
+          quantity: t.quantity,
+          price: t.price,
+          totalValue: t.totalValue,
+          isIpo: t.isIpo,
+          isIntraDayExempt: exemptIds.contains(t.id),
+          isAdjustment: t.isAdjustment,
+        ),
+      );
 
       // Fetch fund transfers
       final transfers = await _fundTransferDao.getAllFundTransfers();
-      final transferItems = transfers.map((f) => ActivityItem(
-            id: f.id,
-            type: ActivityType.fundTransfer,
-            channelName: channelMap[f.channelId] ?? 'Unknown',
-            date: f.smsDate,
-            createdAt: f.createdAt,
-            rawSmsBody: f.rawSmsBody,
-            isManual: f.isManual,
-            fundAction: f.action == 'deposit'
-                ? FundAction.deposit
-                : (f.action == 'ipo_deposit' ? FundAction.ipoDeposit : FundAction.withdrawal),
-            amount: f.amount,
-          ));
+      final transferItems = transfers.map(
+        (f) => ActivityItem(
+          id: f.id,
+          type: ActivityType.fundTransfer,
+          channelName: channelMap[f.channelId] ?? 'Unknown',
+          date: f.smsDate,
+          createdAt: f.createdAt,
+          rawSmsBody: f.rawSmsBody,
+          isManual: f.isManual,
+          fundAction: f.action == 'deposit'
+              ? FundAction.deposit
+              : (f.action == 'ipo_deposit'
+                    ? FundAction.ipoDeposit
+                    : FundAction.withdrawal),
+          amount: f.amount,
+        ),
+      );
 
       // Combine and sort by date descending
       final allItems = [...tradeItems, ...transferItems];
@@ -107,10 +116,7 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
     }
   }
 
-  void _onFilter(
-    FilterActivityLog event,
-    Emitter<ActivityLogState> emit,
-  ) {
+  void _onFilter(FilterActivityLog event, Emitter<ActivityLogState> emit) {
     _monthFilter = event.month;
     _yearFilter = event.year;
     _symbolFilter = event.symbol;
@@ -118,10 +124,7 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
     _emitFiltered(emit);
   }
 
-  void _onClearFilters(
-    ClearFilters event,
-    Emitter<ActivityLogState> emit,
-  ) {
+  void _onClearFilters(ClearFilters event, Emitter<ActivityLogState> emit) {
     _monthFilter = null;
     _yearFilter = null;
     _symbolFilter = null;
@@ -165,14 +168,16 @@ class ActivityLogBloc extends Bloc<ActivityLogEvent, ActivityLogState> {
       grouped[key]!.add(item);
     }
 
-    emit(ActivityLogLoaded(
-      groupedItems: grouped,
-      monthFilter: _monthFilter,
-      yearFilter: _yearFilter,
-      symbolFilter: _symbolFilter,
-      typeFilter: _typeFilter,
-      availableSymbols: availableSymbols,
-      availableYears: availableYears,
-    ));
+    emit(
+      ActivityLogLoaded(
+        groupedItems: grouped,
+        monthFilter: _monthFilter,
+        yearFilter: _yearFilter,
+        symbolFilter: _symbolFilter,
+        typeFilter: _typeFilter,
+        availableSymbols: availableSymbols,
+        availableYears: availableYears,
+      ),
+    );
   }
 }

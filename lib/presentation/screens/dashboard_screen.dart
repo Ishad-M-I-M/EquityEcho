@@ -90,7 +90,9 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             child: StatCard(
                               label: 'Total Invested',
-                              value: currencyFormatter.format(state.totalInvested),
+                              value: currencyFormatter.format(
+                                state.totalInvested,
+                              ),
                               icon: Icons.account_balance,
                               color: AppTheme.buyGreen,
                             ),
@@ -99,9 +101,13 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             child: StatCard(
                               label: 'Realized Gain',
-                              value: currencyFormatter.format(state.totalRealizedGain),
+                              value: currencyFormatter.format(
+                                state.totalRealizedGain,
+                              ),
                               icon: Icons.monetization_on,
-                              color: state.totalRealizedGain >= 0 ? AppTheme.accent : AppTheme.sellRed,
+                              color: state.totalRealizedGain >= 0
+                                  ? AppTheme.accent
+                                  : AppTheme.sellRed,
                               onTap: () => context.push('/realized-gains'),
                             ),
                           ),
@@ -116,7 +122,9 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             child: StatCard(
                               label: 'Deposits',
-                              value: currencyFormatter.format(state.totalDeposits),
+                              value: currencyFormatter.format(
+                                state.totalDeposits,
+                              ),
                               icon: Icons.account_balance_wallet,
                               color: AppTheme.fundBlue,
                               onTap: () => context.push('/deposits'),
@@ -126,7 +134,9 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             child: StatCard(
                               label: 'Dividends',
-                              value: currencyFormatter.format(state.totalDividends),
+                              value: currencyFormatter.format(
+                                state.totalDividends,
+                              ),
                               icon: Icons.card_giftcard,
                               color: AppTheme.buyGreen,
                               subtitle: 'Received',
@@ -153,7 +163,9 @@ class DashboardScreen extends StatelessWidget {
                         Text(
                           '${state.holdings.length} stocks',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontSize: 13,
                           ),
                         ),
@@ -180,8 +192,11 @@ class DashboardScreen extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.assessment,
-                              color: AppTheme.accent, size: 20),
+                          Icon(
+                            Icons.assessment,
+                            color: AppTheme.accent,
+                            size: 20,
+                          ),
                           const SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +204,9 @@ class DashboardScreen extends StatelessWidget {
                               Text(
                                 'Portfolio Book Value',
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                               ),
@@ -210,11 +227,15 @@ class DashboardScreen extends StatelessWidget {
                     const SizedBox(height: 14),
 
                     // Holdings list
-                    ...state.holdings.where((h) => h.netQuantity > 0).map((h) => HoldingCard(
-                          holding: h,
-                          currency: state.currency,
-                          onTap: () => context.push('/holding/${h.symbol}'),
-                        )),
+                    ...state.holdings
+                        .where((h) => h.netQuantity > 0)
+                        .map(
+                          (h) => HoldingCard(
+                            holding: h,
+                            currency: state.currency,
+                            onTap: () => context.push('/holding/${h.symbol}'),
+                          ),
+                        ),
 
                     if (state.holdings.any((h) => h.netQuantity <= 0)) ...[
                       const SizedBox(height: 16),
@@ -227,14 +248,19 @@ class DashboardScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...state.holdings.where((h) => h.netQuantity <= 0).map((h) => Opacity(
-                            opacity: 0.6,
-                            child: HoldingCard(
-                              holding: h,
-                              currency: state.currency,
-                              onTap: () => context.push('/holding/${h.symbol}'),
+                      ...state.holdings
+                          .where((h) => h.netQuantity <= 0)
+                          .map(
+                            (h) => Opacity(
+                              opacity: 0.6,
+                              child: HoldingCard(
+                                holding: h,
+                                currency: state.currency,
+                                onTap: () =>
+                                    context.push('/holding/${h.symbol}'),
+                              ),
                             ),
-                          )),
+                          ),
                     ],
                   ],
                 ),
@@ -268,7 +294,9 @@ class DashboardScreen extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -285,7 +313,10 @@ class DashboardScreen extends StatelessWidget {
               title: const Text('Add Trade'),
               subtitle: Text(
                 'Manually add a buy or sell trade',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -305,7 +336,10 @@ class DashboardScreen extends StatelessWidget {
               title: const Text('Add IPO Purchase'),
               subtitle: Text(
                 'Record an IPO allotment and deposit',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -320,13 +354,18 @@ class DashboardScreen extends StatelessWidget {
                   color: AppTheme.fundBlue.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.account_balance_wallet,
-                    color: AppTheme.fundBlue),
+                child: Icon(
+                  Icons.account_balance_wallet,
+                  color: AppTheme.fundBlue,
+                ),
               ),
               title: const Text('Add Fund Transfer'),
               subtitle: Text(
                 'Record a deposit or withdrawal',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -375,10 +414,7 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
@@ -391,10 +427,7 @@ class _EmptyState extends StatelessWidget {
             ),
             if (onAction != null && actionLabel != null) ...[
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: onAction,
-                child: Text(actionLabel!),
-              ),
+              ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],
         ),

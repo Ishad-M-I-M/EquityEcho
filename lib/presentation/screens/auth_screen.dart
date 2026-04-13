@@ -35,7 +35,9 @@ class _AuthScreenState extends State<AuthScreen> {
     if (email.isEmpty || pw.isEmpty) return;
 
     if (!_isLogin && pw != cpw) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
 
@@ -48,7 +50,9 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -61,7 +65,9 @@ class _AuthScreenState extends State<AuthScreen> {
       await authService.signInWithGoogle();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -71,22 +77,29 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _syncData(bool isUp) async {
     final user = authService.currentUser;
     if (user == null) return;
-    
+
     setState(() => _isLoading = true);
     try {
       if (isUp) {
         await syncService.syncUp(user.id, db);
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sync Up Complete')));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Sync Up Complete')));
       } else {
         await syncService.syncDown(user.id, db);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sync Down Complete')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Sync Down Complete')));
           context.read<DashboardBloc>().add(LoadDashboard());
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sync Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sync Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -101,7 +114,7 @@ class _AuthScreenState extends State<AuthScreen> {
         stream: authService.authStateChanges,
         builder: (context, snapshot) {
           final user = snapshot.data;
-          
+
           if (user != null) {
             // Logged in UI
             return Padding(
@@ -111,8 +124,16 @@ class _AuthScreenState extends State<AuthScreen> {
                 children: [
                   const Icon(Icons.cloud_done, size: 64, color: Colors.green),
                   const SizedBox(height: 16),
-                  Text('Signed in as', textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
-                  Text(user.email, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'Signed in as',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    user.email,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 32),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.cloud_upload),
@@ -128,12 +149,16 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 16),
                   const _RealtimeSyncTile(),
                   const Spacer(),
-                  if (_isLoading) const Center(child: CircularProgressIndicator()),
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator()),
                   const Spacer(),
                   TextButton(
                     onPressed: () => authService.signOut(),
-                    child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
-                  )
+                    child: const Text(
+                      'Sign Out',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
                 ],
               ),
             );
@@ -146,52 +171,66 @@ class _AuthScreenState extends State<AuthScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  _isLogin ? 'Login to Sync' : 'Create Account to Sync',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
-                  obscureText: true,
-                ),
-                if (!_isLogin) ...[
+                children: [
+                  Text(
+                    _isLogin ? 'Login to Sync' : 'Create Account to Sync',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
                   const SizedBox(height: 12),
                   TextField(
-                    controller: _confirmPasswordController,
-                    decoration: const InputDecoration(labelText: 'Confirm Password', border: OutlineInputBorder()),
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
                     obscureText: true,
                   ),
+                  if (!_isLogin) ...[
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _confirmPasswordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _submitEmailPassword,
+                    child: Text(_isLogin ? 'Login' : 'Sign Up'),
+                  ),
+                  TextButton(
+                    onPressed: () => setState(() => _isLogin = !_isLogin),
+                    child: Text(
+                      _isLogin
+                          ? 'Need an account? Sign Up'
+                          : 'Have an account? Login',
+                    ),
+                  ),
+                  const Divider(height: 48),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.login), // simplified icon
+                    label: const Text('Sign in with Google'),
+                    onPressed: _isLoading ? null : _signInWithGoogle,
+                  ),
+                  if (_isLoading)
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
                 ],
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submitEmailPassword,
-                  child: Text(_isLogin ? 'Login' : 'Sign Up'),
-                ),
-                TextButton(
-                  onPressed: () => setState(() => _isLogin = !_isLogin),
-                  child: Text(_isLogin ? 'Need an account? Sign Up' : 'Have an account? Login'),
-                ),
-                const Divider(height: 48),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.login), // simplified icon 
-                  label: const Text('Sign in with Google'),
-                  onPressed: _isLoading ? null : _signInWithGoogle,
-                ),
-                if (_isLoading) const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              ],
               ),
             ),
           );
@@ -243,10 +282,7 @@ class _RealtimeSyncTileState extends State<_RealtimeSyncTile> {
               children: [
                 const Text(
                   'Realtime Auto Sync',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 ),
                 const SizedBox(height: 2),
                 Text(

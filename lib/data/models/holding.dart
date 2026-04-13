@@ -41,13 +41,13 @@ class Holding extends Equatable {
 
   @override
   List<Object?> get props => [
-        symbol,
-        netQuantity,
-        avgBuyPrice,
-        avgCostWithCharges,
-        totalInvested,
-        totalSoldQuantity,
-        totalSoldValue,
-        realizedGain,
-      ];
+    symbol,
+    netQuantity,
+    avgBuyPrice,
+    avgCostWithCharges,
+    totalInvested,
+    totalSoldQuantity,
+    totalSoldValue,
+    realizedGain,
+  ];
 }

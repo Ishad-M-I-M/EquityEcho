@@ -30,16 +30,16 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
 
   void _loadHistory() {
     setState(() {
-      _historyFuture = getIt<DividendDao>().getDividendsForSymbol(widget.symbol);
+      _historyFuture = getIt<DividendDao>().getDividendsForSymbol(
+        widget.symbol,
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.symbol} Dividends'),
-      ),
+      appBar: AppBar(title: Text('${widget.symbol} Dividends')),
       body: FutureBuilder<List<Dividend>>(
         future: _historyFuture,
         builder: (context, snapshot) {
@@ -47,7 +47,12 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: AppTheme.sellRed)));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: AppTheme.sellRed),
+              ),
+            );
           }
 
           final dividends = snapshot.data ?? [];
@@ -55,7 +60,10 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
             return Center(
               child: Text(
                 'No dividend history found.',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 16,
+                ),
               ),
             );
           }
@@ -90,7 +98,10 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
     );
   }
 
-  Future<void> _confirmDeleteDividend(BuildContext context, Dividend div) async {
+  Future<void> _confirmDeleteDividend(
+    BuildContext context,
+    Dividend div,
+  ) async {
     final result = await DeleteConfirmationDialog.show(
       context,
       title: 'Delete Dividend',
@@ -107,9 +118,9 @@ class _DividendHistoryScreenState extends State<DividendHistoryScreen> {
       if (!context.mounted) return;
       context.read<DashboardBloc>().add(RefreshDashboard());
       _loadHistory();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dividend deleted')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Dividend deleted')));
     }
   }
 }
@@ -165,7 +176,11 @@ class _DividendCardState extends State<_DividendCard> {
                           color: AppTheme.buyGreen.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(Icons.arrow_downward, color: AppTheme.buyGreen, size: 20),
+                        child: Icon(
+                          Icons.arrow_downward,
+                          color: AppTheme.buyGreen,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Column(
@@ -184,9 +199,14 @@ class _DividendCardState extends State<_DividendCard> {
                               if (dps > 0) ...[
                                 const SizedBox(width: 8),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.accent.withValues(alpha: 0.1),
+                                    color: AppTheme.accent.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
@@ -205,7 +225,9 @@ class _DividendCardState extends State<_DividendCard> {
                           Text(
                             DateFormat('MMM dd, yyyy').format(div.date),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 12,
                             ),
                           ),
@@ -225,7 +247,9 @@ class _DividendCardState extends State<_DividendCard> {
                       ),
                       const SizedBox(width: 4),
                       Icon(
-                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
                         size: 18,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -241,9 +265,15 @@ class _DividendCardState extends State<_DividendCard> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.5),
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -315,7 +345,11 @@ class _DetailRow extends StatelessWidget {
         Row(
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              Icon(
+                icon,
+                size: 14,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               const SizedBox(width: 8),
             ],
             Text(
@@ -339,5 +373,3 @@ class _DetailRow extends StatelessWidget {
     );
   }
 }
-
-

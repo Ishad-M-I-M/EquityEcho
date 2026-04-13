@@ -100,11 +100,11 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
     required ChannelDao channelDao,
     required TradeDao tradeDao,
     required FundTransferDao fundTransferDao,
-  })  : _smsService = smsService,
-        _channelDao = channelDao,
-        _tradeDao = tradeDao,
-        _fundTransferDao = fundTransferDao,
-        super(SmsSyncIdle()) {
+  }) : _smsService = smsService,
+       _channelDao = channelDao,
+       _tradeDao = tradeDao,
+       _fundTransferDao = fundTransferDao,
+       super(SmsSyncIdle()) {
     on<StartInitialSync>(_onInitialSync);
     on<CancelInitialSync>((event, emit) => _isSyncCancelled = true);
     on<StartRealtimeListener>(_onStartRealtime);
@@ -124,8 +124,11 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       final permitted = await _smsService.requestPermission();
       if (!permitted) {
         debugPrint('[SmsSyncBloc] SMS permission denied');
-        emit(const SmsSyncError(
-            'SMS permission was denied. Please grant SMS permission in Settings.'));
+        emit(
+          const SmsSyncError(
+            'SMS permission was denied. Please grant SMS permission in Settings.',
+          ),
+        );
         return;
       }
 
@@ -134,8 +137,11 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       debugPrint('[SmsSyncBloc] Found ${channels.length} channels');
 
       if (channels.isEmpty) {
-        emit(const SmsSyncError(
-            'No channels configured. Please set up a broker channel first.'));
+        emit(
+          const SmsSyncError(
+            'No channels configured. Please set up a broker channel first.',
+          ),
+        );
         return;
       }
 
@@ -144,8 +150,9 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       debugPrint('[SmsSyncBloc] Sender addresses: $senderAddresses');
 
       // Step 4: Read inbox
-      final messages =
-          await _smsService.readInbox(senderAddresses: senderAddresses);
+      final messages = await _smsService.readInbox(
+        senderAddresses: senderAddresses,
+      );
       debugPrint('[SmsSyncBloc] Read ${messages.length} messages from inbox');
 
       if (messages.isEmpty) {
@@ -179,14 +186,17 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       }
 
       debugPrint(
-          '[SmsSyncBloc] Sync complete: $tradesAdded trades, $fundsAdded funds, $skipped skipped');
+        '[SmsSyncBloc] Sync complete: $tradesAdded trades, $fundsAdded funds, $skipped skipped',
+      );
 
-      emit(SmsSyncComplete(
-        tradesAdded: tradesAdded,
-        fundsAdded: fundsAdded,
-        skipped: skipped,
-        isCancelled: _isSyncCancelled,
-      ));
+      emit(
+        SmsSyncComplete(
+          tradesAdded: tradesAdded,
+          fundsAdded: fundsAdded,
+          skipped: skipped,
+          isCancelled: _isSyncCancelled,
+        ),
+      );
     } catch (e, stackTrace) {
       debugPrint('[SmsSyncBloc] Sync failed: $e');
       debugPrint('[SmsSyncBloc] Stack: $stackTrace');
@@ -266,13 +276,16 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       // Check if sender matches (flexible matching)
       if (!_senderMatches(sms.sender, channel.senderAddress)) {
         debugPrint(
-            '[SmsSyncBloc] ✗ Sender "${sms.sender}" does NOT match channel "${channel.name}" (${channel.senderAddress})');
+          '[SmsSyncBloc] ✗ Sender "${sms.sender}" does NOT match channel "${channel.name}" (${channel.senderAddress})',
+        );
         continue;
       }
 
       debugPrint('');
       debugPrint('══════════════════════════════════════════════════════');
-      debugPrint('[SmsSyncBloc] ✓ Sender "${sms.sender}" matches channel "${channel.name}"');
+      debugPrint(
+        '[SmsSyncBloc] ✓ Sender "${sms.sender}" matches channel "${channel.name}"',
+      );
       debugPrint('[SmsSyncBloc] SMS BODY:');
       debugPrint('--- START SMS ---');
       debugPrint(sms.body);
@@ -288,41 +301,53 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       // Try buy template
       if (effectiveBuyTemplate != null && effectiveBuyTemplate.isNotEmpty) {
         try {
-          debugPrint('[SmsSyncBloc] [BUY] Template (${channel.useDefaultBuyTemplate ? "default" : "custom"}): "$effectiveBuyTemplate"');
+          debugPrint(
+            '[SmsSyncBloc] [BUY] Template (${channel.useDefaultBuyTemplate ? "default" : "custom"}): "$effectiveBuyTemplate"',
+          );
           final parser = TemplateParser(effectiveBuyTemplate);
-          debugPrint('[SmsSyncBloc] [BUY] Generated regex: ${parser.regexPattern}');
+          debugPrint(
+            '[SmsSyncBloc] [BUY] Generated regex: ${parser.regexPattern}',
+          );
           final result = parser.parse(sms.body, smsReceivedDate: sms.date);
           debugPrint('[SmsSyncBloc] [BUY] Matched: ${result.matched}');
           if (result.matched) {
-            debugPrint('[SmsSyncBloc] [BUY] Extracted → symbol: ${result.symbol}, qty: ${result.quantity}, price: ${result.price}, date: ${result.dateTime}');
+            debugPrint(
+              '[SmsSyncBloc] [BUY] Extracted → symbol: ${result.symbol}, qty: ${result.quantity}, price: ${result.price}, date: ${result.dateTime}',
+            );
             if (result.symbol != null &&
                 result.quantity != null &&
                 result.price != null) {
               final exists = await _tradeDao.existsByRawSms(sms.body, sms.date);
               if (!exists) {
-                await _tradeDao.insertTrade(TradesCompanion.insert(
-                  id: _uuid.v4(),
-                  channelId: channel.id,
-                  action: 'buy',
-                  symbol: result.symbol!,
-                  quantity: result.quantity!,
-                  price: result.price!,
-                  totalValue: result.quantity! * result.price!,
-                  smsDate: result.dateTime ?? sms.date,
-                  smsReceivedDate: Value(sms.date),
-                  rawSmsBody: Value(sms.body),
-                  isManual: const Value(false),
-                ));
+                await _tradeDao.insertTrade(
+                  TradesCompanion.insert(
+                    id: _uuid.v4(),
+                    channelId: channel.id,
+                    action: 'buy',
+                    symbol: result.symbol!,
+                    quantity: result.quantity!,
+                    price: result.price!,
+                    totalValue: result.quantity! * result.price!,
+                    smsDate: result.dateTime ?? sms.date,
+                    smsReceivedDate: Value(sms.date),
+                    rawSmsBody: Value(sms.body),
+                    isManual: const Value(false),
+                  ),
+                );
                 debugPrint('[SmsSyncBloc] [BUY] ✓ INSERTED trade');
                 return _ProcessResult.trade;
               }
               debugPrint('[SmsSyncBloc] [BUY] ⚠ Duplicate — skipping');
               return _ProcessResult.skipped;
             } else {
-              debugPrint('[SmsSyncBloc] [BUY] ✗ Regex matched but missing required fields (symbol/qty/price)');
+              debugPrint(
+                '[SmsSyncBloc] [BUY] ✗ Regex matched but missing required fields (symbol/qty/price)',
+              );
             }
           } else {
-            debugPrint('[SmsSyncBloc] [BUY] ✗ Regex did NOT match this SMS body');
+            debugPrint(
+              '[SmsSyncBloc] [BUY] ✗ Regex did NOT match this SMS body',
+            );
           }
         } catch (e) {
           debugPrint('[SmsSyncBloc] [BUY] ✗ Parse error: $e');
@@ -339,41 +364,53 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       // Try sell template
       if (effectiveSellTemplate != null && effectiveSellTemplate.isNotEmpty) {
         try {
-          debugPrint('[SmsSyncBloc] [SELL] Template (${channel.useDefaultSellTemplate ? "default" : "custom"}): "$effectiveSellTemplate"');
+          debugPrint(
+            '[SmsSyncBloc] [SELL] Template (${channel.useDefaultSellTemplate ? "default" : "custom"}): "$effectiveSellTemplate"',
+          );
           final parser = TemplateParser(effectiveSellTemplate);
-          debugPrint('[SmsSyncBloc] [SELL] Generated regex: ${parser.regexPattern}');
+          debugPrint(
+            '[SmsSyncBloc] [SELL] Generated regex: ${parser.regexPattern}',
+          );
           final result = parser.parse(sms.body, smsReceivedDate: sms.date);
           debugPrint('[SmsSyncBloc] [SELL] Matched: ${result.matched}');
           if (result.matched) {
-            debugPrint('[SmsSyncBloc] [SELL] Extracted → symbol: ${result.symbol}, qty: ${result.quantity}, price: ${result.price}, date: ${result.dateTime}');
+            debugPrint(
+              '[SmsSyncBloc] [SELL] Extracted → symbol: ${result.symbol}, qty: ${result.quantity}, price: ${result.price}, date: ${result.dateTime}',
+            );
             if (result.symbol != null &&
                 result.quantity != null &&
                 result.price != null) {
               final exists = await _tradeDao.existsByRawSms(sms.body, sms.date);
               if (!exists) {
-                await _tradeDao.insertTrade(TradesCompanion.insert(
-                  id: _uuid.v4(),
-                  channelId: channel.id,
-                  action: 'sell',
-                  symbol: result.symbol!,
-                  quantity: result.quantity!,
-                  price: result.price!,
-                  totalValue: result.quantity! * result.price!,
-                  smsDate: result.dateTime ?? sms.date,
-                  smsReceivedDate: Value(sms.date),
-                  rawSmsBody: Value(sms.body),
-                  isManual: const Value(false),
-                ));
+                await _tradeDao.insertTrade(
+                  TradesCompanion.insert(
+                    id: _uuid.v4(),
+                    channelId: channel.id,
+                    action: 'sell',
+                    symbol: result.symbol!,
+                    quantity: result.quantity!,
+                    price: result.price!,
+                    totalValue: result.quantity! * result.price!,
+                    smsDate: result.dateTime ?? sms.date,
+                    smsReceivedDate: Value(sms.date),
+                    rawSmsBody: Value(sms.body),
+                    isManual: const Value(false),
+                  ),
+                );
                 debugPrint('[SmsSyncBloc] [SELL] ✓ INSERTED trade');
                 return _ProcessResult.trade;
               }
               debugPrint('[SmsSyncBloc] [SELL] ⚠ Duplicate — skipping');
               return _ProcessResult.skipped;
             } else {
-              debugPrint('[SmsSyncBloc] [SELL] ✗ Regex matched but missing required fields');
+              debugPrint(
+                '[SmsSyncBloc] [SELL] ✗ Regex matched but missing required fields',
+              );
             }
           } else {
-            debugPrint('[SmsSyncBloc] [SELL] ✗ Regex did NOT match this SMS body');
+            debugPrint(
+              '[SmsSyncBloc] [SELL] ✗ Regex did NOT match this SMS body',
+            );
           }
         } catch (e) {
           debugPrint('[SmsSyncBloc] [SELL] ✗ Parse error: $e');
@@ -385,38 +422,51 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       // Try fund template
       if (channel.fundTemplate != null && channel.fundTemplate!.isNotEmpty) {
         try {
-          debugPrint('[SmsSyncBloc] [FUND] Template: "${channel.fundTemplate}"');
+          debugPrint(
+            '[SmsSyncBloc] [FUND] Template: "${channel.fundTemplate}"',
+          );
           final parser = TemplateParser(channel.fundTemplate!);
-          debugPrint('[SmsSyncBloc] [FUND] Generated regex: ${parser.regexPattern}');
+          debugPrint(
+            '[SmsSyncBloc] [FUND] Generated regex: ${parser.regexPattern}',
+          );
           final result = parser.parse(sms.body, smsReceivedDate: sms.date);
           debugPrint('[SmsSyncBloc] [FUND] Matched: ${result.matched}');
           if (result.matched) {
-            debugPrint('[SmsSyncBloc] [FUND] Extracted → amount: ${result.amount}, date: ${result.dateTime}');
+            debugPrint(
+              '[SmsSyncBloc] [FUND] Extracted → amount: ${result.amount}, date: ${result.dateTime}',
+            );
             if (result.amount != null) {
-              final exists =
-                  await _fundTransferDao.existsByRawSms(sms.body, sms.date);
+              final exists = await _fundTransferDao.existsByRawSms(
+                sms.body,
+                sms.date,
+              );
               if (!exists) {
-                await _fundTransferDao
-                    .insertFundTransfer(FundTransfersCompanion.insert(
-                  id: _uuid.v4(),
-                  channelId: channel.id,
-                  action: 'deposit',
-                  amount: result.amount!,
-                  smsDate: result.dateTime ?? sms.date,
-                  smsReceivedDate: Value(sms.date),
-                  rawSmsBody: Value(sms.body),
-                  isManual: const Value(false),
-                ));
+                await _fundTransferDao.insertFundTransfer(
+                  FundTransfersCompanion.insert(
+                    id: _uuid.v4(),
+                    channelId: channel.id,
+                    action: 'deposit',
+                    amount: result.amount!,
+                    smsDate: result.dateTime ?? sms.date,
+                    smsReceivedDate: Value(sms.date),
+                    rawSmsBody: Value(sms.body),
+                    isManual: const Value(false),
+                  ),
+                );
                 debugPrint('[SmsSyncBloc] [FUND] ✓ INSERTED fund transfer');
                 return _ProcessResult.fund;
               }
               debugPrint('[SmsSyncBloc] [FUND] ⚠ Duplicate — skipping');
               return _ProcessResult.skipped;
             } else {
-              debugPrint('[SmsSyncBloc] [FUND] ✗ Regex matched but amount is null');
+              debugPrint(
+                '[SmsSyncBloc] [FUND] ✗ Regex matched but amount is null',
+              );
             }
           } else {
-            debugPrint('[SmsSyncBloc] [FUND] ✗ Regex did NOT match this SMS body');
+            debugPrint(
+              '[SmsSyncBloc] [FUND] ✗ Regex did NOT match this SMS body',
+            );
           }
         } catch (e) {
           debugPrint('[SmsSyncBloc] [FUND] ✗ Parse error: $e');

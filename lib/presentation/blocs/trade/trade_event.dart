@@ -17,8 +17,10 @@ class AddTrade extends TradeEvent {
   final DateTime smsDate;
   final String rawSmsBody;
   final bool isManual;
+
   /// Whether this trade is an IPO purchase. Charges do NOT apply when true.
   final bool isIpo;
+
   /// Whether this trade is a holdings adjustment entry.
   final bool isAdjustment;
   final String? targetSymbol;
@@ -38,7 +40,17 @@ class AddTrade extends TradeEvent {
   });
 
   @override
-  List<Object?> get props => [channelId, action, symbol, quantity, price, smsDate, isIpo, isAdjustment, targetSymbol];
+  List<Object?> get props => [
+    channelId,
+    action,
+    symbol,
+    quantity,
+    price,
+    smsDate,
+    isIpo,
+    isAdjustment,
+    targetSymbol,
+  ];
 }
 
 class UpdateTrade extends TradeEvent {
@@ -63,7 +75,15 @@ class UpdateTrade extends TradeEvent {
   });
 
   @override
-  List<Object?> get props => [id, channelId, action, symbol, quantity, price, targetSymbol];
+  List<Object?> get props => [
+    id,
+    channelId,
+    action,
+    symbol,
+    quantity,
+    price,
+    targetSymbol,
+  ];
 }
 
 class DeleteTrade extends TradeEvent {

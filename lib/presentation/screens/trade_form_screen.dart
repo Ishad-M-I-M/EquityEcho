@@ -21,7 +21,12 @@ class TradeFormScreen extends StatefulWidget {
   final String? initialSymbol;
   final bool isIpo;
 
-  const TradeFormScreen({super.key, this.tradeId, this.initialSymbol, this.isIpo = false});
+  const TradeFormScreen({
+    super.key,
+    this.tradeId,
+    this.initialSymbol,
+    this.isIpo = false,
+  });
 
   @override
   State<TradeFormScreen> createState() => _TradeFormScreenState();
@@ -64,7 +69,11 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Trade' : (widget.isIpo ? 'Add IPO Purchase' : 'Add Trade')),
+        title: Text(
+          isEditing
+              ? 'Edit Trade'
+              : (widget.isIpo ? 'Add IPO Purchase' : 'Add Trade'),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -75,14 +84,14 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
           if (state is TradeOperationSuccess) {
             context.read<DashboardBloc>().add(RefreshDashboard());
             context.read<ActivityLogBloc>().add(RefreshActivityLog());
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
             context.pop();
           } else if (state is TradeError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         child: Form(
@@ -120,7 +129,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                 style: TextStyle(
                                   color: _action == 'buy'
                                       ? AppTheme.buyGreen
-                                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                                      : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
                                 ),
@@ -154,7 +165,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                 style: TextStyle(
                                   color: _action == 'sell'
                                       ? AppTheme.sellRed
-                                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                                      : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
                                 ),
@@ -175,15 +188,19 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                       _channelId ??= state.channels.first.id;
                       return DropdownButtonFormField<String>(
                         initialValue: _channelId,
-                        decoration:
-                            const InputDecoration(labelText: 'Broker Channel'),
+                        decoration: const InputDecoration(
+                          labelText: 'Broker Channel',
+                        ),
                         items: state.channels
-                            .map((c) => DropdownMenuItem(
-                                value: c.id, child: Text(c.name)))
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c.id,
+                                child: Text(c.name),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) => setState(() => _channelId = v),
-                        validator: (v) =>
-                            v == null ? 'Select a channel' : null,
+                        validator: (v) => v == null ? 'Select a channel' : null,
                       );
                     }
                     return Container(
@@ -194,8 +211,11 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.warning_amber,
-                              color: AppTheme.warning, size: 18),
+                          Icon(
+                            Icons.warning_amber,
+                            color: AppTheme.warning,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                           const Expanded(
                             child: Text(
@@ -245,8 +265,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _priceController,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         decoration: const InputDecoration(
                           labelText: 'Price',
                           hintText: '0.00',
@@ -337,9 +358,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                             double.tryParse(_quantityController.text) ?? 0;
                         final price =
                             double.tryParse(_priceController.text) ?? 0;
-                        
+
                         final isBuy = _action == 'buy';
-                        
+
                         // Back-calculate raw price if needed
                         double rawPrice = price;
                         if (_priceIncludesCharges && !widget.isIpo) {
@@ -347,12 +368,13 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                               ? price / (1 + TransactionCharges.totalRate)
                               : price / (1 - TransactionCharges.totalRate);
                         }
-                        
+
                         final total = qty * rawPrice;
                         if (total == 0) return const SizedBox.shrink();
- 
-                        final baseColor =
-                            isBuy ? AppTheme.buyGreen : AppTheme.sellRed;
+
+                        final baseColor = isBuy
+                            ? AppTheme.buyGreen
+                            : AppTheme.sellRed;
 
                         // IPO purchases: show plain total only
                         if (widget.isIpo) {
@@ -368,7 +390,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                 Text(
                                   'Total Value',
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -390,11 +414,15 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                         final effectiveTotal = isBuy
                             ? TransactionCharges.buyCost(total)
                             : TransactionCharges.sellProceeds(total);
-                        final effectiveLabel = isBuy ? 'Total Cost' : 'Net Proceeds';
+                        final effectiveLabel = isBuy
+                            ? 'Total Cost'
+                            : 'Net Proceeds';
 
                         return GestureDetector(
-                          onTap: () => setState(() =>
-                              _showChargesBreakdown = !_showChargesBreakdown),
+                          onTap: () => setState(
+                            () =>
+                                _showChargesBreakdown = !_showChargesBreakdown,
+                          ),
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -410,7 +438,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                 // Effective total (always visible)
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: baseColor.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(10),
@@ -424,7 +454,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                           Text(
                                             effectiveLabel,
                                             style: TextStyle(
-                                              color: Theme.of(context).colorScheme.onSurface,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w700,
                                             ),
@@ -435,7 +467,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                                 ? Icons.keyboard_arrow_up
                                                 : Icons.keyboard_arrow_down,
                                             size: 18,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                         ],
                                       ),
@@ -458,17 +492,25 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Trade Value',
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            fontSize: 13,
-                                          )),
-                                      Text(total.toStringAsFixed(2),
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                          )),
+                                      Text(
+                                        'Trade Value',
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      Text(
+                                        total.toStringAsFixed(2),
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                   if (_priceIncludesCharges) ...[
@@ -478,7 +520,10 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                       amount: rawPrice,
                                     ),
                                   ],
-                                  Divider(height: 16, color: Theme.of(context).dividerColor),
+                                  Divider(
+                                    height: 16,
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                   _ChargeRow(
                                     label: 'Brokerage Fee',
                                     rate: '0.640%',
@@ -504,7 +549,10 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                     rate: '0.300%',
                                     amount: breakdown.shareTransactionLevy,
                                   ),
-                                  Divider(height: 16, color: Theme.of(context).dividerColor),
+                                  Divider(
+                                    height: 16,
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -518,8 +566,9 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                                         ),
                                       ),
                                       Text(
-                                        breakdown.totalCharges
-                                            .toStringAsFixed(2),
+                                        breakdown.totalCharges.toStringAsFixed(
+                                          2,
+                                        ),
                                         style: TextStyle(
                                           color: AppTheme.warning,
                                           fontSize: 13,
@@ -546,10 +595,15 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
                   child: ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          _action == 'buy' ? AppTheme.buyGreen : AppTheme.sellRed,
+                      backgroundColor: _action == 'buy'
+                          ? AppTheme.buyGreen
+                          : AppTheme.sellRed,
                     ),
-                    child: Text(isEditing ? 'Update Trade' : (widget.isIpo ? 'Add IPO Purchase' : 'Add Trade')),
+                    child: Text(
+                      isEditing
+                          ? 'Update Trade'
+                          : (widget.isIpo ? 'Add IPO Purchase' : 'Add Trade'),
+                    ),
                   ),
                 ),
               ],
@@ -582,36 +636,42 @@ class _TradeFormScreenState extends State<TradeFormScreen> {
     }
 
     if (isEditing) {
-      context.read<TradeBloc>().add(UpdateTrade(
-            id: widget.tradeId!,
-            channelId: _channelId!,
-            action: _action,
-            symbol: _symbolController.text.trim().toUpperCase(),
-            quantity: double.parse(_quantityController.text),
-            price: rawPrice,
-            smsDate: dateTime,
-          ));
+      context.read<TradeBloc>().add(
+        UpdateTrade(
+          id: widget.tradeId!,
+          channelId: _channelId!,
+          action: _action,
+          symbol: _symbolController.text.trim().toUpperCase(),
+          quantity: double.parse(_quantityController.text),
+          price: rawPrice,
+          smsDate: dateTime,
+        ),
+      );
     } else {
-      context.read<TradeBloc>().add(AddTrade(
-            channelId: _channelId!,
-            action: _action,
-            symbol: _symbolController.text.trim().toUpperCase(),
-            quantity: double.parse(_quantityController.text),
-            price: rawPrice,
-            smsDate: dateTime,
-            isManual: true,
-            isIpo: widget.isIpo,
-          ));
-          
+      context.read<TradeBloc>().add(
+        AddTrade(
+          channelId: _channelId!,
+          action: _action,
+          symbol: _symbolController.text.trim().toUpperCase(),
+          quantity: double.parse(_quantityController.text),
+          price: rawPrice,
+          smsDate: dateTime,
+          isManual: true,
+          isIpo: widget.isIpo,
+        ),
+      );
+
       if (widget.isIpo) {
-        context.read<FundTransferBloc>().add(AddFundTransfer(
-              channelId: _channelId!,
-              action: 'ipo_deposit',
-              amount: double.parse(_quantityController.text) * rawPrice,
-              smsDate: dateTime,
-              rawSmsBody: _symbolController.text.trim().toUpperCase(),
-              isManual: true,
-            ));
+        context.read<FundTransferBloc>().add(
+          AddFundTransfer(
+            channelId: _channelId!,
+            action: 'ipo_deposit',
+            amount: double.parse(_quantityController.text) * rawPrice,
+            smsDate: dateTime,
+            rawSmsBody: _symbolController.text.trim().toUpperCase(),
+            isManual: true,
+          ),
+        );
       }
     }
   }

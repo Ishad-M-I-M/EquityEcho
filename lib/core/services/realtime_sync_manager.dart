@@ -29,10 +29,10 @@ class RealtimeSyncManager {
     required AppDatabase db,
     required AuthService authService,
     required CloudSyncService syncService,
-  })  : _prefs = prefs,
-        _db = db,
-        _authService = authService,
-        _syncService = syncService {
+  }) : _prefs = prefs,
+       _db = db,
+       _authService = authService,
+       _syncService = syncService {
     _isRealtimeSyncEnabled = _prefs.getBool(_prefKey) ?? false;
     _startAuthListener();
   }

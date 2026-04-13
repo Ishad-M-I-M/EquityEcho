@@ -25,8 +25,10 @@ class Channels extends Table {
   TextColumn get sellTemplate => text().nullable()();
   TextColumn get fundTemplate => text().nullable()();
   TextColumn get currency => text().withDefault(const Constant('LKR'))();
-  BoolColumn get useDefaultBuyTemplate => boolean().withDefault(const Constant(true))();
-  BoolColumn get useDefaultSellTemplate => boolean().withDefault(const Constant(true))();
+  BoolColumn get useDefaultBuyTemplate =>
+      boolean().withDefault(const Constant(true))();
+  BoolColumn get useDefaultSellTemplate =>
+      boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
@@ -49,10 +51,13 @@ class Trades extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isManual => boolean().withDefault(const Constant(false))();
   BoolColumn get isEdited => boolean().withDefault(const Constant(false))();
+
   /// True when this trade was an IPO purchase — charges do NOT apply.
   BoolColumn get isIpo => boolean().withDefault(const Constant(false))();
+
   /// True when this trade is a holdings adjustment entry.
   BoolColumn get isAdjustment => boolean().withDefault(const Constant(false))();
+
   /// Specifies the target symbol for a rights conversion.
   TextColumn get targetSymbol => text().nullable()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
@@ -173,15 +178,15 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(trades, trades.isDeleted);
           await m.addColumn(trades, trades.deleteReason);
           await m.addColumn(trades, trades.deleteReasonOther);
-          
+
           await m.addColumn(fundTransfers, fundTransfers.isDeleted);
           await m.addColumn(fundTransfers, fundTransfers.deleteReason);
           await m.addColumn(fundTransfers, fundTransfers.deleteReasonOther);
-          
+
           await m.addColumn(stockSplits, stockSplits.isDeleted);
           await m.addColumn(stockSplits, stockSplits.deleteReason);
           await m.addColumn(stockSplits, stockSplits.deleteReasonOther);
-          
+
           await m.addColumn(dividends, dividends.isDeleted);
           await m.addColumn(dividends, dividends.deleteReason);
           await m.addColumn(dividends, dividends.deleteReasonOther);

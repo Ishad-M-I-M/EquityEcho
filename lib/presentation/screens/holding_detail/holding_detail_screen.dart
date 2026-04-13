@@ -49,18 +49,22 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
 
   Future<List<dynamic>> _fetchEvents() async {
     final trades = await getIt<TradeDao>().getTradesForSymbol(widget.symbol);
-    final splits = await getIt<StockSplitDao>().getSplitsForSymbol(widget.symbol);
+    final splits = await getIt<StockSplitDao>().getSplitsForSymbol(
+      widget.symbol,
+    );
 
     final tradeDataList = trades
-        .map((t) => TradeData(
-              id: t.id,
-              symbol: t.symbol,
-              channelId: t.channelId,
-              action: t.action,
-              quantity: t.quantity,
-              date: t.smsDate,
-              isIpo: t.isIpo,
-            ))
+        .map(
+          (t) => TradeData(
+            id: t.id,
+            symbol: t.symbol,
+            channelId: t.channelId,
+            action: t.action,
+            quantity: t.quantity,
+            date: t.smsDate,
+            isIpo: t.isIpo,
+          ),
+        )
         .toList();
     _exemptIds = TransactionCharges.findIntraDayExemptions(tradeDataList);
 
@@ -86,17 +90,23 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
         double beforeQty = runningQty;
         int newQtyFloor = (runningQty * event.newShares) ~/ event.oldShares;
         runningQty = newQtyFloor.toDouble();
-        processedEvents.add(SplitEventWithBalance(
-          split: event,
-          beforeQty: beforeQty,
-          afterQty: runningQty,
-        ));
+        processedEvents.add(
+          SplitEventWithBalance(
+            split: event,
+            beforeQty: beforeQty,
+            afterQty: runningQty,
+          ),
+        );
       }
     }
 
     processedEvents.sort((a, b) {
-      final dateA = (a is Trade) ? a.smsDate : (a as SplitEventWithBalance).split.splitDate;
-      final dateB = (b is Trade) ? b.smsDate : (b as SplitEventWithBalance).split.splitDate;
+      final dateA = (a is Trade)
+          ? a.smsDate
+          : (a as SplitEventWithBalance).split.splitDate;
+      final dateB = (b is Trade)
+          ? b.smsDate
+          : (b as SplitEventWithBalance).split.splitDate;
       return dateB.compareTo(dateA);
     });
 
@@ -112,17 +122,20 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
           if (widget.symbol.contains('.R'))
             IconButton(
               icon: const Icon(Icons.autorenew),
-              onPressed: () => showConvertRightsDialog(context, widget.symbol, _loadEvents),
+              onPressed: () =>
+                  showConvertRightsDialog(context, widget.symbol, _loadEvents),
               tooltip: 'Convert Rights',
             ),
           IconButton(
             icon: const Icon(Icons.tune),
-            onPressed: () => showAdjustDialog(context, widget.symbol, _loadEvents),
+            onPressed: () =>
+                showAdjustDialog(context, widget.symbol, _loadEvents),
             tooltip: 'Adjust Holdings',
           ),
           IconButton(
             icon: const Icon(Icons.call_split),
-            onPressed: () => showAddSplitDialog(context, widget.symbol, _loadEvents),
+            onPressed: () =>
+                showAddSplitDialog(context, widget.symbol, _loadEvents),
             tooltip: 'Add Sub-division',
           ),
         ],
@@ -140,10 +153,17 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoaded) {
-            final holding = state.holdings.where((h) => h.symbol == widget.symbol).firstOrNull;
+            final holding = state.holdings
+                .where((h) => h.symbol == widget.symbol)
+                .firstOrNull;
             if (holding == null) {
               return Center(
-                child: Text('Holding not found.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                child: Text(
+                  'Holding not found.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               );
             }
 
@@ -155,14 +175,14 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                HoldingStatsCard(holding: holding, currencyFormatter: currencyFormatter),
+                HoldingStatsCard(
+                  holding: holding,
+                  currencyFormatter: currencyFormatter,
+                ),
                 const SizedBox(height: 24),
                 const Text(
                   'Transaction History',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 16),
                 FutureBuilder<List<dynamic>>(
@@ -172,19 +192,28 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}', style: TextStyle(color: AppTheme.sellRed));
+                      return Text(
+                        'Error: ${snapshot.error}',
+                        style: TextStyle(color: AppTheme.sellRed),
+                      );
                     }
 
                     final events = snapshot.data ?? [];
                     if (events.isEmpty) {
-                      return Text('No transactions found.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant));
+                      return Text(
+                        'No transactions found.',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      );
                     }
 
                     return Column(
                       children: events.map((event) {
                         if (event is SplitEventWithBalance) {
                           return GestureDetector(
-                            onLongPress: () => _confirmDeleteSplit(context, event.split),
+                            onLongPress: () =>
+                                _confirmDeleteSplit(context, event.split),
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(16),
@@ -193,14 +222,20 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.call_split, color: Colors.blueAccent, size: 20),
+                                      const Icon(
+                                        Icons.call_split,
+                                        color: Colors.blueAccent,
+                                        size: 20,
+                                      ),
                                       const SizedBox(width: 8),
                                       Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             'SUB-DIVISION',
@@ -211,8 +246,15 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            DateFormat('MMM dd, yyyy').format(event.split.splitDate),
-                                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                                            DateFormat(
+                                              'MMM dd, yyyy',
+                                            ).format(event.split.splitDate),
+                                            style: TextStyle(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                              fontSize: 12,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -223,7 +265,12 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                     children: [
                                       Text(
                                         'Ratio ${event.split.oldShares} : ${event.split.newShares}',
-                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                       const SizedBox(height: 4),
                                       Row(
@@ -233,16 +280,27 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                             style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14,
-                                              decoration: TextDecoration.lineThrough,
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant
+                                                  .withValues(alpha: 0.6),
                                             ),
                                           ),
                                           const SizedBox(width: 6),
-                                          const Icon(Icons.arrow_forward, size: 12, color: Colors.blueAccent),
+                                          const Icon(
+                                            Icons.arrow_forward,
+                                            size: 12,
+                                            color: Colors.blueAccent,
+                                          ),
                                           const SizedBox(width: 6),
                                           Text(
                                             event.afterQty.toStringAsFixed(0),
-                                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -284,20 +342,25 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
 
     if (result != null && result.confirmed) {
       if (!context.mounted) return;
-      context.read<TradeBloc>().add(DeleteTrade(
-        trade.id,
-        reason: result.reason,
-        reasonOther: result.reasonOther,
-      ));
+      context.read<TradeBloc>().add(
+        DeleteTrade(
+          trade.id,
+          reason: result.reason,
+          reasonOther: result.reasonOther,
+        ),
+      );
       context.read<DashboardBloc>().add(RefreshDashboard());
       _loadEvents();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transaction deleted')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Transaction deleted')));
     }
   }
 
-  Future<void> _confirmDeleteSplit(BuildContext context, StockSplit split) async {
+  Future<void> _confirmDeleteSplit(
+    BuildContext context,
+    StockSplit split,
+  ) async {
     final result = await DeleteConfirmationDialog.show(
       context,
       title: 'Delete Sub-division',
@@ -314,9 +377,9 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
       if (!context.mounted) return;
       context.read<DashboardBloc>().add(RefreshDashboard());
       _loadEvents();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sub-division deleted')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Sub-division deleted')));
     }
   }
 }

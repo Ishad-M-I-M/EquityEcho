@@ -34,7 +34,11 @@ class DashboardLoaded extends DashboardState {
 
   /// Net fund balance = deposits - withdrawals - totalInvested + totalSold + totalDividends
   double get netFundBalance =>
-      totalDeposits - totalWithdrawals - totalInvested + totalSold + totalDividends;
+      totalDeposits -
+      totalWithdrawals -
+      totalInvested +
+      totalSold +
+      totalDividends;
 
   /// Total realized gain from all past sells
   double get totalRealizedGain =>
@@ -46,15 +50,15 @@ class DashboardLoaded extends DashboardState {
 
   @override
   List<Object?> get props => [
-        holdings,
-        totalInvested,
-        totalSold,
-        totalDeposits,
-        totalWithdrawals,
-        totalTrades,
-        totalDividends,
-        currency,
-      ];
+    holdings,
+    totalInvested,
+    totalSold,
+    totalDeposits,
+    totalWithdrawals,
+    totalTrades,
+    totalDividends,
+    currency,
+  ];
 }
 
 class DashboardError extends DashboardState {
