@@ -11,18 +11,15 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
   static const _uuid = Uuid();
 
   TradeBloc({required TradeDao tradeDao})
-      : _tradeDao = tradeDao,
-        super(TradeInitial()) {
+    : _tradeDao = tradeDao,
+      super(TradeInitial()) {
     on<LoadTrades>(_onLoadTrades);
     on<AddTrade>(_onAddTrade);
     on<UpdateTrade>(_onUpdateTrade);
     on<DeleteTrade>(_onDeleteTrade);
   }
 
-  Future<void> _onLoadTrades(
-    LoadTrades event,
-    Emitter<TradeState> emit,
-  ) async {
+  Future<void> _onLoadTrades(LoadTrades event, Emitter<TradeState> emit) async {
     emit(TradeLoading());
     try {
       final trades = await _tradeDao.getAllTrades();
@@ -32,26 +29,25 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
     }
   }
 
-  Future<void> _onAddTrade(
-    AddTrade event,
-    Emitter<TradeState> emit,
-  ) async {
+  Future<void> _onAddTrade(AddTrade event, Emitter<TradeState> emit) async {
     try {
-      await _tradeDao.insertTrade(TradesCompanion.insert(
-        id: _uuid.v4(),
-        channelId: event.channelId,
-        action: event.action,
-        symbol: event.symbol,
-        quantity: event.quantity,
-        price: event.price,
-        totalValue: event.quantity * event.price,
-        smsDate: event.smsDate,
-        rawSmsBody: Value(event.rawSmsBody),
-        isManual: Value(event.isManual),
-        isIpo: Value(event.isIpo),
-        isAdjustment: Value(event.isAdjustment),
-        targetSymbol: Value(event.targetSymbol),
-      ));
+      await _tradeDao.insertTrade(
+        TradesCompanion.insert(
+          id: _uuid.v4(),
+          channelId: event.channelId,
+          action: event.action,
+          symbol: event.symbol,
+          quantity: event.quantity,
+          price: event.price,
+          totalValue: event.quantity * event.price,
+          smsDate: event.smsDate,
+          rawSmsBody: Value(event.rawSmsBody),
+          isManual: Value(event.isManual),
+          isIpo: Value(event.isIpo),
+          isAdjustment: Value(event.isAdjustment),
+          targetSymbol: Value(event.targetSymbol),
+        ),
+      );
       emit(const TradeOperationSuccess('Trade added'));
       add(LoadTrades());
     } catch (e) {
@@ -64,8 +60,9 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
     Emitter<TradeState> emit,
   ) async {
     try {
-      final existing = (await _tradeDao.getAllTrades())
-          .firstWhere((t) => t.id == event.id);
+      final existing = (await _tradeDao.getAllTrades()).firstWhere(
+        (t) => t.id == event.id,
+      );
 
       final updated = Trade(
         id: event.id,
@@ -86,6 +83,8 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
         isDeleted: existing.isDeleted,
         deleteReason: existing.deleteReason,
         deleteReasonOther: existing.deleteReasonOther,
+        updatedAt: DateTime.now(),
+        smsReceivedDate: existing.smsReceivedDate,
       );
 
       await _tradeDao.updateTrade(updated);
@@ -101,7 +100,11 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
     Emitter<TradeState> emit,
   ) async {
     try {
-      await _tradeDao.deleteTrade(event.id, reason: event.reason, reasonOther: event.reasonOther);
+      await _tradeDao.deleteTrade(
+        event.id,
+        reason: event.reason,
+        reasonOther: event.reasonOther,
+      );
       emit(const TradeOperationSuccess('Trade deleted'));
       add(LoadTrades());
     } catch (e) {

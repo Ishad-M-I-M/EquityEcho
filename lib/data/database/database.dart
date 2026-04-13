@@ -25,10 +25,15 @@ class Channels extends Table {
   TextColumn get sellTemplate => text().nullable()();
   TextColumn get fundTemplate => text().nullable()();
   TextColumn get currency => text().withDefault(const Constant('LKR'))();
-  BoolColumn get useDefaultBuyTemplate => boolean().withDefault(const Constant(true))();
-  BoolColumn get useDefaultSellTemplate => boolean().withDefault(const Constant(true))();
+  BoolColumn get useDefaultBuyTemplate =>
+      boolean().withDefault(const Constant(true))();
+  BoolColumn get useDefaultSellTemplate =>
+      boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  TextColumn get deleteReason => text().nullable()();
+  TextColumn get deleteReasonOther => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -49,15 +54,19 @@ class Trades extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isManual => boolean().withDefault(const Constant(false))();
   BoolColumn get isEdited => boolean().withDefault(const Constant(false))();
+
   /// True when this trade was an IPO purchase — charges do NOT apply.
   BoolColumn get isIpo => boolean().withDefault(const Constant(false))();
+
   /// True when this trade is a holdings adjustment entry.
   BoolColumn get isAdjustment => boolean().withDefault(const Constant(false))();
+
   /// Specifies the target symbol for a rights conversion.
   TextColumn get targetSymbol => text().nullable()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -77,6 +86,7 @@ class FundTransfers extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -93,6 +103,7 @@ class StockSplits extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -111,6 +122,7 @@ class Dividends extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -131,7 +143,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {
@@ -173,15 +185,15 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(trades, trades.isDeleted);
           await m.addColumn(trades, trades.deleteReason);
           await m.addColumn(trades, trades.deleteReasonOther);
-          
+
           await m.addColumn(fundTransfers, fundTransfers.isDeleted);
           await m.addColumn(fundTransfers, fundTransfers.deleteReason);
           await m.addColumn(fundTransfers, fundTransfers.deleteReasonOther);
-          
+
           await m.addColumn(stockSplits, stockSplits.isDeleted);
           await m.addColumn(stockSplits, stockSplits.deleteReason);
           await m.addColumn(stockSplits, stockSplits.deleteReasonOther);
-          
+
           await m.addColumn(dividends, dividends.isDeleted);
           await m.addColumn(dividends, dividends.deleteReason);
           await m.addColumn(dividends, dividends.deleteReasonOther);
@@ -189,6 +201,16 @@ class AppDatabase extends _$AppDatabase {
         if (from < 11) {
           await m.addColumn(channels, channels.useDefaultBuyTemplate);
           await m.addColumn(channels, channels.useDefaultSellTemplate);
+        }
+        if (from < 12) {
+          await m.addColumn(channels, channels.isDeleted);
+          await m.addColumn(channels, channels.deleteReason);
+          await m.addColumn(channels, channels.deleteReasonOther);
+
+          await m.addColumn(trades, trades.updatedAt);
+          await m.addColumn(fundTransfers, fundTransfers.updatedAt);
+          await m.addColumn(stockSplits, stockSplits.updatedAt);
+          await m.addColumn(dividends, dividends.updatedAt);
         }
       },
       beforeOpen: (details) async {

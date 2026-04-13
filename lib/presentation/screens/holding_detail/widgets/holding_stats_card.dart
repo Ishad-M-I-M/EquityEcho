@@ -24,23 +24,42 @@ class HoldingStatsCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _StatRow('Net Quantity', '${holding.netQuantity.toStringAsFixed(0)} shares'),
+          _StatRow(
+            'Net Quantity',
+            '${holding.netQuantity.toStringAsFixed(0)} shares',
+          ),
           Divider(height: 24, color: Theme.of(context).dividerColor),
-          _StatRow('Average Price', currencyFormatter.format(holding.avgBuyPrice)),
+          _StatRow(
+            'Average Price',
+            currencyFormatter.format(holding.avgBuyPrice),
+          ),
           Divider(height: 24, color: Theme.of(context).dividerColor),
-          _StatRow('Average Cost', currencyFormatter.format(holding.avgCostWithCharges),
-              subtitle: 'incl. charges'),
+          _StatRow(
+            'Average Cost',
+            currencyFormatter.format(holding.avgCostWithCharges),
+            subtitle: 'incl. charges',
+          ),
           Divider(height: 24, color: Theme.of(context).dividerColor),
-          _StatRow('Total Invested', currencyFormatter.format(holding.totalInvested),
-              color: AppTheme.buyGreen, subtitle: 'incl. charges'),
+          _StatRow(
+            'Total Invested',
+            currencyFormatter.format(holding.totalInvested),
+            color: AppTheme.buyGreen,
+            subtitle: 'incl. charges',
+          ),
           Divider(height: 24, color: Theme.of(context).dividerColor),
-          _StatRow('Total Sold', currencyFormatter.format(holding.totalSoldValue),
-              color: Theme.of(context).colorScheme.onSurfaceVariant, subtitle: 'net of charges'),
+          _StatRow(
+            'Total Sold',
+            currencyFormatter.format(holding.totalSoldValue),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            subtitle: 'net of charges',
+          ),
           Divider(height: 24, color: Theme.of(context).dividerColor),
           _StatRow(
             'Realized Gain',
             currencyFormatter.format(holding.realizedGain),
-            color: holding.realizedGain >= 0 ? AppTheme.accent : AppTheme.sellRed,
+            color: holding.realizedGain >= 0
+                ? AppTheme.accent
+                : AppTheme.sellRed,
           ),
         ],
       ),
@@ -66,12 +85,20 @@ class _StatRow extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 14,
+              ),
             ),
             if (subtitle != null)
               Text(
                 subtitle!,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 10),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                  fontSize: 10,
+                ),
               ),
           ],
         ),

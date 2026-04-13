@@ -32,14 +32,14 @@ class ActivityLogLoaded extends ActivityLogState {
 
   @override
   List<Object?> get props => [
-        groupedItems,
-        monthFilter,
-        yearFilter,
-        symbolFilter,
-        typeFilter,
-        availableSymbols,
-        availableYears,
-      ];
+    groupedItems,
+    monthFilter,
+    yearFilter,
+    symbolFilter,
+    typeFilter,
+    availableSymbols,
+    availableYears,
+  ];
 }
 
 class ActivityLogError extends ActivityLogState {

@@ -57,8 +57,9 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
 
     final state = context.read<ChannelBloc>().state;
     if (state is ChannelsLoaded) {
-      final channel =
-          state.channels.where((c) => c.id == widget.channelId).firstOrNull;
+      final channel = state.channels
+          .where((c) => c.id == widget.channelId)
+          .firstOrNull;
       if (channel != null) {
         _nameController.text = channel.name;
         _senderController.text = channel.senderAddress;
@@ -107,28 +108,32 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
         : _fundTemplateController.text;
 
     if (_isEditing) {
-      context.read<ChannelBloc>().add(UpdateChannel(
-            id: widget.channelId!,
-            name: _nameController.text,
-            senderAddress: _senderController.text,
-            buyTemplate: buyTemplate,
-            sellTemplate: sellTemplate,
-            fundTemplate: fundTemplate,
-            currency: _currency,
-            useDefaultBuyTemplate: _useDefaultBuyTemplate,
-            useDefaultSellTemplate: _useDefaultSellTemplate,
-          ));
+      context.read<ChannelBloc>().add(
+        UpdateChannel(
+          id: widget.channelId!,
+          name: _nameController.text,
+          senderAddress: _senderController.text,
+          buyTemplate: buyTemplate,
+          sellTemplate: sellTemplate,
+          fundTemplate: fundTemplate,
+          currency: _currency,
+          useDefaultBuyTemplate: _useDefaultBuyTemplate,
+          useDefaultSellTemplate: _useDefaultSellTemplate,
+        ),
+      );
     } else {
-      context.read<ChannelBloc>().add(AddChannel(
-            name: _nameController.text,
-            senderAddress: _senderController.text,
-            buyTemplate: buyTemplate,
-            sellTemplate: sellTemplate,
-            fundTemplate: fundTemplate,
-            currency: _currency,
-            useDefaultBuyTemplate: _useDefaultBuyTemplate,
-            useDefaultSellTemplate: _useDefaultSellTemplate,
-          ));
+      context.read<ChannelBloc>().add(
+        AddChannel(
+          name: _nameController.text,
+          senderAddress: _senderController.text,
+          buyTemplate: buyTemplate,
+          sellTemplate: sellTemplate,
+          fundTemplate: fundTemplate,
+          currency: _currency,
+          useDefaultBuyTemplate: _useDefaultBuyTemplate,
+          useDefaultSellTemplate: _useDefaultSellTemplate,
+        ),
+      );
     }
   }
 
@@ -183,12 +188,14 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
       body: BlocListener<ChannelBloc, ChannelState>(
         listener: (context, state) {
           if (state is ChannelOperationSuccess) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
             context.pop();
           } else if (state is ChannelError) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         child: Form(
@@ -251,9 +258,14 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
         DropdownButtonFormField<String>(
           initialValue: _currency,
           decoration: const InputDecoration(labelText: 'Currency'),
-          items: ['LKR', 'USD', 'EUR', 'GBP', 'INR', 'AUD']
-              .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-              .toList(),
+          items: [
+            'LKR',
+            'USD',
+            'EUR',
+            'GBP',
+            'INR',
+            'AUD',
+          ].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
           onChanged: (v) => setState(() => _currency = v ?? 'LKR'),
         ),
       ],
@@ -294,17 +306,17 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
               hintText:
                   'Paste a BUY SMS and replace symbol, qty, price with placeholders',
               hintStyle: TextStyle(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurfaceVariant
-                    .withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ),
           ),
           const SizedBox(height: 6),
           TemplateTestButton(
             onPressed: () => setState(
-                () => _activeTestTemplate = _buyTemplateController.text),
+              () => _activeTestTemplate = _buyTemplateController.text,
+            ),
           ),
           if (_activeTestTemplate == _buyTemplateController.text &&
               _buyTemplateController.text.isNotEmpty) ...[
@@ -315,7 +327,8 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
           const SizedBox(height: 6),
           TemplateTestButton(
             onPressed: () => setState(
-                () => _activeTestTemplate = AppConstants.defaultBuyTemplate),
+              () => _activeTestTemplate = AppConstants.defaultBuyTemplate,
+            ),
           ),
           if (_activeTestTemplate == AppConstants.defaultBuyTemplate) ...[
             const SizedBox(height: 10),
@@ -360,17 +373,17 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
               hintText:
                   'Paste a SELL SMS and replace symbol, qty, price with placeholders',
               hintStyle: TextStyle(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurfaceVariant
-                    .withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ),
           ),
           const SizedBox(height: 6),
           TemplateTestButton(
             onPressed: () => setState(
-                () => _activeTestTemplate = _sellTemplateController.text),
+              () => _activeTestTemplate = _sellTemplateController.text,
+            ),
           ),
           if (_activeTestTemplate == _sellTemplateController.text &&
               _sellTemplateController.text.isNotEmpty) ...[
@@ -381,7 +394,8 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
           const SizedBox(height: 6),
           TemplateTestButton(
             onPressed: () => setState(
-                () => _activeTestTemplate = AppConstants.defaultSellTemplate),
+              () => _activeTestTemplate = AppConstants.defaultSellTemplate,
+            ),
           ),
           if (_activeTestTemplate == AppConstants.defaultSellTemplate) ...[
             const SizedBox(height: 10),
@@ -396,8 +410,10 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ChannelSectionHeader('Fund Transfer Template',
-            color: AppTheme.fundBlue),
+        ChannelSectionHeader(
+          'Fund Transfer Template',
+          color: AppTheme.fundBlue,
+        ),
         const SizedBox(height: 4),
         const PlaceholderHints(
           placeholders: ['{{amount}}', '{{date}}', '{{time}}', '{{*}}'],
@@ -412,17 +428,17 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
             hintText:
                 'Paste a fund transfer SMS and replace amount with {{amount}}',
             hintStyle: TextStyle(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurfaceVariant
-                  .withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
         ),
         const SizedBox(height: 6),
         TemplateTestButton(
           onPressed: () => setState(
-              () => _activeTestTemplate = _fundTemplateController.text),
+            () => _activeTestTemplate = _fundTemplateController.text,
+          ),
         ),
         if (_activeTestTemplate == _fundTemplateController.text &&
             _fundTemplateController.text.isNotEmpty) ...[

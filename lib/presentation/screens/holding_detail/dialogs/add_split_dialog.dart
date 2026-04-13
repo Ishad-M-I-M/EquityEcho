@@ -8,7 +8,11 @@ import 'package:equity_echo/data/database/daos/stock_split_dao.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
 import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
 
-void showAddSplitDialog(BuildContext context, String symbol, VoidCallback onAdded) {
+void showAddSplitDialog(
+  BuildContext context,
+  String symbol,
+  VoidCallback onAdded,
+) {
   DateTime selectedDate = DateTime.now();
   final oldSharesController = TextEditingController();
   final newSharesController = TextEditingController();
@@ -62,14 +66,22 @@ void showAddSplitDialog(BuildContext context, String symbol, VoidCallback onAdde
                 const SizedBox(height: 8),
                 Text(
                   'Rule: 10 old into 1 new => Ratio 10:1',
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogCtx),
-                child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
               TextButton(
                 onPressed: () async {
@@ -77,7 +89,9 @@ void showAddSplitDialog(BuildContext context, String symbol, VoidCallback onAdde
                   final newS = int.tryParse(newSharesController.text);
                   if (oldS == null || newS == null || oldS <= 0 || newS <= 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter valid integers')),
+                      const SnackBar(
+                        content: Text('Please enter valid integers'),
+                      ),
                     );
                     return;
                   }

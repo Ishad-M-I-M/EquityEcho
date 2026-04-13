@@ -11,8 +11,8 @@ class FundTransferBloc extends Bloc<FundTransferEvent, FundTransferState> {
   static const _uuid = Uuid();
 
   FundTransferBloc({required FundTransferDao fundTransferDao})
-      : _fundTransferDao = fundTransferDao,
-        super(FundTransferInitial()) {
+    : _fundTransferDao = fundTransferDao,
+      super(FundTransferInitial()) {
     on<LoadFundTransfers>(_onLoadFundTransfers);
     on<AddFundTransfer>(_onAddFundTransfer);
     on<DeleteFundTransfer>(_onDeleteFundTransfer);
@@ -36,15 +36,17 @@ class FundTransferBloc extends Bloc<FundTransferEvent, FundTransferState> {
     Emitter<FundTransferState> emit,
   ) async {
     try {
-      await _fundTransferDao.insertFundTransfer(FundTransfersCompanion.insert(
-        id: _uuid.v4(),
-        channelId: event.channelId,
-        action: event.action,
-        amount: event.amount,
-        smsDate: event.smsDate,
-        rawSmsBody: Value(event.rawSmsBody),
-        isManual: Value(event.isManual),
-      ));
+      await _fundTransferDao.insertFundTransfer(
+        FundTransfersCompanion.insert(
+          id: _uuid.v4(),
+          channelId: event.channelId,
+          action: event.action,
+          amount: event.amount,
+          smsDate: event.smsDate,
+          rawSmsBody: Value(event.rawSmsBody),
+          isManual: Value(event.isManual),
+        ),
+      );
       emit(const FundTransferOperationSuccess('Fund transfer added'));
       add(LoadFundTransfers());
     } catch (e) {
@@ -57,7 +59,11 @@ class FundTransferBloc extends Bloc<FundTransferEvent, FundTransferState> {
     Emitter<FundTransferState> emit,
   ) async {
     try {
-      await _fundTransferDao.deleteFundTransfer(event.id, reason: event.reason, reasonOther: event.reasonOther);
+      await _fundTransferDao.deleteFundTransfer(
+        event.id,
+        reason: event.reason,
+        reasonOther: event.reasonOther,
+      );
       emit(const FundTransferOperationSuccess('Fund transfer deleted'));
       add(LoadFundTransfers());
     } catch (e) {

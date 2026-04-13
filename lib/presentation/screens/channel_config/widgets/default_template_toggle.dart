@@ -41,22 +41,18 @@ class DefaultTemplateToggle extends StatelessWidget {
           const SizedBox(height: 6),
           Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppTheme.accent.withValues(alpha: 0.3),
-              ),
+              border: Border.all(color: AppTheme.accent.withValues(alpha: 0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.auto_awesome,
-                        size: 14, color: AppTheme.accent),
+                    Icon(Icons.auto_awesome, size: 14, color: AppTheme.accent),
                     const SizedBox(width: 6),
                     Text(
                       'Default Template',
@@ -74,10 +70,9 @@ class DefaultTemplateToggle extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 12,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.8),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.8),
                     height: 1.4,
                   ),
                 ),

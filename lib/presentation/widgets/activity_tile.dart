@@ -8,17 +8,15 @@ class ActivityTile extends StatelessWidget {
   final ActivityItem item;
   final VoidCallback? onTap;
 
-  const ActivityTile({
-    super.key,
-    required this.item,
-    this.onTap,
-  });
+  const ActivityTile({super.key, required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isTrade = item.type == ActivityType.trade;
     final isBuy = item.tradeAction?.name == 'buy';
-    final isDeposit = item.fundAction?.name == 'deposit' || item.fundAction?.name == 'ipoDeposit';
+    final isDeposit =
+        item.fundAction?.name == 'deposit' ||
+        item.fundAction?.name == 'ipoDeposit';
     final isIpoDeposit = item.fundAction?.name == 'ipoDeposit';
 
     Color actionColor;
@@ -72,7 +70,9 @@ class ActivityTile extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: actionColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
@@ -90,7 +90,9 @@ class ActivityTile extends StatelessWidget {
                         const SizedBox(width: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 2),
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.purple.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
@@ -109,7 +111,9 @@ class ActivityTile extends StatelessWidget {
                         const SizedBox(width: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 2),
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.orange.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
@@ -143,8 +147,11 @@ class ActivityTile extends StatelessWidget {
                         ),
                       const Spacer(),
                       if (item.isManual)
-                        Icon(Icons.edit_note,
-                            size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        Icon(
+                          Icons.edit_note,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -191,7 +198,9 @@ class ActivityTile extends StatelessWidget {
                 Text(
                   item.channelName,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                     fontSize: 9,
                   ),
                 ),

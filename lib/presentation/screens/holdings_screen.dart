@@ -27,9 +27,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Holdings'),
-      ),
+      appBar: AppBar(title: const Text('Holdings')),
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoading) {
@@ -42,8 +40,11 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.pie_chart_outline,
-                        size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.pie_chart_outline,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'No holdings yet',
@@ -56,7 +57,9 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                     Text(
                       'Your stock holdings will appear here',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                         fontSize: 13,
                       ),
                     ),
@@ -66,11 +69,17 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
             }
 
             final filteredHoldings = state.holdings.where((h) {
-              return h.symbol.toLowerCase().contains(_searchQuery.toLowerCase());
+              return h.symbol.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              );
             }).toList();
 
-            final activeHoldings = filteredHoldings.where((h) => h.netQuantity > 0).toList();
-            final pastHoldings = filteredHoldings.where((h) => h.netQuantity <= 0).toList();
+            final activeHoldings = filteredHoldings
+                .where((h) => h.netQuantity > 0)
+                .toList();
+            final pastHoldings = filteredHoldings
+                .where((h) => h.netQuantity <= 0)
+                .toList();
 
             return RefreshIndicator(
               onRefresh: () async {
@@ -109,7 +118,8 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                         ),
                         _SummaryItem(
                           label: 'Total Invested',
-                          value: '${state.currency} ${state.totalInvested.toStringAsFixed(0)}',
+                          value:
+                              '${state.currency} ${state.totalInvested.toStringAsFixed(0)}',
                           color: AppTheme.buyGreen,
                         ),
                         Container(
@@ -119,7 +129,8 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                         ),
                         _SummaryItem(
                           label: 'Book Value',
-                          value: '${state.currency} ${state.totalBookValue.toStringAsFixed(0)}',
+                          value:
+                              '${state.currency} ${state.totalBookValue.toStringAsFixed(0)}',
                           color: AppTheme.fundBlue,
                         ),
                       ],
@@ -131,10 +142,18 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Search symbol...',
-                      prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              icon: Icon(
+                                Icons.clear,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() {
@@ -168,11 +187,13 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ...activeHoldings.map((holding) => HoldingCard(
-                          holding: holding,
-                          currency: state.currency,
-                          onTap: () => context.push('/holding/${holding.symbol}'),
-                        )),
+                    ...activeHoldings.map(
+                      (holding) => HoldingCard(
+                        holding: holding,
+                        currency: state.currency,
+                        onTap: () => context.push('/holding/${holding.symbol}'),
+                      ),
+                    ),
                     const SizedBox(height: 16),
                   ],
 
@@ -186,14 +207,17 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ...pastHoldings.map((holding) => Opacity(
-                          opacity: 0.6,
-                          child: HoldingCard(
-                            holding: holding,
-                            currency: state.currency,
-                            onTap: () => context.push('/holding/${holding.symbol}'),
-                          ),
-                        )),
+                    ...pastHoldings.map(
+                      (holding) => Opacity(
+                        opacity: 0.6,
+                        child: HoldingCard(
+                          holding: holding,
+                          currency: state.currency,
+                          onTap: () =>
+                              context.push('/holding/${holding.symbol}'),
+                        ),
+                      ),
+                    ),
                   ],
 
                   if (activeHoldings.isEmpty && pastHoldings.isEmpty)
@@ -202,7 +226,11 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                         padding: const EdgeInsets.only(top: 40),
                         child: Text(
                           'No matching holdings found',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),

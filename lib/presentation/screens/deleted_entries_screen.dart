@@ -29,7 +29,6 @@ class _DeletedEntriesScreenState extends State<DeletedEntriesScreen> {
     super.dispose();
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -49,7 +48,7 @@ class _DeletedEntriesScreenState extends State<DeletedEntriesScreen> {
     final splits = await getIt<StockSplitDao>().getDeletedSplits();
 
     final allEntries = [...trades, ...funds, ...dividends, ...splits];
-    
+
     // Sort logic (if required, rough sort by timestamp)
     allEntries.sort((a, b) {
       DateTime dateA;
@@ -149,7 +148,12 @@ class _DeletedEntriesScreenState extends State<DeletedEntriesScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: AppTheme.sellRed)));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: AppTheme.sellRed),
+              ),
+            );
           }
 
           final allEntries = snapshot.data ?? [];
@@ -179,8 +183,13 @@ class _DeletedEntriesScreenState extends State<DeletedEntriesScreen> {
           if (filteredEntries.isEmpty) {
             return Center(
               child: Text(
-                _searchQuery.isEmpty ? 'No deleted entries.' : 'No matching entries found.',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
+                _searchQuery.isEmpty
+                    ? 'No deleted entries.'
+                    : 'No matching entries found.',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 16,
+                ),
               ),
             );
           }
@@ -207,10 +216,7 @@ class _DeletedEntryCard extends StatelessWidget {
   final dynamic entry;
   final VoidCallback onRestore;
 
-  const _DeletedEntryCard({
-    required this.entry,
-    required this.onRestore,
-  });
+  const _DeletedEntryCard({required this.entry, required this.onRestore});
 
   @override
   Widget build(BuildContext context) {
@@ -223,26 +229,36 @@ class _DeletedEntryCard extends StatelessWidget {
       final t = entry as Trade;
       final isBuy = t.action.toLowerCase() == 'buy';
       title = 'Trade (${isBuy ? 'Buy' : 'Sell'}) - ${t.symbol}';
-      subtitle = 'Qty: ${t.quantity.toStringAsFixed(0)} @ ${t.price.toStringAsFixed(2)}';
-      reason = t.deleteReasonOther?.isNotEmpty == true ? '${t.deleteReason} - ${t.deleteReasonOther}' : '${t.deleteReason}';
+      subtitle =
+          'Qty: ${t.quantity.toStringAsFixed(0)} @ ${t.price.toStringAsFixed(2)}';
+      reason = t.deleteReasonOther?.isNotEmpty == true
+          ? '${t.deleteReason} - ${t.deleteReasonOther}'
+          : '${t.deleteReason}';
       date = t.smsDate;
     } else if (entry is FundTransfer) {
       final f = entry as FundTransfer;
-      title = 'Fund ${f.action.toLowerCase() == 'deposit' ? 'Deposit' : 'Withdrawal'}';
+      title =
+          'Fund ${f.action.toLowerCase() == 'deposit' ? 'Deposit' : 'Withdrawal'}';
       subtitle = 'Amount: ${f.amount.toStringAsFixed(2)}';
-      reason = f.deleteReasonOther?.isNotEmpty == true ? '${f.deleteReason} - ${f.deleteReasonOther}' : '${f.deleteReason}';
+      reason = f.deleteReasonOther?.isNotEmpty == true
+          ? '${f.deleteReason} - ${f.deleteReasonOther}'
+          : '${f.deleteReason}';
       date = f.smsDate;
     } else if (entry is Dividend) {
       final d = entry as Dividend;
       title = 'Dividend - ${d.symbol}';
       subtitle = 'Amount: ${d.amount.toStringAsFixed(2)}';
-      reason = d.deleteReasonOther?.isNotEmpty == true ? '${d.deleteReason} - ${d.deleteReasonOther}' : '${d.deleteReason}';
+      reason = d.deleteReasonOther?.isNotEmpty == true
+          ? '${d.deleteReason} - ${d.deleteReasonOther}'
+          : '${d.deleteReason}';
       date = d.date;
     } else if (entry is StockSplit) {
       final s = entry as StockSplit;
       title = 'Stock Split - ${s.symbol}';
       subtitle = 'Ratio: ${s.oldShares}:${s.newShares}';
-      reason = s.deleteReasonOther?.isNotEmpty == true ? '${s.deleteReason} - ${s.deleteReasonOther}' : '${s.deleteReason}';
+      reason = s.deleteReasonOther?.isNotEmpty == true
+          ? '${s.deleteReason} - ${s.deleteReasonOther}'
+          : '${s.deleteReason}';
       date = s.splitDate;
     }
 
@@ -265,7 +281,10 @@ class _DeletedEntryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
               ),
               IconButton(
@@ -276,26 +295,39 @@ class _DeletedEntryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
           const SizedBox(height: 8),
           if (date != null) ...[
             Text(
               'Date: ${DateFormat('MMM dd, yyyy HH:mm').format(date)}',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 12,
+              ),
             ),
             const SizedBox(height: 4),
           ],
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.errorContainer.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               'Reason: $reason',
-              style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
             ),
-          )
+          ),
         ],
       ),
     );

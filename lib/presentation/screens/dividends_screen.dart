@@ -31,9 +31,7 @@ class _DividendsScreenState extends State<DividendsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dividends Received'),
-      ),
+      appBar: AppBar(title: const Text('Dividends Received')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDividendDialog(context),
         backgroundColor: AppTheme.accent,
@@ -46,16 +44,24 @@ class _DividendsScreenState extends State<DividendsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: AppTheme.sellRed)));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: AppTheme.sellRed),
+              ),
+            );
           }
 
           final allDividends = snapshot.data ?? [];
-          
+
           if (allDividends.isEmpty) {
             return Center(
               child: Text(
                 'No dividends recorded yet.',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 16,
+                ),
               ),
             );
           }
@@ -67,7 +73,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
           }
 
           final sortedGroups = grouped.entries.toList()
-            ..sort((a, b) => b.value.compareTo(a.value)); // sort by highest received
+            ..sort(
+              (a, b) => b.value.compareTo(a.value),
+            ); // sort by highest received
 
           return BlocBuilder<DashboardBloc, DashboardState>(
             builder: (context, dashboardState) {
@@ -80,7 +88,10 @@ class _DividendsScreenState extends State<DividendsScreen> {
                 decimalDigits: 2,
               );
 
-              double totalDividendsVal = grouped.values.fold(0.0, (s, v) => s + v);
+              double totalDividendsVal = grouped.values.fold(
+                0.0,
+                (s, v) => s + v,
+              );
 
               return ListView(
                 padding: const EdgeInsets.all(16),
@@ -90,13 +101,20 @@ class _DividendsScreenState extends State<DividendsScreen> {
                     decoration: BoxDecoration(
                       color: AppTheme.buyGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.buyGreen.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: AppTheme.buyGreen.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Column(
                       children: [
                         Text(
                           'Total Received',
-                          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -128,7 +146,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Theme.of(context).dividerColor),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -138,10 +158,16 @@ class _DividendsScreenState extends State<DividendsScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.accent.withValues(alpha: 0.1),
+                                    color: AppTheme.accent.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(Icons.card_giftcard, color: AppTheme.accent, size: 20),
+                                  child: Icon(
+                                    Icons.card_giftcard,
+                                    color: AppTheme.accent,
+                                    size: 20,
+                                  ),
                                 ),
                                 const SizedBox(width: 14),
                                 Text(
@@ -170,7 +196,7 @@ class _DividendsScreenState extends State<DividendsScreen> {
                         ),
                       ),
                     );
-                  })
+                  }),
                 ],
               );
             },
@@ -223,21 +249,22 @@ class _DividendsScreenState extends State<DividendsScreen> {
                       onSelected: (String selection) {
                         symbolController.text = selection;
                       },
-                      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                        // Manually sync if the user types freely
-                        controller.addListener(() {
-                           symbolController.text = controller.text;
-                        });
-                        return TextField(
-                          controller: controller,
-                          focusNode: focusNode,
-                          textCapitalization: TextCapitalization.characters,
-                          decoration: const InputDecoration(
-                            labelText: 'Symbol',
-                            hintText: 'e.g. JKH',
-                          ),
-                        );
-                      },
+                      fieldViewBuilder:
+                          (context, controller, focusNode, onFieldSubmitted) {
+                            // Manually sync if the user types freely
+                            controller.addListener(() {
+                              symbolController.text = controller.text;
+                            });
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              textCapitalization: TextCapitalization.characters,
+                              decoration: const InputDecoration(
+                                labelText: 'Symbol',
+                                hintText: 'e.g. JKH',
+                              ),
+                            );
+                          },
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -245,7 +272,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
                         Expanded(
                           child: TextField(
                             controller: sharesController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
                             onChanged: (_) => setStateLocal(() {}),
                             decoration: const InputDecoration(
                               labelText: 'No. of Shares',
@@ -256,7 +285,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
                         Expanded(
                           child: TextField(
                             controller: dpsController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
                             onChanged: (_) => setStateLocal(() {}),
                             decoration: const InputDecoration(
                               labelText: 'Div / Share',
@@ -268,7 +299,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: taxController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       onChanged: (_) => setStateLocal(() {}),
                       decoration: const InputDecoration(
                         labelText: 'Tax Deducted (Amount)',
@@ -286,7 +319,14 @@ class _DividendsScreenState extends State<DividendsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Gross Dividend', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                              Text(
+                                'Gross Dividend',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
                               Text(net > 0 ? gross.toStringAsFixed(2) : '0.00'),
                             ],
                           ),
@@ -294,16 +334,33 @@ class _DividendsScreenState extends State<DividendsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Tax Deducted', style: TextStyle(color: AppTheme.sellRed)),
-                              Text(taxAmount > 0 ? '-${taxAmount.toStringAsFixed(2)}' : '0.00', style: TextStyle(color: AppTheme.sellRed)),
+                              Text(
+                                'Tax Deducted',
+                                style: TextStyle(color: AppTheme.sellRed),
+                              ),
+                              Text(
+                                taxAmount > 0
+                                    ? '-${taxAmount.toStringAsFixed(2)}'
+                                    : '0.00',
+                                style: TextStyle(color: AppTheme.sellRed),
+                              ),
                             ],
                           ),
                           const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Net Dividend', style: TextStyle(fontWeight: FontWeight.bold)),
-                              Text(net > 0 ? net.toStringAsFixed(2) : '0.00', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.buyGreen)),
+                              const Text(
+                                'Net Dividend',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                net > 0 ? net.toStringAsFixed(2) : '0.00',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.buyGreen,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -312,8 +369,12 @@ class _DividendsScreenState extends State<DividendsScreen> {
                     const SizedBox(height: 16),
                     CheckboxListTile(
                       value: reinvest,
-                      onChanged: (val) => setStateLocal(() => reinvest = val ?? false),
-                      title: const Text('Reinvest as Deposit', style: TextStyle(fontSize: 14)),
+                      onChanged: (val) =>
+                          setStateLocal(() => reinvest = val ?? false),
+                      title: const Text(
+                        'Reinvest as Deposit',
+                        style: TextStyle(fontSize: 14),
+                      ),
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: EdgeInsets.zero,
                       activeColor: AppTheme.accent,
@@ -322,7 +383,9 @@ class _DividendsScreenState extends State<DividendsScreen> {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Date'),
-                      subtitle: Text(DateFormat('yyyy-MM-dd').format(selectedDate)),
+                      subtitle: Text(
+                        DateFormat('yyyy-MM-dd').format(selectedDate),
+                      ),
                       trailing: const Icon(Icons.calendar_today, size: 20),
                       onTap: () async {
                         final picked = await showDatePicker(
@@ -342,20 +405,31 @@ class _DividendsScreenState extends State<DividendsScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () async {
-                    final symbolStr = symbolController.text.trim().toUpperCase();
+                    final symbolStr = symbolController.text
+                        .trim()
+                        .toUpperCase();
                     if (symbolStr.isEmpty || net <= 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please enter valid symbol and amounts')),
+                        const SnackBar(
+                          content: Text(
+                            'Please enter valid symbol and amounts',
+                          ),
+                        ),
                       );
                       return;
                     }
-                    
+
                     Navigator.pop(dialogCtx);
-                    
+
                     final companion = DividendsCompanion.insert(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       symbol: symbolStr,
@@ -368,19 +442,24 @@ class _DividendsScreenState extends State<DividendsScreen> {
                     await getIt<DividendDao>().insertDividend(companion);
 
                     if (reinvest) {
-                      final fundId = '${DateTime.now().millisecondsSinceEpoch}_div';
+                      final fundId =
+                          '${DateTime.now().millisecondsSinceEpoch}_div';
                       final fundCompanion = FundTransfersCompanion.insert(
                         id: fundId,
-                        channelId: 'other', 
+                        channelId: 'other',
                         action: 'deposit',
                         amount: net,
                         smsDate: selectedDate,
-                        rawSmsBody: drift.Value('Dividend Received Reinvestment: $symbolStr'),
+                        rawSmsBody: drift.Value(
+                          'Dividend Received Reinvestment: $symbolStr',
+                        ),
                         isManual: const drift.Value(true),
                       );
-                      await getIt<FundTransferDao>().insertFundTransfer(fundCompanion);
+                      await getIt<FundTransferDao>().insertFundTransfer(
+                        fundCompanion,
+                      );
                     }
-                    
+
                     if (!context.mounted) return;
                     context.read<DashboardBloc>().add(RefreshDashboard());
                   },

@@ -15,7 +15,8 @@ class SmsMessage {
   });
 
   @override
-  String toString() => 'SmsMessage(sender: $sender, date: $date, body: ${body.length > 50 ? '${body.substring(0, 50)}...' : body})';
+  String toString() =>
+      'SmsMessage(sender: $sender, date: $date, body: ${body.length > 50 ? '${body.substring(0, 50)}...' : body})';
 }
 
 /// Callback for incoming SMS
@@ -70,9 +71,7 @@ class SmsService {
   /// Read ALL SMS from inbox (no sender filter at the query level).
   /// We fetch everything and filter in Dart for more reliable matching.
   /// Returns messages sorted by date (newest first).
-  Future<List<SmsMessage>> readInbox({
-    List<String>? senderAddresses,
-  }) async {
+  Future<List<SmsMessage>> readInbox({List<String>? senderAddresses}) async {
     if (defaultTargetPlatform != TargetPlatform.android) {
       debugPrint('[SmsService] Not Android — returning empty inbox');
       return [];
@@ -101,13 +100,14 @@ class SmsService {
               tel.SmsColumn.BODY,
               tel.SmsColumn.DATE,
             ],
-            filter: tel.SmsFilter.where(tel.SmsColumn.ADDRESS)
-                .like('%$sender%'),
-            sortOrder: [
-              tel.OrderBy(tel.SmsColumn.DATE, sort: tel.Sort.DESC),
-            ],
+            filter: tel.SmsFilter.where(
+              tel.SmsColumn.ADDRESS,
+            ).like('%$sender%'),
+            sortOrder: [tel.OrderBy(tel.SmsColumn.DATE, sort: tel.Sort.DESC)],
           );
-          debugPrint('[SmsService] Found ${msgs.length} messages for sender "$sender"');
+          debugPrint(
+            '[SmsService] Found ${msgs.length} messages for sender "$sender"',
+          );
           rawMessages.addAll(msgs);
         }
       } else {
@@ -118,11 +118,11 @@ class SmsService {
             tel.SmsColumn.BODY,
             tel.SmsColumn.DATE,
           ],
-          sortOrder: [
-            tel.OrderBy(tel.SmsColumn.DATE, sort: tel.Sort.DESC),
-          ],
+          sortOrder: [tel.OrderBy(tel.SmsColumn.DATE, sort: tel.Sort.DESC)],
         );
-        debugPrint('[SmsService] Found ${rawMessages.length} total messages in inbox');
+        debugPrint(
+          '[SmsService] Found ${rawMessages.length} total messages in inbox',
+        );
       }
 
       final allMessages = rawMessages.map(_convertMessage).toList();
@@ -148,7 +148,9 @@ class SmsService {
 
     final hasPerms = await requestPermission();
     if (!hasPerms) {
-      debugPrint('[SmsService] SMS permission not granted — cannot read senders');
+      debugPrint(
+        '[SmsService] SMS permission not granted — cannot read senders',
+      );
       return [];
     }
 
@@ -157,9 +159,7 @@ class SmsService {
     try {
       final rawMessages = await _telephony.getInboxSms(
         columns: [tel.SmsColumn.ADDRESS],
-        sortOrder: [
-          tel.OrderBy(tel.SmsColumn.ADDRESS, sort: tel.Sort.ASC),
-        ],
+        sortOrder: [tel.OrderBy(tel.SmsColumn.ADDRESS, sort: tel.Sort.ASC)],
       );
 
       final senders = <String>{};
@@ -170,7 +170,8 @@ class SmsService {
         }
       }
 
-      final sorted = senders.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+      final sorted = senders.toList()
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
       debugPrint('[SmsService] Found ${sorted.length} distinct senders');
       return sorted;
     } catch (e) {

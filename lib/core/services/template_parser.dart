@@ -119,8 +119,9 @@ class TemplateParser {
         }
         // Add the capture group for this placeholder
         parts.add(placeholderPatterns[earliestPlaceholder]!);
-        remaining =
-            remaining.substring(earliestIndex + earliestPlaceholder.length);
+        remaining = remaining.substring(
+          earliestIndex + earliestPlaceholder.length,
+        );
       } else {
         // No more placeholders, add the rest as literal
         parts.add(_escapeRegex(remaining));

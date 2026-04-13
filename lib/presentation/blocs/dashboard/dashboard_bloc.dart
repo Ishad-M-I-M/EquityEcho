@@ -17,11 +17,11 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     required FundTransferDao fundTransferDao,
     required ChannelDao channelDao,
     required DividendDao dividendDao,
-  })  : _tradeDao = tradeDao,
-        _fundTransferDao = fundTransferDao,
-        _channelDao = channelDao,
-        _dividendDao = dividendDao,
-        super(DashboardInitial()) {
+  }) : _tradeDao = tradeDao,
+       _fundTransferDao = fundTransferDao,
+       _channelDao = channelDao,
+       _dividendDao = dividendDao,
+       super(DashboardInitial()) {
     on<LoadDashboard>(_onLoadDashboard);
     on<RefreshDashboard>(_onLoadDashboard);
   }
@@ -44,16 +44,18 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final channels = await _channelDao.getAllChannels();
       final currency = channels.isNotEmpty ? channels.first.currency : 'LKR';
 
-      emit(DashboardLoaded(
-        holdings: holdings,
-        totalInvested: totalInvested,
-        totalSold: totalSold,
-        totalDeposits: totalDeposits,
-        totalWithdrawals: totalWithdrawals,
-        totalTrades: allTrades.length,
-        totalDividends: totalDividends,
-        currency: currency,
-      ));
+      emit(
+        DashboardLoaded(
+          holdings: holdings,
+          totalInvested: totalInvested,
+          totalSold: totalSold,
+          totalDeposits: totalDeposits,
+          totalWithdrawals: totalWithdrawals,
+          totalTrades: allTrades.length,
+          totalDividends: totalDividends,
+          currency: currency,
+        ),
+      );
     } catch (e) {
       emit(DashboardError('Failed to load dashboard: $e'));
     }

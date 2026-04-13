@@ -19,7 +19,11 @@ class DeleteConfirmationDialog extends StatefulWidget {
     required this.content,
   });
 
-  static Future<DeleteResult?> show(BuildContext context, {required String title, required String content}) {
+  static Future<DeleteResult?> show(
+    BuildContext context, {
+    required String title,
+    required String content,
+  }) {
     return showDialog<DeleteResult>(
       context: context,
       builder: (_) => DeleteConfirmationDialog(title: title, content: content),
@@ -27,7 +31,8 @@ class DeleteConfirmationDialog extends StatefulWidget {
   }
 
   @override
-  State<DeleteConfirmationDialog> createState() => _DeleteConfirmationDialogState();
+  State<DeleteConfirmationDialog> createState() =>
+      _DeleteConfirmationDialogState();
 }
 
 class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
@@ -63,9 +68,21 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.content, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            Text(
+              widget.content,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 20),
-            Text('Please select a reason (optional):', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Theme.of(context).colorScheme.onSurface)),
+            Text(
+              'Please select a reason (optional):',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: 8),
             RadioGroup<String?>(
               groupValue: _selectedReason,
@@ -78,13 +95,20 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
                 });
               },
               child: Column(
-                children: _reasons.map((reason) => RadioListTile<String>(
-                  title: Text(reason, style: const TextStyle(fontSize: 14)),
-                  value: reason,
-                  contentPadding: EdgeInsets.zero,
-                  activeColor: AppTheme.sellRed,
-                  visualDensity: VisualDensity.compact,
-                )).toList(),
+                children: _reasons
+                    .map(
+                      (reason) => RadioListTile<String>(
+                        title: Text(
+                          reason,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        value: reason,
+                        contentPadding: EdgeInsets.zero,
+                        activeColor: AppTheme.sellRed,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             if (_selectedReason == 'Other') ...[
@@ -103,18 +127,35 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context, DeleteResult(confirmed: false)),
-          child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          onPressed: () =>
+              Navigator.pop(context, DeleteResult(confirmed: false)),
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
         ),
         TextButton(
           onPressed: () {
-            Navigator.pop(context, DeleteResult(
-              confirmed: true,
-              reason: _selectedReason,
-              reasonOther: _selectedReason == 'Other' ? _otherController.text.trim() : null,
-            ));
+            Navigator.pop(
+              context,
+              DeleteResult(
+                confirmed: true,
+                reason: _selectedReason,
+                reasonOther: _selectedReason == 'Other'
+                    ? _otherController.text.trim()
+                    : null,
+              ),
+            );
           },
-          child: Text('Delete', style: TextStyle(color: AppTheme.sellRed, fontWeight: FontWeight.bold)),
+          child: Text(
+            'Delete',
+            style: TextStyle(
+              color: AppTheme.sellRed,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ],
     );

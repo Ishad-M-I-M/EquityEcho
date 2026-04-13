@@ -31,8 +31,16 @@ class AddChannel extends ChannelEvent {
   });
 
   @override
-  List<Object?> get props =>
-      [name, senderAddress, buyTemplate, sellTemplate, fundTemplate, currency, useDefaultBuyTemplate, useDefaultSellTemplate];
+  List<Object?> get props => [
+    name,
+    senderAddress,
+    buyTemplate,
+    sellTemplate,
+    fundTemplate,
+    currency,
+    useDefaultBuyTemplate,
+    useDefaultSellTemplate,
+  ];
 }
 
 class UpdateChannel extends ChannelEvent {
@@ -59,8 +67,17 @@ class UpdateChannel extends ChannelEvent {
   });
 
   @override
-  List<Object?> get props =>
-      [id, name, senderAddress, buyTemplate, sellTemplate, fundTemplate, currency, useDefaultBuyTemplate, useDefaultSellTemplate];
+  List<Object?> get props => [
+    id,
+    name,
+    senderAddress,
+    buyTemplate,
+    sellTemplate,
+    fundTemplate,
+    currency,
+    useDefaultBuyTemplate,
+    useDefaultSellTemplate,
+  ];
 }
 
 class DeleteChannel extends ChannelEvent {

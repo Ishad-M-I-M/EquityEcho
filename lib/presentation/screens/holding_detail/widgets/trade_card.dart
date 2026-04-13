@@ -31,33 +31,44 @@ class _TradeCardState extends State<TradeCard> {
   Widget build(BuildContext context) {
     final trade = widget.trade;
     final fmt = widget.currencyFormatter;
-    
+
     final isRightsConvert = trade.action == 'rights_convert';
-    final isConversionSource = isRightsConvert && trade.symbol == widget.currentSymbol;
-    final isConversionTarget = isRightsConvert && trade.targetSymbol == widget.currentSymbol;
-    
+    final isConversionSource =
+        isRightsConvert && trade.symbol == widget.currentSymbol;
+    final isConversionTarget =
+        isRightsConvert && trade.targetSymbol == widget.currentSymbol;
+
     final isBuy = trade.action.toLowerCase() == 'buy' || isConversionTarget;
-    final color = isRightsConvert ? Colors.deepPurpleAccent : (isBuy ? AppTheme.buyGreen : AppTheme.sellRed);
+    final color = isRightsConvert
+        ? Colors.deepPurpleAccent
+        : (isBuy ? AppTheme.buyGreen : AppTheme.sellRed);
     final isIpo = trade.isIpo;
     final isExempt = widget.isExempt;
-    
+
     // conversions have NO transaction charges. Sells always do (unless 0 val).
     // buys have charges unless IPO.
-    final hasCharges = !isRightsConvert && (!isIpo || !isBuy); 
-    
+    final hasCharges = !isRightsConvert && (!isIpo || !isBuy);
+
     final breakdown = hasCharges
         ? (isExempt
-            ? TransactionCharges.computeExempt(trade.totalValue)
-            : TransactionCharges.compute(trade.totalValue))
+              ? TransactionCharges.computeExempt(trade.totalValue)
+              : TransactionCharges.compute(trade.totalValue))
         : null;
 
     // Effective total: what you actually pay (buy) or receive (sell)
     // For rights_convert, effective total is just the explicit cost (quantity * price).
-    final effectiveTotal = isRightsConvert 
+    final effectiveTotal = isRightsConvert
         ? trade.quantity * trade.price
         : (isBuy
-            ? TransactionCharges.buyCost(trade.totalValue, isIpo: isIpo, isExempt: isExempt)
-            : TransactionCharges.sellProceeds(trade.totalValue, isExempt: isExempt));
+              ? TransactionCharges.buyCost(
+                  trade.totalValue,
+                  isIpo: isIpo,
+                  isExempt: isExempt,
+                )
+              : TransactionCharges.sellProceeds(
+                  trade.totalValue,
+                  isExempt: isExempt,
+                ));
 
     return GestureDetector(
       onTap: hasCharges ? () => setState(() => _expanded = !_expanded) : null,
@@ -82,14 +93,20 @@ class _TradeCardState extends State<TradeCard> {
                       Row(
                         children: [
                           Icon(
-                            isRightsConvert ? Icons.autorenew : (isBuy ? Icons.arrow_downward : Icons.arrow_upward),
+                            isRightsConvert
+                                ? Icons.autorenew
+                                : (isBuy
+                                      ? Icons.arrow_downward
+                                      : Icons.arrow_upward),
                             color: color,
                             size: 16,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             isRightsConvert
-                                ? (isConversionSource ? 'CONVERTED OUT' : 'CONVERTED IN')
+                                ? (isConversionSource
+                                      ? 'CONVERTED OUT'
+                                      : 'CONVERTED IN')
                                 : (isBuy ? 'BOUGHT' : 'SOLD'),
                             style: TextStyle(
                               color: color,
@@ -100,7 +117,9 @@ class _TradeCardState extends State<TradeCard> {
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.purple.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
@@ -119,7 +138,9 @@ class _TradeCardState extends State<TradeCard> {
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.teal.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
@@ -138,7 +159,9 @@ class _TradeCardState extends State<TradeCard> {
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.orange.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
@@ -170,7 +193,10 @@ class _TradeCardState extends State<TradeCard> {
                     children: [
                       Text(
                         '${trade.quantity.toStringAsFixed(0)} × ${fmt.format(trade.price)}',
-                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -186,7 +212,9 @@ class _TradeCardState extends State<TradeCard> {
                         Text(
                           isBuy ? 'Total Cost' : 'Net Proceeds',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontSize: 10,
                           ),
                         ),
@@ -204,7 +232,9 @@ class _TradeCardState extends State<TradeCard> {
                 child: Icon(
                   Icons.keyboard_arrow_down,
                   size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
               ),
 
@@ -215,13 +245,44 @@ class _TradeCardState extends State<TradeCard> {
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                 child: Column(
                   children: [
-                    _TradeChargeRow('Trade Value', '', trade.totalValue, fmt, isHeader: true),
+                    _TradeChargeRow(
+                      'Trade Value',
+                      '',
+                      trade.totalValue,
+                      fmt,
+                      isHeader: true,
+                    ),
                     const SizedBox(height: 4),
-                    _TradeChargeRow('Brokerage Fee', '0.640%', breakdown.brokerageFee, fmt),
-                    _TradeChargeRow('CSE Fees', '0.084%', breakdown.cseFee, fmt),
-                    _TradeChargeRow('CDS Fees', '0.024%', breakdown.cdsFee, fmt),
-                    _TradeChargeRow('SEC Cess', '0.072%', breakdown.secCess, fmt),
-                    _TradeChargeRow('Share Trans. Levy', '0.300%', breakdown.shareTransactionLevy, fmt),
+                    _TradeChargeRow(
+                      'Brokerage Fee',
+                      '0.640%',
+                      breakdown.brokerageFee,
+                      fmt,
+                    ),
+                    _TradeChargeRow(
+                      'CSE Fees',
+                      '0.084%',
+                      breakdown.cseFee,
+                      fmt,
+                    ),
+                    _TradeChargeRow(
+                      'CDS Fees',
+                      '0.024%',
+                      breakdown.cdsFee,
+                      fmt,
+                    ),
+                    _TradeChargeRow(
+                      'SEC Cess',
+                      '0.072%',
+                      breakdown.secCess,
+                      fmt,
+                    ),
+                    _TradeChargeRow(
+                      'Share Trans. Levy',
+                      '0.300%',
+                      breakdown.shareTransactionLevy,
+                      fmt,
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -274,7 +335,9 @@ class _TradeCardState extends State<TradeCard> {
                 child: Icon(
                   Icons.keyboard_arrow_up,
                   size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
               ),
             ],
@@ -292,8 +355,13 @@ class _TradeChargeRow extends StatelessWidget {
   final NumberFormat formatter;
   final bool isHeader;
 
-  const _TradeChargeRow(this.label, this.rate, this.amount, this.formatter,
-      {this.isHeader = false});
+  const _TradeChargeRow(
+    this.label,
+    this.rate,
+    this.amount,
+    this.formatter, {
+    this.isHeader = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +375,9 @@ class _TradeChargeRow extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: isHeader ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: isHeader
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: isHeader ? 12 : 11,
                   fontWeight: isHeader ? FontWeight.w600 : FontWeight.normal,
                 ),
@@ -315,7 +385,10 @@ class _TradeChargeRow extends StatelessWidget {
               if (rate.isNotEmpty) ...[
                 const SizedBox(width: 5),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(3),
@@ -335,7 +408,9 @@ class _TradeChargeRow extends StatelessWidget {
           Text(
             formatter.format(amount),
             style: TextStyle(
-              color: isHeader ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onSurfaceVariant,
+              color: isHeader
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: isHeader ? 12 : 11,
             ),
           ),

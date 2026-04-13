@@ -11,43 +11,58 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
 
   /// Get all trades, newest first
   Future<List<Trade>> getAllTrades() =>
-      (select(trades)..where((t) => t.isDeleted.equals(false))..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).get();
+      (select(trades)
+            ..where((t) => t.isDeleted.equals(false))
+            ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
+          .get();
 
   /// Watch all trades (reactive)
   Stream<List<Trade>> watchAllTrades() =>
-      (select(trades)..where((t) => t.isDeleted.equals(false))..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).watch();
+      (select(trades)
+            ..where((t) => t.isDeleted.equals(false))
+            ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
+          .watch();
 
   /// Get trades for a specific symbol
   Future<List<Trade>> getTradesForSymbol(String symbol) =>
       (select(trades)
-            ..where((t) =>
-                t.isDeleted.equals(false) &
-                (t.symbol.equals(symbol) |
-                (t.targetSymbol.equals(symbol) &
-                    t.action.equals('rights_convert'))))
+            ..where(
+              (t) =>
+                  t.isDeleted.equals(false) &
+                  (t.symbol.equals(symbol) |
+                      (t.targetSymbol.equals(symbol) &
+                          t.action.equals('rights_convert'))),
+            )
             ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
           .get();
 
   /// Get trades for a specific channel
   Future<List<Trade>> getTradesForChannel(String channelId) =>
       (select(trades)
-            ..where((t) => t.isDeleted.equals(false) & t.channelId.equals(channelId))
+            ..where(
+              (t) => t.isDeleted.equals(false) & t.channelId.equals(channelId),
+            )
             ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
           .get();
 
   /// Insert a trade
-  Future<int> insertTrade(TradesCompanion trade) =>
-      into(trades).insert(trade);
+  Future<int> insertTrade(TradesCompanion trade) => into(trades).insert(trade);
 
   /// Update a trade
-  Future<bool> updateTrade(Trade trade) => update(trades).replace(trade);
+  Future<bool> updateTrade(Trade trade) =>
+      update(trades).replace(trade.copyWith(updatedAt: DateTime.now()));
 
-  Future<int> deleteTrade(String id, {String? reason, String? reasonOther}) async {
+  Future<int> deleteTrade(
+    String id, {
+    String? reason,
+    String? reasonOther,
+  }) async {
     return (update(trades)..where((t) => t.id.equals(id))).write(
       TradesCompanion(
         isDeleted: const Value(true),
         deleteReason: Value(reason),
         deleteReasonOther: Value(reasonOther),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
@@ -55,27 +70,42 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   /// Restore a trade
   Future<int> restoreTrade(String id) async {
     return (update(trades)..where((t) => t.id.equals(id))).write(
-      const TradesCompanion(
-        isDeleted: Value(false),
-        deleteReason: Value(null),
-        deleteReasonOther: Value(null),
+      TradesCompanion(
+        isDeleted: const Value(false),
+        deleteReason: const Value(null),
+        deleteReasonOther: const Value(null),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
 
   /// Get deleted trades
   Future<List<Trade>> getDeletedTrades() =>
-      (select(trades)..where((t) => t.isDeleted.equals(true))..orderBy([(t) => OrderingTerm.desc(t.smsDate)])).get();
+      (select(trades)
+            ..where((t) => t.isDeleted.equals(true))
+            ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
+          .get();
+
+  /// Get modified trades since
+  Future<List<Trade>> getModifiedTradesSince(DateTime since) => (select(
+    trades,
+  )..where((t) => t.updatedAt.isBiggerThanValue(since))).get();
 
   /// Delete all trades (for resync)
   Future<int> deleteAllTrades() => delete(trades).go();
 
   /// Check if a trade with the same SMS body + received date exists (dedup)
-  Future<bool> existsByRawSms(String rawSmsBody, DateTime smsReceivedDate) async {
-    final results = await (select(trades)
-          ..where(
-              (t) => t.rawSmsBody.equals(rawSmsBody) & t.smsReceivedDate.equals(smsReceivedDate)))
-        .get();
+  Future<bool> existsByRawSms(
+    String rawSmsBody,
+    DateTime smsReceivedDate,
+  ) async {
+    final results =
+        await (select(trades)..where(
+              (t) =>
+                  t.rawSmsBody.equals(rawSmsBody) &
+                  t.smsReceivedDate.equals(smsReceivedDate),
+            ))
+            .get();
     return results.isNotEmpty;
   }
 
@@ -83,15 +113,17 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   /// intra-day exemption engine.
   static List<TradeData> _toTradeData(List<Trade> trades) {
     return trades
-        .map((t) => TradeData(
-              id: t.id,
-              symbol: t.symbol,
-              channelId: t.channelId,
-              action: t.action,
-              quantity: t.quantity,
-              date: t.smsDate,
-              isIpo: t.isIpo,
-            ))
+        .map(
+          (t) => TradeData(
+            id: t.id,
+            symbol: t.symbol,
+            channelId: t.channelId,
+            action: t.action,
+            quantity: t.quantity,
+            date: t.smsDate,
+            isIpo: t.isIpo,
+          ),
+        )
         .toList();
   }
 
@@ -102,8 +134,16 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   /// - BUY (IPO):      no charges at all.
   /// - Normal trades:   full 1.120% charged.
   Future<List<Holding>> getHoldings() async {
-    final allTrades = await (select(trades)..where((t) => t.isDeleted.equals(false))..orderBy([(t) => OrderingTerm.asc(t.smsDate)])).get();
-    final allSplits = await (select(stockSplits)..where((s) => s.isDeleted.equals(false))..orderBy([(s) => OrderingTerm.asc(s.splitDate)])).get();
+    final allTrades =
+        await (select(trades)
+              ..where((t) => t.isDeleted.equals(false))
+              ..orderBy([(t) => OrderingTerm.asc(t.smsDate)]))
+            .get();
+    final allSplits =
+        await (select(stockSplits)
+              ..where((s) => s.isDeleted.equals(false))
+              ..orderBy([(s) => OrderingTerm.asc(s.splitDate)]))
+            .get();
 
     // Pre-compute intra-day exemptions
     final exemptIds = TransactionCharges.findIntraDayExemptions(
@@ -129,18 +169,22 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
           // Removes quantity and extracts proportional invested pool from rights.
           double rightsCostBasis = 0;
           if (state.currentQty > 0) {
-            rightsCostBasis = (event.quantity / state.currentQty) * state.investedPool;
+            rightsCostBasis =
+                (event.quantity / state.currentQty) * state.investedPool;
             state.investedPool -= rightsCostBasis;
           }
           state.currentQty -= event.quantity;
 
           // Target symbol gets the shares and combined cost basis.
           final targetSym = event.targetSymbol ?? symbol.split('.').first;
-          final targetState = holdingsMap.putIfAbsent(targetSym, () => _SymbolState());
-          
+          final targetState = holdingsMap.putIfAbsent(
+            targetSym,
+            () => _SymbolState(),
+          );
+
           final conversionCost = event.quantity * event.price;
           final totalCostToAdd = rightsCostBasis + conversionCost;
-          
+
           targetState.currentQty += event.quantity;
           targetState.investedPool += totalCostToAdd;
           targetState.rawBuyValue += conversionCost;
@@ -197,16 +241,18 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
           ? state.investedPool / state.currentQty
           : 0.0;
 
-      holdings.add(Holding(
-        symbol: symbol,
-        netQuantity: state.currentQty,
-        avgBuyPrice: avgRawPrice,
-        avgCostWithCharges: avgCostWithCharges,
-        totalInvested: state.investedPool,
-        totalSoldQuantity: state.totalSoldQty,
-        totalSoldValue: state.totalSoldValue,
-        realizedGain: state.realizedGain,
-      ));
+      holdings.add(
+        Holding(
+          symbol: symbol,
+          netQuantity: state.currentQty,
+          avgBuyPrice: avgRawPrice,
+          avgCostWithCharges: avgCostWithCharges,
+          totalInvested: state.investedPool,
+          totalSoldQuantity: state.totalSoldQty,
+          totalSoldValue: state.totalSoldValue,
+          realizedGain: state.realizedGain,
+        ),
+      );
     }
 
     holdings.sort((a, b) => a.symbol.compareTo(b.symbol));
@@ -215,9 +261,10 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
 
   /// Watch holdings (reactive)
   Stream<List<Holding>> watchHoldings() {
-    return customSelect('SELECT 1 FROM trades UNION SELECT 1 FROM stock_splits', readsFrom: {trades, stockSplits})
-        .watch()
-        .asyncMap((_) => getHoldings());
+    return customSelect(
+      'SELECT 1 FROM trades UNION SELECT 1 FROM stock_splits',
+      readsFrom: {trades, stockSplits},
+    ).watch().asyncMap((_) => getHoldings());
   }
 
   /// Get total invested (sum of all BUY costs including charges).

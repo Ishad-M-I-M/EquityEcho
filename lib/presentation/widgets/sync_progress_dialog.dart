@@ -13,16 +13,18 @@ void showSyncProgressDialog(BuildContext context) {
           Navigator.of(ctx).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.isCancelled
-                  ? 'Sync cancelled. Processed partial messages.'
-                  : 'Sync complete! Added ${state.tradesAdded} trades and ${state.fundsAdded} funds.'),
+              content: Text(
+                state.isCancelled
+                    ? 'Sync cancelled. Processed partial messages.'
+                    : 'Sync complete! Added ${state.tradesAdded} trades and ${state.fundsAdded} funds.',
+              ),
             ),
           );
         } else if (state is SmsSyncError) {
           Navigator.of(ctx).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (ctx, state) {
@@ -50,7 +52,9 @@ void showSyncProgressDialog(BuildContext context) {
                 total > 0
                     ? 'Processed $processed of $total messages'
                     : 'Preparing sync...',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

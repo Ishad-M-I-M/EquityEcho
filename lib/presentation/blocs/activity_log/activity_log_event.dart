@@ -17,12 +17,7 @@ class FilterActivityLog extends ActivityLogEvent {
   final String? symbol;
   final ActivityType? type;
 
-  const FilterActivityLog({
-    this.month,
-    this.year,
-    this.symbol,
-    this.type,
-  });
+  const FilterActivityLog({this.month, this.year, this.symbol, this.type});
 
   @override
   List<Object?> get props => [month, year, symbol, type];

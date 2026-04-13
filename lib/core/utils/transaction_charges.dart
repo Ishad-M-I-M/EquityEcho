@@ -34,7 +34,11 @@ class TransactionCharges {
   /// - IPO buys: no charges.
   /// - Intra-day exempt buys: only STL charged.
   /// - Normal buys: full charges.
-  static double buyCost(double tradeValue, {bool isIpo = false, bool isExempt = false}) {
+  static double buyCost(
+    double tradeValue, {
+    bool isIpo = false,
+    bool isExempt = false,
+  }) {
     if (isIpo) return tradeValue;
     if (isExempt) return tradeValue * (1 + exemptRate);
     return tradeValue * (1 + totalRate);
@@ -106,7 +110,8 @@ class TransactionCharges {
 
     for (final t in trades) {
       if (t.isIpo) continue; // IPO trades excluded from grouping
-      final dateKey = '${t.date.year}-'
+      final dateKey =
+          '${t.date.year}-'
           '${t.date.month.toString().padLeft(2, '0')}-'
           '${t.date.day.toString().padLeft(2, '0')}';
       final groupKey = '${t.symbol}|$dateKey|${t.channelId}';

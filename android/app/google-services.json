@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "779114244435",
+    "project_id": "equity-echo",
+    "storage_bucket": "equity-echo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779114244435:android:7a6932f97f824faa8619a6",
+        "android_client_info": {
+          "package_name": "com.sa2s.equityecho"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApowzymMwnEZB4W7dcadX5YfVKyVMUw5s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

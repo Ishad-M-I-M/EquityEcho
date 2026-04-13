@@ -34,6 +34,7 @@ import 'package:equity_echo/presentation/screens/realized_gains_screen.dart';
 import 'package:equity_echo/presentation/screens/dividends_screen.dart';
 import 'package:equity_echo/presentation/screens/dividend_history_screen.dart';
 import 'package:equity_echo/presentation/screens/deleted_entries_screen.dart';
+import 'package:equity_echo/presentation/screens/auth_screen.dart';
 import 'package:equity_echo/core/theme/theme_cubit.dart';
 
 class EquityEchoApp extends StatelessWidget {
@@ -44,8 +45,8 @@ class EquityEchoApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => ChannelBloc(channelDao: getIt<ChannelDao>())
-            ..add(LoadChannels()),
+          create: (_) =>
+              ChannelBloc(channelDao: getIt<ChannelDao>())..add(LoadChannels()),
         ),
         BlocProvider(
           create: (_) => DashboardBloc(
@@ -60,9 +61,9 @@ class EquityEchoApp extends StatelessWidget {
               TradeBloc(tradeDao: getIt<TradeDao>())..add(LoadTrades()),
         ),
         BlocProvider(
-          create: (_) => FundTransferBloc(
-              fundTransferDao: getIt<FundTransferDao>())
-            ..add(LoadFundTransfers()),
+          create: (_) =>
+              FundTransferBloc(fundTransferDao: getIt<FundTransferDao>())
+                ..add(LoadFundTransfers()),
         ),
         BlocProvider(
           create: (_) => ActivityLogBloc(
@@ -79,9 +80,7 @@ class EquityEchoApp extends StatelessWidget {
             fundTransferDao: getIt<FundTransferDao>(),
           ),
         ),
-        BlocProvider(
-          create: (_) => ThemeCubit(),
-        ),
+        BlocProvider(create: (_) => ThemeCubit()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
@@ -110,37 +109,30 @@ final GoRouter _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashScreen(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) => _AppShell(child: child),
       routes: [
         GoRoute(
           path: '/dashboard',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: DashboardScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: DashboardScreen()),
         ),
         GoRoute(
           path: '/holdings',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: HoldingsScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: HoldingsScreen()),
         ),
         GoRoute(
           path: '/activity',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: ActivityLogScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: ActivityLogScreen()),
         ),
         GoRoute(
           path: '/settings',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: SettingsScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: SettingsScreen()),
         ),
       ],
     ),
@@ -157,45 +149,38 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/channel/:id',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => ChannelConfigScreen(
-        channelId: state.pathParameters['id'],
-      ),
+      builder: (context, state) =>
+          ChannelConfigScreen(channelId: state.pathParameters['id']),
     ),
     GoRoute(
       path: '/holding/:symbol',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => HoldingDetailScreen(
-        symbol: state.pathParameters['symbol']!,
-      ),
+      builder: (context, state) =>
+          HoldingDetailScreen(symbol: state.pathParameters['symbol']!),
     ),
     GoRoute(
       path: '/trade/new',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => TradeFormScreen(
-        initialSymbol: state.extra as String?,
-      ),
+      builder: (context, state) =>
+          TradeFormScreen(initialSymbol: state.extra as String?),
     ),
     GoRoute(
       path: '/trade/:id',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => TradeFormScreen(
-        tradeId: state.pathParameters['id'],
-      ),
+      builder: (context, state) =>
+          TradeFormScreen(tradeId: state.pathParameters['id']),
     ),
     GoRoute(
       path: '/ipo/new',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => TradeFormScreen(
-        initialSymbol: state.extra as String?,
-        isIpo: true,
-      ),
+      builder: (context, state) =>
+          TradeFormScreen(initialSymbol: state.extra as String?, isIpo: true),
     ),
     GoRoute(
       path: '/fund/new',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => FundFormScreen(
-        initialAction: state.extra as String?,
-      ),
+      builder: (context, state) =>
+          FundFormScreen(initialAction: state.extra as String?),
     ),
     GoRoute(
       path: '/deposits',
@@ -215,14 +200,18 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/dividends/:symbol',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => DividendHistoryScreen(
-        symbol: state.pathParameters['symbol']!,
-      ),
+      builder: (context, state) =>
+          DividendHistoryScreen(symbol: state.pathParameters['symbol']!),
     ),
     GoRoute(
       path: '/deleted-entries',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DeletedEntriesScreen(),
+    ),
+    GoRoute(
+      path: '/auth',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AuthScreen(),
     ),
   ],
 );
