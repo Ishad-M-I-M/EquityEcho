@@ -36,6 +36,7 @@ class StockSplitDao extends DatabaseAccessor<AppDatabase>
         isDeleted: const Value(true),
         deleteReason: Value(reason),
         deleteReasonOther: Value(reasonOther),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
@@ -43,10 +44,11 @@ class StockSplitDao extends DatabaseAccessor<AppDatabase>
   /// Restore a stock split
   Future<int> restoreSplit(String id) async {
     return (update(stockSplits)..where((s) => s.id.equals(id))).write(
-      const StockSplitsCompanion(
-        isDeleted: Value(false),
-        deleteReason: Value(null),
-        deleteReasonOther: Value(null),
+      StockSplitsCompanion(
+        isDeleted: const Value(false),
+        deleteReason: const Value(null),
+        deleteReasonOther: const Value(null),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
@@ -57,4 +59,9 @@ class StockSplitDao extends DatabaseAccessor<AppDatabase>
             ..where((s) => s.isDeleted.equals(true))
             ..orderBy([(s) => OrderingTerm.desc(s.splitDate)]))
           .get();
+
+  /// Get modified stock splits since
+  Future<List<StockSplit>> getModifiedSplitsSince(DateTime since) => (select(
+    stockSplits,
+  )..where((s) => s.updatedAt.isBiggerThanValue(since))).get();
 }

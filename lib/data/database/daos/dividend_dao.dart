@@ -43,6 +43,7 @@ class DividendDao extends DatabaseAccessor<AppDatabase>
         isDeleted: const Value(true),
         deleteReason: Value(reason),
         deleteReasonOther: Value(reasonOther),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
@@ -50,10 +51,11 @@ class DividendDao extends DatabaseAccessor<AppDatabase>
   /// Restore a dividend
   Future<int> restoreDividend(String id) async {
     return (update(dividends)..where((d) => d.id.equals(id))).write(
-      const DividendsCompanion(
-        isDeleted: Value(false),
-        deleteReason: Value(null),
-        deleteReasonOther: Value(null),
+      DividendsCompanion(
+        isDeleted: const Value(false),
+        deleteReason: const Value(null),
+        deleteReasonOther: const Value(null),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
@@ -64,6 +66,11 @@ class DividendDao extends DatabaseAccessor<AppDatabase>
             ..where((d) => d.isDeleted.equals(true))
             ..orderBy([(d) => OrderingTerm.desc(d.date)]))
           .get();
+
+  /// Get modified dividends since
+  Future<List<Dividend>> getModifiedDividendsSince(DateTime since) => (select(
+    dividends,
+  )..where((d) => d.updatedAt.isBiggerThanValue(since))).get();
 
   /// Get total dividends
   Future<double> getTotalDividends() async {

@@ -31,6 +31,9 @@ class Channels extends Table {
       boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  TextColumn get deleteReason => text().nullable()();
+  TextColumn get deleteReasonOther => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -63,6 +66,7 @@ class Trades extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -82,6 +86,7 @@ class FundTransfers extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -98,6 +103,7 @@ class StockSplits extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -116,6 +122,7 @@ class Dividends extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get deleteReason => text().nullable()();
   TextColumn get deleteReasonOther => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -136,7 +143,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {
@@ -194,6 +201,16 @@ class AppDatabase extends _$AppDatabase {
         if (from < 11) {
           await m.addColumn(channels, channels.useDefaultBuyTemplate);
           await m.addColumn(channels, channels.useDefaultSellTemplate);
+        }
+        if (from < 12) {
+          await m.addColumn(channels, channels.isDeleted);
+          await m.addColumn(channels, channels.deleteReason);
+          await m.addColumn(channels, channels.deleteReasonOther);
+
+          await m.addColumn(trades, trades.updatedAt);
+          await m.addColumn(fundTransfers, fundTransfers.updatedAt);
+          await m.addColumn(stockSplits, stockSplits.updatedAt);
+          await m.addColumn(dividends, dividends.updatedAt);
         }
       },
       beforeOpen: (details) async {

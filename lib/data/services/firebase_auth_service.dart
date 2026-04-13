@@ -13,8 +13,11 @@ class FirebaseAuthService implements AuthService {
       _googleSignIn =
           googleSignIn ??
           GoogleSignIn(
-            serverClientId:
-                '779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com',
+            serverClientId: const String.fromEnvironment(
+              'GOOGLE_SERVER_CLIENT_ID',
+              defaultValue:
+                  '779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com',
+            ),
           );
 
   UserEntity? _userFromFirebase(User? user) {

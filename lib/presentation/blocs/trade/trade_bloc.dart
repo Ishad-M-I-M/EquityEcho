@@ -83,6 +83,8 @@ class TradeBloc extends Bloc<TradeEvent, TradeState> {
         isDeleted: existing.isDeleted,
         deleteReason: existing.deleteReason,
         deleteReasonOther: existing.deleteReasonOther,
+        updatedAt: DateTime.now(),
+        smsReceivedDate: existing.smsReceivedDate,
       );
 
       await _tradeDao.updateTrade(updated);

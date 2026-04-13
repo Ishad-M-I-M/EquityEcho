@@ -10,17 +10,44 @@ class FirestoreCloudSyncService implements CloudSyncService {
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
-  Future<void> syncUp(String userId, AppDatabase db) async {
+  Future<void> syncUp(String userId, AppDatabase db, {DateTime? since}) async {
     final userDoc = _firestore.collection('users').doc(userId);
 
-    // Fetch all current records
-    final channels = await db.channelDao.getAllChannels();
-    final trades = await db.tradeDao.getAllTrades();
-    final deletedTrades = await db.tradeDao.getDeletedTrades();
-    final funds = await db.fundTransferDao.getAllFundTransfers();
-    final deletedFunds = await db.fundTransferDao.getDeletedFundTransfers();
-    final splits = await db.stockSplitDao.getAllStockSplits();
-    final dividends = await db.dividendDao.getAllDividends();
+    // Fetch records
+    final channels = since != null
+        ? await db.channelDao.getModifiedChannelsSince(since)
+        : [
+            ...await db.channelDao.getAllChannels(),
+            ...await db.channelDao.getDeletedChannels(),
+          ];
+
+    final trades = since != null
+        ? await db.tradeDao.getModifiedTradesSince(since)
+        : [
+            ...await db.tradeDao.getAllTrades(),
+            ...await db.tradeDao.getDeletedTrades(),
+          ];
+
+    final funds = since != null
+        ? await db.fundTransferDao.getModifiedFundTransfersSince(since)
+        : [
+            ...await db.fundTransferDao.getAllFundTransfers(),
+            ...await db.fundTransferDao.getDeletedFundTransfers(),
+          ];
+
+    final splits = since != null
+        ? await db.stockSplitDao.getModifiedSplitsSince(since)
+        : [
+            ...await db.stockSplitDao.getAllStockSplits(),
+            ...await db.stockSplitDao.getDeletedSplits(),
+          ];
+
+    final dividends = since != null
+        ? await db.dividendDao.getModifiedDividendsSince(since)
+        : [
+            ...await db.dividendDao.getAllDividends(),
+            ...await db.dividendDao.getDeletedDividends(),
+          ];
 
     // Prepare batch operations
     WriteBatch batch = _firestore.batch();
@@ -50,16 +77,14 @@ class FirestoreCloudSyncService implements CloudSyncService {
       await commitBatchIfFull();
     }
 
-    // Process Trades (both active and deleted to ensure cloud reflects deletion)
-    final allTrades = [...trades, ...deletedTrades];
-    for (var item in allTrades) {
+    // Process Trades
+    for (var item in trades) {
       addToBatch('trades', item.id, item.toJson());
       await commitBatchIfFull();
     }
 
     // Process Fund Transfers
-    final allFunds = [...funds, ...deletedFunds];
-    for (var item in allFunds) {
+    for (var item in funds) {
       addToBatch('fund_transfers', item.id, item.toJson());
       await commitBatchIfFull();
     }

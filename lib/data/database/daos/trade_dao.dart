@@ -49,7 +49,8 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   Future<int> insertTrade(TradesCompanion trade) => into(trades).insert(trade);
 
   /// Update a trade
-  Future<bool> updateTrade(Trade trade) => update(trades).replace(trade);
+  Future<bool> updateTrade(Trade trade) =>
+      update(trades).replace(trade.copyWith(updatedAt: DateTime.now()));
 
   Future<int> deleteTrade(
     String id, {
@@ -61,6 +62,7 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
         isDeleted: const Value(true),
         deleteReason: Value(reason),
         deleteReasonOther: Value(reasonOther),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
@@ -68,10 +70,11 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
   /// Restore a trade
   Future<int> restoreTrade(String id) async {
     return (update(trades)..where((t) => t.id.equals(id))).write(
-      const TradesCompanion(
-        isDeleted: Value(false),
-        deleteReason: Value(null),
-        deleteReasonOther: Value(null),
+      TradesCompanion(
+        isDeleted: const Value(false),
+        deleteReason: const Value(null),
+        deleteReasonOther: const Value(null),
+        updatedAt: Value(DateTime.now()),
       ),
     );
   }
@@ -82,6 +85,11 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
             ..where((t) => t.isDeleted.equals(true))
             ..orderBy([(t) => OrderingTerm.desc(t.smsDate)]))
           .get();
+
+  /// Get modified trades since
+  Future<List<Trade>> getModifiedTradesSince(DateTime since) => (select(
+    trades,
+  )..where((t) => t.updatedAt.isBiggerThanValue(since))).get();
 
   /// Delete all trades (for resync)
   Future<int> deleteAllTrades() => delete(trades).go();

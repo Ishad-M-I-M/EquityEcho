@@ -20,8 +20,11 @@ class RealtimeSyncManager {
   bool _isSyncingUp = false;
   bool _isSyncingDown = false;
   Timer? _debounceTimer;
+  DateTime? _lastSyncTime;
+  Timestamp? _lastSeenRemoteUpdate;
 
   static const String _prefKey = 'is_realtime_sync_enabled';
+  static const String _lastSyncKey = 'realtime_last_sync_time';
 
   RealtimeSyncManager({
     required SharedPreferences prefs,
@@ -33,6 +36,10 @@ class RealtimeSyncManager {
        _authService = authService,
        _syncService = syncService {
     _isRealtimeSyncEnabled = _prefs.getBool(_prefKey) ?? false;
+    final lastSyncMs = _prefs.getInt(_lastSyncKey);
+    if (lastSyncMs != null) {
+      _lastSyncTime = DateTime.fromMillisecondsSinceEpoch(lastSyncMs);
+    }
     _startAuthListener();
   }
 
@@ -82,11 +89,24 @@ class RealtimeSyncManager {
     // 2. Listen to Firestore Remote Changes
     final userDoc = FirebaseFirestore.instance.collection('users').doc(user.id);
     _firestoreSubscription = userDoc.snapshots().listen((snapshot) {
-      if (_isSyncingUp) return; // Ignore updates caused by our own syncUp
+      if (snapshot.metadata.hasPendingWrites) {
+        return; // ignore local writes mirroring
+      }
 
       if (snapshot.exists) {
-        // Checking if we should sync down based on the lastUpdatedAt field.
-        // We sync down whenever it changes remotely.
+        final data = snapshot.data();
+        if (data != null && data.containsKey('lastUpdatedAt')) {
+          final lastUpdatedAt = data['lastUpdatedAt'] as Timestamp?;
+          if (lastUpdatedAt != null) {
+            if (_lastSeenRemoteUpdate != null &&
+                lastUpdatedAt.compareTo(_lastSeenRemoteUpdate!) <= 0) {
+              return; // Already processed this or newer update
+            }
+            _lastSeenRemoteUpdate = lastUpdatedAt;
+          }
+        }
+
+        if (_isSyncingUp) return; // Secondary safeguard
         _performSyncDown(user.id);
       }
     });
@@ -105,7 +125,21 @@ class RealtimeSyncManager {
 
     try {
       _isSyncingUp = true;
-      await _syncService.syncUp(userId, _db);
+      final syncStart = DateTime.now().toUtc();
+
+      await _syncService.syncUp(userId, _db, since: _lastSyncTime);
+
+      _lastSyncTime = syncStart;
+      await _prefs.setInt(_lastSyncKey, syncStart.millisecondsSinceEpoch);
+
+      // Record the timestamp created by our own transaction to ignore the incoming snapshot
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (doc.exists && doc.data()?.containsKey('lastUpdatedAt') == true) {
+        _lastSeenRemoteUpdate = doc.data()?['lastUpdatedAt'] as Timestamp?;
+      }
     } catch (e) {
       debugPrint('RealtimeSyncManager Error Syncing Up: $e');
     } finally {
