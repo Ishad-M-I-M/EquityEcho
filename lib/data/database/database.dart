@@ -203,14 +203,28 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(channels, channels.useDefaultSellTemplate);
         }
         if (from < 12) {
-          await m.addColumn(channels, channels.isDeleted);
-          await m.addColumn(channels, channels.deleteReason);
-          await m.addColumn(channels, channels.deleteReasonOther);
+          // If the app crashed midway during a previous migration attempt, these
+          // columns may already exist. We catch and ignore the duplication error.
+          try { await m.addColumn(channels, channels.isDeleted); } catch (e) { if (!e.toString().contains('duplicate column name')) rethrow; }
+          try { await m.addColumn(channels, channels.deleteReason); } catch (e) { if (!e.toString().contains('duplicate column name')) rethrow; }
+          try { await m.addColumn(channels, channels.deleteReasonOther); } catch (e) { if (!e.toString().contains('duplicate column name')) rethrow; }
 
-          await m.alterTable(TableMigration(trades));
-          await m.alterTable(TableMigration(fundTransfers));
-          await m.alterTable(TableMigration(stockSplits));
-          await m.alterTable(TableMigration(dividends));
+          await m.alterTable(TableMigration(
+            trades,
+            newColumns: [trades.updatedAt],
+          ));
+          await m.alterTable(TableMigration(
+            fundTransfers,
+            newColumns: [fundTransfers.updatedAt],
+          ));
+          await m.alterTable(TableMigration(
+            stockSplits,
+            newColumns: [stockSplits.updatedAt],
+          ));
+          await m.alterTable(TableMigration(
+            dividends,
+            newColumns: [dividends.updatedAt],
+          ));
         }
       },
       beforeOpen: (details) async {
