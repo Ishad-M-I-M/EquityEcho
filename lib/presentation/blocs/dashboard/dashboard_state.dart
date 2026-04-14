@@ -59,26 +59,30 @@ class DashboardLoaded extends DashboardState {
   /// Residual / unknown portion of the investment that doesn't map to
   /// identified sources (deposits + realized gains − charges − withdrawals).
   double get investmentUnknown {
-    final identified = regularDeposits + ipoDeposits + totalRealizedGain - chargesPaid - totalWithdrawals;
+    final identified =
+        regularDeposits +
+        ipoDeposits +
+        totalRealizedGain -
+        chargesPaid -
+        totalWithdrawals;
     return totalBookValue - identified;
   }
 
   @override
   List<Object?> get props => [
-        holdings,
-        totalInvested,
-        totalSold,
-        totalDeposits,
-        totalWithdrawals,
-        totalTrades,
-        totalDividends,
-        currency,
-        regularDeposits,
-        ipoDeposits,
-        chargesPaid,
-      ];
+    holdings,
+    totalInvested,
+    totalSold,
+    totalDeposits,
+    totalWithdrawals,
+    totalTrades,
+    totalDividends,
+    currency,
+    regularDeposits,
+    ipoDeposits,
+    chargesPaid,
+  ];
 }
-
 
 class DashboardError extends DashboardState {
   final String message;

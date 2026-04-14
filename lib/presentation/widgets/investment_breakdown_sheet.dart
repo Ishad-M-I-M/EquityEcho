@@ -109,10 +109,9 @@ class _InvestmentBreakdownSheetState extends State<InvestmentBreakdownSheet> {
                 height: 4,
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurfaceVariant
-                      .withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -157,14 +156,12 @@ class _InvestmentBreakdownSheetState extends State<InvestmentBreakdownSheet> {
                           _touchedIndex = -1;
                           return;
                         }
-                        _touchedIndex =
-                            r.touchedSection!.touchedSectionIndex;
+                        _touchedIndex = r.touchedSection!.touchedSectionIndex;
                       });
                     },
                   ),
                   sections: _buildSections(pieSlices, total),
-                  centerSpaceColor:
-                      Theme.of(context).scaffoldBackgroundColor,
+                  centerSpaceColor: Theme.of(context).scaffoldBackgroundColor,
                 ),
               ),
             ),
@@ -172,14 +169,16 @@ class _InvestmentBreakdownSheetState extends State<InvestmentBreakdownSheet> {
             const SizedBox(height: 20),
 
             // Legend + all rows
-            ...slices.map((slice) => _LegendRow(
-                  slice: slice,
-                  total: total,
-                  formatter: fmt,
-                  highlighted: slice.isCost
-                      ? false
-                      : pieSlices.indexOf(slice) == _touchedIndex,
-                )),
+            ...slices.map(
+              (slice) => _LegendRow(
+                slice: slice,
+                total: total,
+                formatter: fmt,
+                highlighted: slice.isCost
+                    ? false
+                    : pieSlices.indexOf(slice) == _touchedIndex,
+              ),
+            ),
           ],
         ),
       ),
@@ -187,7 +186,9 @@ class _InvestmentBreakdownSheetState extends State<InvestmentBreakdownSheet> {
   }
 
   List<PieChartSectionData> _buildSections(
-      List<_Slice> pieSlices, double total) {
+    List<_Slice> pieSlices,
+    double total,
+  ) {
     return List.generate(pieSlices.length, (i) {
       final slice = pieSlices[i];
       final isTouched = i == _touchedIndex;
@@ -292,8 +293,7 @@ class _LegendRow extends StatelessWidget {
           ),
           if (!slice.isCost)
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: slice.color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),

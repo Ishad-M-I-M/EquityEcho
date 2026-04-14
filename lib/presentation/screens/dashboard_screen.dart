@@ -91,7 +91,9 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             child: StatCard(
                               label: 'Total Invested',
-                              value: currencyFormatter.format(state.totalBookValue),
+                              value: currencyFormatter.format(
+                                state.totalBookValue,
+                              ),
                               icon: Icons.account_balance,
                               color: AppTheme.buyGreen,
                               subtitle: 'Portfolio book value',

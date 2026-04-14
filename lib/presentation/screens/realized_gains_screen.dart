@@ -31,18 +31,18 @@ class _RealizedGainsScreenState extends State<RealizedGainsScreen> {
             );
 
             // Filter out symbols that don't have any realized gains or losses
-            final symbolsWithGains = state.holdings
-                .where((h) => h.realizedGain != 0.0)
-                .toList()
-              ..sort((a, b) => b.realizedGain.compareTo(a.realizedGain));
+            final symbolsWithGains =
+                state.holdings.where((h) => h.realizedGain != 0.0).toList()
+                  ..sort((a, b) => b.realizedGain.compareTo(a.realizedGain));
 
             if (symbolsWithGains.isEmpty) {
               return Center(
                 child: Text(
                   'No realized gains yet.',
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 16),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 16,
+                  ),
                 ),
               );
             }
@@ -137,11 +137,10 @@ class _RealizedGainsBarChart extends StatelessWidget {
                   'Top 12 shown',
                   style: TextStyle(
                     fontSize: 11,
-                    color:
-                        Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ]
+              ],
             ],
           ),
           const SizedBox(height: 16),
@@ -155,34 +154,33 @@ class _RealizedGainsBarChart extends StatelessWidget {
                 barTouchData: BarTouchData(
                   touchCallback:
                       (FlTouchEvent event, BarTouchResponse? response) {
-                    if (response != null &&
-                        response.spot != null &&
-                        event.isInterestedForInteractions) {
-                      onTouch(response.spot!.touchedBarGroupIndex);
-                      if (event is FlTapUpEvent) {
-                        final idx = response.spot!.touchedBarGroupIndex;
-                        if (idx >= 0 && idx < visible.length) {
-                          onTap(visible[idx].symbol);
+                        if (response != null &&
+                            response.spot != null &&
+                            event.isInterestedForInteractions) {
+                          onTouch(response.spot!.touchedBarGroupIndex);
+                          if (event is FlTapUpEvent) {
+                            final idx = response.spot!.touchedBarGroupIndex;
+                            if (idx >= 0 && idx < visible.length) {
+                              onTap(visible[idx].symbol);
+                            }
+                          }
+                        } else {
+                          onTouch(-1);
                         }
-                      }
-                    } else {
-                      onTouch(-1);
-                    }
-                  },
+                      },
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (group) =>
-                        Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.85),
+                    getTooltipColor: (group) => Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.85),
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       final h = visible[groupIndex];
                       return BarTooltipItem(
                         '${h.symbol}\n',
                         const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                         children: [
                           TextSpan(
                             text: currencyFormatter.format(h.realizedGain),
@@ -229,9 +227,9 @@ class _RealizedGainsBarChart extends StatelessWidget {
                                 fontSize: 10,
                                 color: i == touchedIndex
                                     ? AppTheme.accent
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                 fontWeight: i == touchedIndex
                                     ? FontWeight.w700
                                     : FontWeight.normal,
@@ -242,7 +240,6 @@ class _RealizedGainsBarChart extends StatelessWidget {
                       },
                     ),
                   ),
-
                 ),
                 gridData: FlGridData(
                   show: true,
@@ -250,12 +247,8 @@ class _RealizedGainsBarChart extends StatelessWidget {
                   horizontalInterval: maxAbs / 2,
                   getDrawingHorizontalLine: (value) => FlLine(
                     color: value == 0
-                        ? Theme.of(context)
-                            .dividerColor
-                            .withValues(alpha: 0.8)
-                        : Theme.of(context)
-                            .dividerColor
-                            .withValues(alpha: 0.3),
+                        ? Theme.of(context).dividerColor.withValues(alpha: 0.8)
+                        : Theme.of(context).dividerColor.withValues(alpha: 0.3),
                     strokeWidth: value == 0 ? 1.5 : 0.8,
                   ),
                 ),
@@ -264,8 +257,7 @@ class _RealizedGainsBarChart extends StatelessWidget {
                   final h = visible[i];
                   final isPos = h.realizedGain >= 0;
                   final isTouched = i == touchedIndex;
-                  final barColor =
-                      isPos ? AppTheme.buyGreen : AppTheme.sellRed;
+                  final barColor = isPos ? AppTheme.buyGreen : AppTheme.sellRed;
                   return BarChartGroupData(
                     x: i,
                     barRods: [
@@ -277,9 +269,11 @@ class _RealizedGainsBarChart extends StatelessWidget {
                         width: isTouched ? 18 : 14,
                         borderRadius: isPos
                             ? const BorderRadius.vertical(
-                                top: Radius.circular(5))
+                                top: Radius.circular(5),
+                              )
                             : const BorderRadius.vertical(
-                                bottom: Radius.circular(5)),
+                                bottom: Radius.circular(5),
+                              ),
                         backDrawRodData: BackgroundBarChartRodData(
                           show: true,
                           toY: maxAbs * 1.25,
@@ -326,11 +320,13 @@ class _TotalSummaryRow extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Net Realized Gain',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  )),
+              Text(
+                'Net Realized Gain',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
               Text(
                 formatter.format(total),
                 style: TextStyle(
@@ -343,11 +339,9 @@ class _TotalSummaryRow extends StatelessWidget {
           ),
           Row(
             children: [
-              _PillBadge(
-                  label: '$wins 📈', color: AppTheme.buyGreen),
+              _PillBadge(label: '$wins 📈', color: AppTheme.buyGreen),
               const SizedBox(width: 8),
-              _PillBadge(
-                  label: '$losses 📉', color: AppTheme.sellRed),
+              _PillBadge(label: '$losses 📉', color: AppTheme.sellRed),
             ],
           ),
         ],
@@ -369,9 +363,14 @@ class _PillBadge extends StatelessWidget {
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(label,
-          style:
-              TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 }
@@ -422,14 +421,19 @@ class _GainListTile extends StatelessWidget {
                 Text(
                   holding.symbol,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w700),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
             Text(
               formatter.format(holding.realizedGain),
               style: TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w700, color: color),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -437,4 +441,3 @@ class _GainListTile extends StatelessWidget {
     );
   }
 }
-

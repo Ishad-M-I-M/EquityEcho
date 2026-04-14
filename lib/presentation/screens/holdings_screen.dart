@@ -182,7 +182,8 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                   if (activeHoldings.isNotEmpty && _searchQuery.isEmpty)
                     PortfolioAllocationChart(
                       holdings: activeHoldings,
-                      onHoldingTap: (symbol) => context.push('/holding/$symbol'),
+                      onHoldingTap: (symbol) =>
+                          context.push('/holding/$symbol'),
                     ),
 
                   if (activeHoldings.isNotEmpty) ...[

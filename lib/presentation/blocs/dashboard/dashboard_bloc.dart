@@ -47,22 +47,23 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final channels = await _channelDao.getAllChannels();
       final currency = channels.isNotEmpty ? channels.first.currency : 'LKR';
 
-      emit(DashboardLoaded(
-        holdings: holdings,
-        totalInvested: totalInvested,
-        totalSold: totalSold,
-        totalDeposits: totalDeposits,
-        totalWithdrawals: totalWithdrawals,
-        totalTrades: allTrades.length,
-        totalDividends: totalDividends,
-        currency: currency,
-        regularDeposits: regularDeposits,
-        ipoDeposits: ipoDeposits,
-        chargesPaid: chargesPaid,
-      ));
+      emit(
+        DashboardLoaded(
+          holdings: holdings,
+          totalInvested: totalInvested,
+          totalSold: totalSold,
+          totalDeposits: totalDeposits,
+          totalWithdrawals: totalWithdrawals,
+          totalTrades: allTrades.length,
+          totalDividends: totalDividends,
+          currency: currency,
+          regularDeposits: regularDeposits,
+          ipoDeposits: ipoDeposits,
+          chargesPaid: chargesPaid,
+        ),
+      );
     } catch (e) {
       emit(DashboardError('Failed to load dashboard: $e'));
     }
   }
 }
-

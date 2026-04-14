@@ -52,8 +52,12 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
 
   Future<Map<String, dynamic>> _fetchEvents() async {
     final trades = await getIt<TradeDao>().getTradesForSymbol(widget.symbol);
-    final splits = await getIt<StockSplitDao>().getSplitsForSymbol(widget.symbol);
-    final dividends = await getIt<DividendDao>().getDividendsForSymbol(widget.symbol);
+    final splits = await getIt<StockSplitDao>().getSplitsForSymbol(
+      widget.symbol,
+    );
+    final dividends = await getIt<DividendDao>().getDividendsForSymbol(
+      widget.symbol,
+    );
 
     final tradeDataList = trades
         .map(
@@ -72,8 +76,12 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
 
     final events = [...trades, ...splits, ...dividends];
     events.sort((a, b) {
-      final dateA = (a is Trade) ? a.smsDate : ((a is StockSplit) ? a.splitDate : (a as Dividend).date);
-      final dateB = (b is Trade) ? b.smsDate : ((b is StockSplit) ? b.splitDate : (b as Dividend).date);
+      final dateA = (a is Trade)
+          ? a.smsDate
+          : ((a is StockSplit) ? a.splitDate : (a as Dividend).date);
+      final dateB = (b is Trade)
+          ? b.smsDate
+          : ((b is StockSplit) ? b.splitDate : (b as Dividend).date);
       return dateA.compareTo(dateB);
     });
 
@@ -90,7 +98,9 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
           double totalCostBefore = runningQty * averageCost;
           double currentCost = event.quantity * event.price;
           runningQty += event.quantity;
-          averageCost = runningQty > 0 ? (totalCostBefore + currentCost) / runningQty : 0;
+          averageCost = runningQty > 0
+              ? (totalCostBefore + currentCost) / runningQty
+              : 0;
           netCashFlow += currentCost;
         } else if (event.action.toLowerCase() == 'sell') {
           runningQty -= event.quantity;
@@ -98,9 +108,9 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
         } else if (event.action.toLowerCase() == 'rights_convert') {
           runningQty -= event.quantity;
         }
-        
+
         lastKnownPrice = event.price;
-        
+
         ChartEventType chartType = ChartEventType.buy;
         String label = '';
         if (event.action.toLowerCase() == 'sell') {
@@ -109,66 +119,79 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
           chartType = ChartEventType.rightsConvert;
           label = 'Rights\nConverted';
         }
-        
-        chartDataPoints.add(ChartDataPoint(
-          date: event.smsDate,
-          runningQuantity: runningQty,
-          price: lastKnownPrice,
-          eventType: chartType,
-          label: label,
-          costBasisInvestment: runningQty * averageCost,
-          netCashFlowInvestment: netCashFlow,
-        ));
-        
+
+        chartDataPoints.add(
+          ChartDataPoint(
+            date: event.smsDate,
+            runningQuantity: runningQty,
+            price: lastKnownPrice,
+            eventType: chartType,
+            label: label,
+            costBasisInvestment: runningQty * averageCost,
+            netCashFlowInvestment: netCashFlow,
+          ),
+        );
+
         processedEvents.add(event);
       } else if (event is StockSplit) {
         double beforeQty = runningQty;
         int newQtyFloor = (runningQty * event.newShares) ~/ event.oldShares;
         if (newQtyFloor > 0 && runningQty > 0) {
-            averageCost = (runningQty * averageCost) / newQtyFloor;
+          averageCost = (runningQty * averageCost) / newQtyFloor;
         }
         runningQty = newQtyFloor.toDouble();
-        
-        chartDataPoints.add(ChartDataPoint(
-          date: event.splitDate,
-          runningQuantity: runningQty,
-          price: lastKnownPrice,
-          eventType: ChartEventType.split,
-          label: 'Split ${event.oldShares}:${event.newShares}',
-          costBasisInvestment: runningQty * averageCost,
-          netCashFlowInvestment: netCashFlow,
-        ));
-        
-        processedEvents.add(SplitEventWithBalance(
-          split: event,
-          beforeQty: beforeQty,
-          afterQty: runningQty,
-        ));
+
+        chartDataPoints.add(
+          ChartDataPoint(
+            date: event.splitDate,
+            runningQuantity: runningQty,
+            price: lastKnownPrice,
+            eventType: ChartEventType.split,
+            label: 'Split ${event.oldShares}:${event.newShares}',
+            costBasisInvestment: runningQty * averageCost,
+            netCashFlowInvestment: netCashFlow,
+          ),
+        );
+
+        processedEvents.add(
+          SplitEventWithBalance(
+            split: event,
+            beforeQty: beforeQty,
+            afterQty: runningQty,
+          ),
+        );
       } else if (event is Dividend) {
         netCashFlow -= event.amount;
-        chartDataPoints.add(ChartDataPoint(
-          date: event.date,
-          runningQuantity: runningQty,
-          price: lastKnownPrice,
-          eventType: ChartEventType.dividend,
-          label: 'Dividend ${event.amount.toStringAsFixed(2)}',
-          costBasisInvestment: runningQty * averageCost,
-          netCashFlowInvestment: netCashFlow,
-        ));
+        chartDataPoints.add(
+          ChartDataPoint(
+            date: event.date,
+            runningQuantity: runningQty,
+            price: lastKnownPrice,
+            eventType: ChartEventType.dividend,
+            label: 'Dividend ${event.amount.toStringAsFixed(2)}',
+            costBasisInvestment: runningQty * averageCost,
+            netCashFlowInvestment: netCashFlow,
+          ),
+        );
         processedEvents.add(event);
       }
     }
 
     processedEvents.sort((a, b) {
-      final dateA = (a is Trade) ? a.smsDate : ((a is SplitEventWithBalance) ? a.split.splitDate : (a as Dividend).date);
-      final dateB = (b is Trade) ? b.smsDate : ((b is SplitEventWithBalance) ? b.split.splitDate : (b as Dividend).date);
+      final dateA = (a is Trade)
+          ? a.smsDate
+          : ((a is SplitEventWithBalance)
+                ? a.split.splitDate
+                : (a as Dividend).date);
+      final dateB = (b is Trade)
+          ? b.smsDate
+          : ((b is SplitEventWithBalance)
+                ? b.split.splitDate
+                : (b as Dividend).date);
       return dateB.compareTo(dateA);
     });
 
-    return {
-      'events': processedEvents,
-      'chartData': chartDataPoints,
-    };
+    return {'events': processedEvents, 'chartData': chartDataPoints};
   }
 
   @override
@@ -260,7 +283,8 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                     if (data == null) return const SizedBox.shrink();
 
                     final events = data['events'] as List<dynamic>;
-                    final chartDataPoints = data['chartData'] as List<ChartDataPoint>;
+                    final chartDataPoints =
+                        data['chartData'] as List<ChartDataPoint>;
 
                     return Column(
                       children: [
@@ -273,28 +297,44 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                           const SizedBox(height: 24),
                         ],
                         if (events.isEmpty)
-                          Text('No transactions found.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))
+                          Text(
+                            'No transactions found.',
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          )
                         else
                           ...events.map((event) {
                             if (event is SplitEventWithBalance) {
                               return GestureDetector(
-                                onLongPress: () => _confirmDeleteSplit(context, event.split),
+                                onLongPress: () =>
+                                    _confirmDeleteSplit(context, event.split),
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 12),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surface,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surface,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
-                                          const Icon(Icons.call_split, color: Colors.blueAccent, size: 20),
+                                          const Icon(
+                                            Icons.call_split,
+                                            color: Colors.blueAccent,
+                                            size: 20,
+                                          ),
                                           const SizedBox(width: 8),
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               const Text(
                                                 'SUB-DIVISION',
@@ -305,38 +345,66 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                DateFormat('MMM dd, yyyy').format(event.split.splitDate),
-                                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                                                DateFormat(
+                                                  'MMM dd, yyyy',
+                                                ).format(event.split.splitDate),
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                  fontSize: 12,
+                                                ),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
                                       Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                         children: [
                                           Text(
                                             'Ratio ${event.split.oldShares} : ${event.split.newShares}',
-                                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                                            style: TextStyle(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                              fontSize: 12,
+                                            ),
                                           ),
                                           const SizedBox(height: 4),
                                           Row(
                                             children: [
                                               Text(
-                                                event.beforeQty.toStringAsFixed(0),
+                                                event.beforeQty.toStringAsFixed(
+                                                  0,
+                                                ),
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 14,
-                                                  decoration: TextDecoration.lineThrough,
-                                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                                                  decoration: TextDecoration
+                                                      .lineThrough,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant
+                                                      .withValues(alpha: 0.6),
                                                 ),
                                               ),
                                               const SizedBox(width: 6),
-                                              const Icon(Icons.arrow_forward, size: 12, color: Colors.blueAccent),
+                                              const Icon(
+                                                Icons.arrow_forward,
+                                                size: 12,
+                                                color: Colors.blueAccent,
+                                              ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                event.afterQty.toStringAsFixed(0),
-                                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                                                event.afterQty.toStringAsFixed(
+                                                  0,
+                                                ),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 15,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -356,24 +424,46 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.monetization_on, color: Colors.purpleAccent, size: 20),
+                                    const Icon(
+                                      Icons.monetization_on,
+                                      color: Colors.purpleAccent,
+                                      size: 20,
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          const Text('DIVIDEND', style: TextStyle(color: Colors.purpleAccent, fontWeight: FontWeight.w700)),
+                                          const Text(
+                                            'DIVIDEND',
+                                            style: TextStyle(
+                                              color: Colors.purpleAccent,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            DateFormat('MMM dd, yyyy').format(event.date),
-                                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                                            DateFormat(
+                                              'MMM dd, yyyy',
+                                            ).format(event.date),
+                                            style: TextStyle(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                              fontSize: 12,
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
                                     Text(
                                       '+ ${currencyFormatter.format(event.amount)}',
-                                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.purpleAccent),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        color: Colors.purpleAccent,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -386,7 +476,8 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
                               currentSymbol: widget.symbol,
                               currencyFormatter: currencyFormatter,
                               isExempt: _exemptIds.contains(trade.id),
-                              onDelete: () => _confirmDeleteTrade(context, trade),
+                              onDelete: () =>
+                                  _confirmDeleteTrade(context, trade),
                             );
                           }),
                       ],

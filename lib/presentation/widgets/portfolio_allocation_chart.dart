@@ -41,9 +41,11 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
   @override
   Widget build(BuildContext context) {
     final active = widget.holdings.where((h) => h.netQuantity > 0).toList()
-      ..sort((a, b) => _isByValue
-          ? b.currentValue.compareTo(a.currentValue)
-          : b.netQuantity.compareTo(a.netQuantity));
+      ..sort(
+        (a, b) => _isByValue
+            ? b.currentValue.compareTo(a.currentValue)
+            : b.netQuantity.compareTo(a.netQuantity),
+      );
 
     if (active.isEmpty) return const SizedBox.shrink();
 
@@ -58,9 +60,7 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.accent.withValues(alpha: 0.12),
-        ),
+        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,8 +71,7 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
               const SizedBox(width: 8),
               const Text(
                 'Portfolio Allocation',
-                style:
-                    TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
               ),
               const Spacer(),
               // Toggle Buttons
@@ -84,10 +83,16 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildToggle('Value', _isByValue,
-                        () => setState(() => _isByValue = true)),
-                    _buildToggle('Shares', !_isByValue,
-                        () => setState(() => _isByValue = false)),
+                    _buildToggle(
+                      'Value',
+                      _isByValue,
+                      () => setState(() => _isByValue = true),
+                    ),
+                    _buildToggle(
+                      'Shares',
+                      !_isByValue,
+                      () => setState(() => _isByValue = false),
+                    ),
                   ],
                 ),
               ),
@@ -105,11 +110,9 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
                   PieChartData(
                     sectionsSpace: 2,
                     centerSpaceRadius: 46,
-                    centerSpaceColor:
-                        Theme.of(context).cardColor,
+                    centerSpaceColor: Theme.of(context).cardColor,
                     pieTouchData: PieTouchData(
-                      touchCallback:
-                          (FlTouchEvent event, PieTouchResponse? r) {
+                      touchCallback: (FlTouchEvent event, PieTouchResponse? r) {
                         setState(() {
                           if (!event.isInterestedForInteractions ||
                               r == null ||
@@ -117,8 +120,7 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
                             _touchedIndex = -1;
                             return;
                           }
-                          final idx =
-                              r.touchedSection!.touchedSectionIndex;
+                          final idx = r.touchedSection!.touchedSectionIndex;
                           _touchedIndex = idx;
                           if (event is FlTapUpEvent) {
                             if (idx >= 0 && idx < active.length) {
@@ -172,9 +174,9 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
                                         : FontWeight.w500,
                                     color: isTouched
                                         ? color
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -237,7 +239,9 @@ class _PortfolioAllocationChartState extends State<PortfolioAllocationChart> {
   }
 
   List<PieChartSectionData> _buildSections(
-      List<Holding> holdings, double total) {
+    List<Holding> holdings,
+    double total,
+  ) {
     return List.generate(holdings.length, (i) {
       final h = holdings[i];
       final color = _palette[i % _palette.length];

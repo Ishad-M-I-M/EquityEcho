@@ -1,19 +1,11 @@
-
-
-enum ChartEventType {
-  buy,
-  sell,
-  split,
-  dividend,
-  rightsConvert,
-}
+enum ChartEventType { buy, sell, split, dividend, rightsConvert }
 
 class ChartDataPoint {
   final DateTime date;
   final double runningQuantity;
-  final double price; 
+  final double price;
   final ChartEventType eventType;
-  final String label; 
+  final String label;
   final double costBasisInvestment;
   final double netCashFlowInvestment;
 
