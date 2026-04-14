@@ -109,7 +109,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                       children: [
                         _SummaryItem(
                           label: 'Stocks',
-                          value: '${state.holdings.length}',
+                          value: '${activeHoldings.length}',
                           color: AppTheme.accent,
                         ),
                         Container(
@@ -120,7 +120,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                         _SummaryItem(
                           label: 'Total Invested',
                           value:
-                              '${state.currency} ${state.totalInvested.toStringAsFixed(0)}',
+                              '${state.currency} ${state.totalBookValue.toStringAsFixed(0)}',
                           color: AppTheme.buyGreen,
                         ),
                         Container(
@@ -129,10 +129,12 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                           color: Theme.of(context).dividerColor,
                         ),
                         _SummaryItem(
-                          label: 'Book Value',
+                          label: 'Realized Gain',
                           value:
-                              '${state.currency} ${state.totalBookValue.toStringAsFixed(0)}',
-                          color: AppTheme.fundBlue,
+                              '${state.currency} ${state.totalRealizedGain.toStringAsFixed(0)}',
+                          color: state.totalRealizedGain >= 0
+                              ? AppTheme.accent
+                              : AppTheme.sellRed,
                         ),
                       ],
                     ),
