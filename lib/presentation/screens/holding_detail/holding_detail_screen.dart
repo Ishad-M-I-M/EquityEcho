@@ -106,7 +106,20 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
           runningQty -= event.quantity;
           netCashFlow -= event.quantity * event.price;
         } else if (event.action.toLowerCase() == 'rights_convert') {
-          runningQty -= event.quantity;
+          if (event.targetSymbol == widget.symbol) {
+            runningQty += event.quantity;
+            // Target symbol gains quantity without cash flow (assumes right cost is embedded in source or price=0)
+            double totalCostBefore = runningQty > event.quantity
+                ? (runningQty - event.quantity) * averageCost
+                : 0;
+            double currentCost = event.quantity * event.price;
+            averageCost = runningQty > 0
+                ? (totalCostBefore + currentCost) / runningQty
+                : 0;
+            netCashFlow += currentCost;
+          } else {
+            runningQty -= event.quantity;
+          }
         }
 
         lastKnownPrice = event.price;

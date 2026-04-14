@@ -86,6 +86,7 @@ class _InvestmentBreakdownSheetState extends State<InvestmentBreakdownSheet> {
 
     // Only show positive-value slices in the pie
     final pieSlices = slices.where((s) => !s.isCost && s.value > 0).toList();
+    final pieTotal = pieSlices.fold(0.0, (sum, slice) => sum + slice.value);
 
     final total = s.totalBookValue;
 
@@ -160,7 +161,7 @@ class _InvestmentBreakdownSheetState extends State<InvestmentBreakdownSheet> {
                       });
                     },
                   ),
-                  sections: _buildSections(pieSlices, total),
+                  sections: _buildSections(pieSlices, pieTotal),
                   centerSpaceColor: Theme.of(context).scaffoldBackgroundColor,
                 ),
               ),
@@ -172,7 +173,7 @@ class _InvestmentBreakdownSheetState extends State<InvestmentBreakdownSheet> {
             ...slices.map(
               (slice) => _LegendRow(
                 slice: slice,
-                total: total,
+                total: slice.isCost ? total : pieTotal,
                 formatter: fmt,
                 highlighted: slice.isCost
                     ? false

@@ -47,35 +47,37 @@ class _RealizedGainsScreenState extends State<RealizedGainsScreen> {
               );
             }
 
-            return ListView(
+            return ListView.builder(
               padding: const EdgeInsets.all(16),
-              children: [
-                // ── Bar chart summary ──────────────────────────────────────
-                _RealizedGainsBarChart(
-                  holdings: symbolsWithGains,
-                  currencyFormatter: currencyFormatter,
-                  touchedIndex: _touchedBarIndex,
-                  onTouch: (i) => setState(() => _touchedBarIndex = i),
-                  onTap: (symbol) => context.push('/holding/$symbol'),
-                ),
-                const SizedBox(height: 20),
+              itemCount: symbolsWithGains.length + 3,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _RealizedGainsBarChart(
+                    holdings: symbolsWithGains,
+                    currencyFormatter: currencyFormatter,
+                    touchedIndex: _touchedBarIndex,
+                    onTouch: (i) => setState(() => _touchedBarIndex = i),
+                    onTap: (symbol) => context.push('/holding/$symbol'),
+                  );
+                }
+                if (index == 1) return const SizedBox(height: 20);
+                if (index == 2) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _TotalSummaryRow(
+                      holdings: symbolsWithGains,
+                      formatter: currencyFormatter,
+                    ),
+                  );
+                }
 
-                // ── Total summary row ──────────────────────────────────────
-                _TotalSummaryRow(
-                  holdings: symbolsWithGains,
+                final holding = symbolsWithGains[index - 3];
+                return _GainListTile(
+                  holding: holding,
                   formatter: currencyFormatter,
-                ),
-                const SizedBox(height: 16),
-
-                // ── Per-symbol list ────────────────────────────────────────
-                ...symbolsWithGains.map(
-                  (holding) => _GainListTile(
-                    holding: holding,
-                    formatter: currencyFormatter,
-                    onTap: () => context.push('/holding/${holding.symbol}'),
-                  ),
-                ),
-              ],
+                  onTap: () => context.push('/holding/${holding.symbol}'),
+                );
+              },
             );
           }
           return const Center(child: CircularProgressIndicator());
