@@ -306,6 +306,35 @@ class TradeDao extends DatabaseAccessor<AppDatabase> with _$TradeDaoMixin {
     }
     return total;
   }
+
+  /// Get total transaction charges paid across all trades (buy + sell commissions).
+  ///
+  /// Buy charge  = buyCostWithCharges − rawBuyValue
+  /// Sell charge = rawSellValue − sellNetProceeds
+  Future<double> getTotalChargesPaid() async {
+    final allTrades = await getAllTrades();
+    final exemptIds = TransactionCharges.findIntraDayExemptions(
+      _toTradeData(allTrades),
+    );
+    double total = 0;
+    for (final t in allTrades) {
+      if (t.action == 'buy') {
+        final withCharges = TransactionCharges.buyCost(
+          t.totalValue,
+          isIpo: t.isIpo,
+          isExempt: exemptIds.contains(t.id),
+        );
+        total += withCharges - t.totalValue;
+      } else if (t.action == 'sell') {
+        final netProceeds = TransactionCharges.sellProceeds(
+          t.totalValue,
+          isExempt: exemptIds.contains(t.id),
+        );
+        total += t.totalValue - netProceeds;
+      }
+    }
+    return total;
+  }
 }
 
 class _SymbolState {

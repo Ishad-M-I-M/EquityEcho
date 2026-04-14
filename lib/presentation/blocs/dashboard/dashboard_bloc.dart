@@ -35,8 +35,11 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final holdings = await _tradeDao.getHoldings();
       final totalInvested = await _tradeDao.getTotalInvested();
       final totalSold = await _tradeDao.getTotalSold();
+      final chargesPaid = await _tradeDao.getTotalChargesPaid();
       final totalDeposits = await _fundTransferDao.getTotalDeposits();
       final totalWithdrawals = await _fundTransferDao.getTotalWithdrawals();
+      final regularDeposits = await _fundTransferDao.getTotalRegularDeposits();
+      final ipoDeposits = await _fundTransferDao.getTotalIpoDeposits();
       final allTrades = await _tradeDao.getAllTrades();
       final totalDividends = await _dividendDao.getTotalDividends();
 
@@ -54,6 +57,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           totalTrades: allTrades.length,
           totalDividends: totalDividends,
           currency: currency,
+          regularDeposits: regularDeposits,
+          ipoDeposits: ipoDeposits,
+          chargesPaid: chargesPaid,
         ),
       );
     } catch (e) {

@@ -130,22 +130,29 @@ class ActivityTile extends StatelessWidget {
                       ],
                       const SizedBox(width: 6),
                       if (isTrade)
-                        Text(
-                          item.symbol ?? '',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                        Expanded(
+                          child: Text(
+                            item.symbol ?? '',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         )
                       else if (isIpoDeposit && item.rawSmsBody.isNotEmpty)
-                        Text(
-                          item.rawSmsBody,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                        Expanded(
+                          child: Text(
+                            item.rawSmsBody,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      const Spacer(),
+                        )
+                      else
+                        const Spacer(),
                       if (item.isManual)
                         Icon(
                           Icons.edit_note,

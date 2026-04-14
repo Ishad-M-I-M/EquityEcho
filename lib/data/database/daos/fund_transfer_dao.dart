@@ -111,6 +111,26 @@ class FundTransferDao extends DatabaseAccessor<AppDatabase>
     return result.read<double>('total');
   }
 
+  /// Get total regular (non-IPO) deposits only
+  Future<double> getTotalRegularDeposits() async {
+    final result = await customSelect(
+      'SELECT COALESCE(SUM(amount), 0.0) as total FROM fund_transfers WHERE action = ? AND is_deleted = 0',
+      variables: [Variable.withString('deposit')],
+      readsFrom: {fundTransfers},
+    ).getSingle();
+    return result.read<double>('total');
+  }
+
+  /// Get total IPO deposits only
+  Future<double> getTotalIpoDeposits() async {
+    final result = await customSelect(
+      'SELECT COALESCE(SUM(amount), 0.0) as total FROM fund_transfers WHERE action = ? AND is_deleted = 0',
+      variables: [Variable.withString('ipo_deposit')],
+      readsFrom: {fundTransfers},
+    ).getSingle();
+    return result.read<double>('total');
+  }
+
   /// Get total withdrawals
   Future<double> getTotalWithdrawals() async {
     final result = await customSelect(

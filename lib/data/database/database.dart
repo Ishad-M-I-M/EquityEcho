@@ -205,26 +205,37 @@ class AppDatabase extends _$AppDatabase {
         if (from < 12) {
           // If the app crashed midway during a previous migration attempt, these
           // columns may already exist. We catch and ignore the duplication error.
-          try { await m.addColumn(channels, channels.isDeleted); } catch (e) { if (!e.toString().contains('duplicate column name')) rethrow; }
-          try { await m.addColumn(channels, channels.deleteReason); } catch (e) { if (!e.toString().contains('duplicate column name')) rethrow; }
-          try { await m.addColumn(channels, channels.deleteReasonOther); } catch (e) { if (!e.toString().contains('duplicate column name')) rethrow; }
+          try {
+            await m.addColumn(channels, channels.isDeleted);
+          } catch (e) {
+            if (!e.toString().contains('duplicate column name')) rethrow;
+          }
+          try {
+            await m.addColumn(channels, channels.deleteReason);
+          } catch (e) {
+            if (!e.toString().contains('duplicate column name')) rethrow;
+          }
+          try {
+            await m.addColumn(channels, channels.deleteReasonOther);
+          } catch (e) {
+            if (!e.toString().contains('duplicate column name')) rethrow;
+          }
 
-          await m.alterTable(TableMigration(
-            trades,
-            newColumns: [trades.updatedAt],
-          ));
-          await m.alterTable(TableMigration(
-            fundTransfers,
-            newColumns: [fundTransfers.updatedAt],
-          ));
-          await m.alterTable(TableMigration(
-            stockSplits,
-            newColumns: [stockSplits.updatedAt],
-          ));
-          await m.alterTable(TableMigration(
-            dividends,
-            newColumns: [dividends.updatedAt],
-          ));
+          await m.alterTable(
+            TableMigration(trades, newColumns: [trades.updatedAt]),
+          );
+          await m.alterTable(
+            TableMigration(
+              fundTransfers,
+              newColumns: [fundTransfers.updatedAt],
+            ),
+          );
+          await m.alterTable(
+            TableMigration(stockSplits, newColumns: [stockSplits.updatedAt]),
+          );
+          await m.alterTable(
+            TableMigration(dividends, newColumns: [dividends.updatedAt]),
+          );
         }
       },
       beforeOpen: (details) async {

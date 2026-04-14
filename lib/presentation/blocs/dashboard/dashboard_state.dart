@@ -21,6 +21,11 @@ class DashboardLoaded extends DashboardState {
   final double totalDividends;
   final String currency;
 
+  // Breakdown fields for the "Total Invested" pie chart
+  final double regularDeposits;
+  final double ipoDeposits;
+  final double chargesPaid;
+
   const DashboardLoaded({
     required this.holdings,
     required this.totalInvested,
@@ -30,6 +35,9 @@ class DashboardLoaded extends DashboardState {
     required this.totalTrades,
     required this.totalDividends,
     required this.currency,
+    required this.regularDeposits,
+    required this.ipoDeposits,
+    required this.chargesPaid,
   });
 
   /// Net fund balance = deposits - withdrawals - totalInvested + totalSold + totalDividends
@@ -44,9 +52,21 @@ class DashboardLoaded extends DashboardState {
   double get totalRealizedGain =>
       holdings.fold(0.0, (sum, h) => sum + h.realizedGain);
 
-  /// Total book value of current holdings
+  /// Total book value of current holdings (what is currently "invested")
   double get totalBookValue =>
       holdings.fold(0.0, (sum, h) => sum + h.currentValue);
+
+  /// Residual / unknown portion of the investment that doesn't map to
+  /// identified sources (deposits + realized gains − charges − withdrawals).
+  double get investmentUnknown {
+    final identified =
+        regularDeposits +
+        ipoDeposits +
+        totalRealizedGain -
+        chargesPaid -
+        totalWithdrawals;
+    return totalBookValue - identified;
+  }
 
   @override
   List<Object?> get props => [
@@ -58,6 +78,9 @@ class DashboardLoaded extends DashboardState {
     totalTrades,
     totalDividends,
     currency,
+    regularDeposits,
+    ipoDeposits,
+    chargesPaid,
   ];
 }
 
