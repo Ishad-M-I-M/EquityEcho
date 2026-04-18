@@ -5,20 +5,25 @@ import 'package:equity_echo/core/services/auth_service.dart';
 import 'package:equity_echo/domain/models/user_entity.dart';
 
 class FirebaseAuthService implements AuthService {
+  static const String _googleServerClientId = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+    defaultValue:
+        '779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com',
+  );
+
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
+  Future<void>? _googleSignInInit;
 
   FirebaseAuthService({FirebaseAuth? firebaseAuth, GoogleSignIn? googleSignIn})
     : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-      _googleSignIn =
-          googleSignIn ??
-          GoogleSignIn(
-            serverClientId: const String.fromEnvironment(
-              'GOOGLE_SERVER_CLIENT_ID',
-              defaultValue:
-                  '779114244435-4aq3df7un2pc3hgqnhu43jsl8gl7agk3.apps.googleusercontent.com',
-            ),
-          );
+      _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
+
+  Future<void> _ensureGoogleSignInInitialized() {
+    return _googleSignInInit ??= _googleSignIn.initialize(
+      serverClientId: _googleServerClientId,
+    );
+  }
 
   UserEntity? _userFromFirebase(User? user) {
     if (user == null) return null;
@@ -39,6 +44,13 @@ class FirebaseAuthService implements AuthService {
 
   AuthException _handleException(dynamic e, [StackTrace? stackTrace]) {
     developer.log('Authentication Error', error: e, stackTrace: stackTrace);
+
+    if (e is GoogleSignInException) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        return AuthException('Sign-in was cancelled.');
+      }
+      return AuthException(e.description ?? 'Google sign-in failed.');
+    }
 
     if (e is FirebaseAuthException) {
       switch (e.code) {
@@ -106,14 +118,13 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<UserEntity?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null; // The user canceled the sign-in
+      await _ensureGoogleSignInInitialized();
+      final GoogleSignInAccount googleUser =
+          await _googleSignIn.authenticate();
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
       final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
@@ -127,7 +138,12 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
+    try {
+      await _ensureGoogleSignInInitialized();
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // Ignore sign-out errors from Google (e.g., not signed in).
+    }
     await _firebaseAuth.signOut();
   }
 
@@ -163,13 +179,10 @@ class FirebaseAuthService implements AuthService {
       }
 
       // Google-linked account — re-verify with a fresh Google credential.
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        throw AuthException('Re-authentication was cancelled.');
-      }
-      final googleAuth = await googleUser.authentication;
+      await _ensureGoogleSignInInitialized();
+      final googleUser = await _googleSignIn.authenticate();
+      final googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
       await user.reauthenticateWithCredential(credential);
