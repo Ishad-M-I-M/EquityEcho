@@ -159,4 +159,41 @@ class FirestoreCloudSyncService implements CloudSyncService {
           .insert(dividend, mode: InsertMode.insertOrReplace);
     }
   }
+
+  @override
+  Future<void> deleteAllCloudData(String userId) async {
+    final userDoc = _firestore.collection('users').doc(userId);
+    const collections = [
+      'channels',
+      'trades',
+      'fund_transfers',
+      'stock_splits',
+      'dividends',
+    ];
+
+    for (final name in collections) {
+      await _deleteCollectionInBatches(userDoc.collection(name));
+    }
+
+    // Finally remove the root user document (sync metadata, etc.)
+    await userDoc.delete();
+  }
+
+  Future<void> _deleteCollectionInBatches(
+    CollectionReference<Map<String, dynamic>> ref, {
+    int pageSize = 400,
+  }) async {
+    while (true) {
+      final snapshot = await ref.limit(pageSize).get();
+      if (snapshot.docs.isEmpty) return;
+
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+
+      if (snapshot.docs.length < pageSize) return;
+    }
+  }
 }

@@ -130,4 +130,52 @@ class FirebaseAuthService implements AuthService {
     await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
   }
+
+  @override
+  bool get currentUserHasPassword {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) return false;
+    return user.providerData.any((p) => p.providerId == 'password');
+  }
+
+  @override
+  Future<void> reauthenticate({String? password}) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw AuthException('No user is currently signed in.');
+    }
+
+    try {
+      final hasPassword = user.providerData.any(
+        (p) => p.providerId == 'password',
+      );
+
+      if (hasPassword) {
+        if (password == null || password.isEmpty) {
+          throw AuthException('Password is required to confirm this action.');
+        }
+        final credential = EmailAuthProvider.credential(
+          email: user.email ?? '',
+          password: password,
+        );
+        await user.reauthenticateWithCredential(credential);
+        return;
+      }
+
+      // Google-linked account — re-verify with a fresh Google credential.
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw AuthException('Re-authentication was cancelled.');
+      }
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await user.reauthenticateWithCredential(credential);
+    } catch (e, stackTrace) {
+      if (e is AuthException) rethrow;
+      throw _handleException(e, stackTrace);
+    }
+  }
 }

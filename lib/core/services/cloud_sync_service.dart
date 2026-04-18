@@ -6,4 +6,9 @@ abstract class CloudSyncService {
 
   /// Pulls remote changes from the cloud
   Future<void> syncDown(String userId, AppDatabase db);
+
+  /// Permanently deletes every document belonging to [userId] from the cloud.
+  /// This removes all trades, fund transfers, channels, stock splits,
+  /// dividends, and the user root document itself.
+  Future<void> deleteAllCloudData(String userId);
 }

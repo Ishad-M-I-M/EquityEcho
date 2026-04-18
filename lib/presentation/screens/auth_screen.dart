@@ -82,6 +82,114 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  Future<void> _confirmDeleteCloudData() async {
+    final user = authService.currentUser;
+    if (user == null) return;
+
+    final hasPassword = authService.currentUserHasPassword;
+    final passwordController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        title: const Text('Delete All Cloud Data?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'This permanently deletes all your trades, fund transfers, '
+              'channels, stock splits and dividends from the cloud. Your '
+              'local data on this device will NOT be deleted.',
+            ),
+            const SizedBox(height: 16),
+            if (hasPassword) ...[
+              Text(
+                'Enter your password to confirm:',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  isDense: true,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ] else
+              const Text(
+                'You will be asked to re-verify with Google before '
+                'the deletion proceeds.',
+                style: TextStyle(fontSize: 12),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              'Delete',
+              style: TextStyle(
+                color: AppTheme.sellRed,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      passwordController.dispose();
+      return;
+    }
+
+    final password = passwordController.text;
+    passwordController.dispose();
+
+    if (hasPassword && password.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Password is required')),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await authService.reauthenticate(
+        password: hasPassword ? password : null,
+      );
+      await syncService.deleteAllCloudData(user.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All cloud data deleted')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _syncData(bool isUp) async {
     final user = authService.currentUser;
     if (user == null) return;
@@ -157,6 +265,20 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const SizedBox(height: 16),
                   const _RealtimeSyncTile(),
+                  const SizedBox(height: 24),
+                  OutlinedButton.icon(
+                    icon: Icon(Icons.delete_forever, color: AppTheme.sellRed),
+                    label: Text(
+                      'Delete All Cloud Data',
+                      style: TextStyle(color: AppTheme.sellRed),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: AppTheme.sellRed.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    onPressed: _isLoading ? null : _confirmDeleteCloudData,
+                  ),
                   const Spacer(),
                   if (_isLoading)
                     const Center(child: CircularProgressIndicator()),
