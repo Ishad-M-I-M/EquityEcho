@@ -334,19 +334,17 @@ class _SettingsTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  final Color? color;
 
   const _SettingsTile({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
-    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    final tileColor = color ?? AppTheme.accent;
+    final tileColor = AppTheme.accent;
     return GestureDetector(
       onTap: onTap,
       child: Container(

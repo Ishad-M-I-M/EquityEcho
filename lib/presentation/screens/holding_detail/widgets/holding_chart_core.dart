@@ -77,8 +77,10 @@ class _HoldingChartCoreState extends State<HoldingChartCore> {
   }
 
   void _onPanZoom(ScaleUpdateDetails details, int dataLen) {
-    if (dataLen <= 1)
-      return; // Short-circuit to avoid division by zero or negative bounds
+    if (dataLen <= 1) {
+      // Short-circuit to avoid division by zero or negative bounds
+      return;
+    }
 
     if (details.scale != 1.0) {
       setState(() {
