@@ -18,11 +18,13 @@ class AppConstants {
   static const String wildcardPlaceholder = '{{*}}';
 
   /// Default SMS templates for standard CSE broker format
+  /// Supports both fully FILLED and partially filled (P.FILLED) cases.
   /// Format: BUY FILLED: MGT.N0000 10@32.90 , ARR/85479-LI/0,<17-03-2026 11:41>- Softlogic
+  /// Format: BUY P.FILLED: MGT.N0000 10@32.90 , ARR/85479-LI/0,<17-03-2026 11:41>- Softlogic
   static const String defaultBuyTemplate =
-      'BUY FILLED: {{symbol}} {{quantity}}@{{price}} , {{*}},<{{date}} {{time}}>- {{*}}';
+      'BUY {{*}}FILLED: {{symbol}} {{quantity}}@{{price}} , {{*}},<{{date}} {{time}}>- {{*}}';
   static const String defaultSellTemplate =
-      'SELL FILLED: {{symbol}} {{quantity}}@{{price}} , {{*}},<{{date}} {{time}}>- {{*}}';
+      'SELL {{*}}FILLED: {{symbol}} {{quantity}}@{{price}} , {{*}},<{{date}} {{time}}>- {{*}}';
 
   /// All supported placeholders
   static const List<String> allPlaceholders = [

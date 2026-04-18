@@ -94,7 +94,7 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
     );
   }
 
-  void _save() {
+  void _save() async {
     if (!_formKey.currentState!.validate()) return;
 
     final buyTemplate = _buyTemplateController.text.isEmpty
@@ -107,7 +107,19 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
         ? null
         : _fundTemplateController.text;
 
+    final hasBuy = _useDefaultBuyTemplate || buyTemplate != null;
+    final hasSell = _useDefaultSellTemplate || sellTemplate != null;
+    final hasFund = fundTemplate != null;
+
     if (_isEditing) {
+      final confirmed = await _confirmUpdate(
+        hasBuy: hasBuy,
+        hasSell: hasSell,
+        hasFund: hasFund,
+      );
+      if (confirmed != true) return;
+
+      if (!mounted) return;
       context.read<ChannelBloc>().add(
         UpdateChannel(
           id: widget.channelId!,
@@ -135,6 +147,67 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
         ),
       );
     }
+  }
+
+  Future<bool?> _confirmUpdate({
+    required bool hasBuy,
+    required bool hasSell,
+    required bool hasFund,
+  }) {
+    final patterns = <Widget>[
+      if (hasBuy)
+        _ConfirmPatternRow(
+          label: 'B',
+          description: 'Buy trades',
+          color: AppTheme.buyGreen,
+        ),
+      if (hasSell)
+        _ConfirmPatternRow(
+          label: 'S',
+          description: 'Sell trades',
+          color: AppTheme.sellRed,
+        ),
+      if (hasFund)
+        _ConfirmPatternRow(
+          label: 'F',
+          description: 'Fund transfers',
+          color: AppTheme.fundBlue,
+        ),
+    ];
+
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        title: const Text('Update Channel?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (patterns.isEmpty)
+              const Text(
+                'No templates are configured. This channel will not '
+                'detect any trades or fund transfers.',
+              )
+            else ...[
+              const Text('The following patterns will be applied:'),
+              const SizedBox(height: 12),
+              ...patterns,
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _confirmDelete(BuildContext context) {
@@ -455,6 +528,49 @@ class _ChannelConfigScreenState extends State<ChannelConfigScreen> {
       child: ElevatedButton(
         onPressed: _save,
         child: Text(_isEditing ? 'Update Channel' : 'Save Channel'),
+      ),
+    );
+  }
+}
+
+class _ConfirmPatternRow extends StatelessWidget {
+  final String label;
+  final String description;
+  final Color color;
+
+  const _ConfirmPatternRow({
+    required this.label,
+    required this.description,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(description),
+        ],
       ),
     );
   }

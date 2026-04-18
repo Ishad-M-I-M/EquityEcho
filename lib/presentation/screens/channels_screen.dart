@@ -116,9 +116,11 @@ class ChannelsScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Status indicators
-                        if (channel.buyTemplate != null)
+                        if (channel.useDefaultBuyTemplate ||
+                            channel.buyTemplate != null)
                           _PatternBadge('B', AppTheme.buyGreen),
-                        if (channel.sellTemplate != null)
+                        if (channel.useDefaultSellTemplate ||
+                            channel.sellTemplate != null)
                           _PatternBadge('S', AppTheme.sellRed),
                         if (channel.fundTemplate != null)
                           _PatternBadge('F', AppTheme.fundBlue),
