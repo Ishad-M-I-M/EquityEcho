@@ -84,7 +84,7 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
               ),
             ),
             const SizedBox(height: 8),
-            RadioGroup<String?>(
+            RadioGroup<String>(
               groupValue: _selectedReason,
               onChanged: (value) {
                 setState(() {

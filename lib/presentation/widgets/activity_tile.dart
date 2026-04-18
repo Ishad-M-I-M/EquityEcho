@@ -7,8 +7,14 @@ import 'package:equity_echo/data/models/activity_item.dart';
 class ActivityTile extends StatelessWidget {
   final ActivityItem item;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
-  const ActivityTile({super.key, required this.item, this.onTap});
+  const ActivityTile({
+    super.key,
+    required this.item,
+    this.onTap,
+    this.onLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +47,7 @@ class ActivityTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),

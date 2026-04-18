@@ -5,7 +5,14 @@ import 'package:equity_echo/core/utils/transaction_charges.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_bloc.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_event.dart';
 import 'package:equity_echo/presentation/blocs/activity_log/activity_log_state.dart';
+import 'package:equity_echo/presentation/blocs/trade/trade_bloc.dart';
+import 'package:equity_echo/presentation/blocs/trade/trade_event.dart';
+import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_bloc.dart';
+import 'package:equity_echo/presentation/blocs/fund_transfer/fund_transfer_event.dart';
+import 'package:equity_echo/presentation/blocs/dashboard/dashboard_bloc.dart';
+import 'package:equity_echo/presentation/blocs/dashboard/dashboard_event.dart';
 import 'package:equity_echo/presentation/widgets/activity_tile.dart';
+import 'package:equity_echo/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:equity_echo/data/models/activity_item.dart';
 
 class ActivityLogScreen extends StatelessWidget {
@@ -138,6 +145,9 @@ class ActivityLogScreen extends StatelessWidget {
                             onTap: item.type == ActivityType.trade
                                 ? () => _showTradeDetails(context, item)
                                 : () => _showFundDetails(context, item),
+                            onLongPress: item.type == ActivityType.trade
+                                ? () => _confirmDeleteTrade(context, null, item)
+                                : () => _confirmDeleteFund(context, null, item),
                           ),
                         ),
                       ),
@@ -476,6 +486,28 @@ class ActivityLogScreen extends StatelessWidget {
                         ),
                       ],
                       const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              _confirmDeleteTrade(context, ctx, item),
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: AppTheme.sellRed,
+                          ),
+                          label: Text(
+                            'Delete Transaction',
+                            style: TextStyle(color: AppTheme.sellRed),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: AppTheme.sellRed.withValues(alpha: 0.5),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
@@ -485,6 +517,70 @@ class ActivityLogScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _confirmDeleteTrade(
+    BuildContext screenContext,
+    BuildContext? sheetContext,
+    ActivityItem item,
+  ) async {
+    final dialogContext = sheetContext ?? screenContext;
+    final result = await DeleteConfirmationDialog.show(
+      dialogContext,
+      title: 'Delete Transaction',
+      content: 'Are you sure you want to delete this transaction?',
+    );
+
+    if (result != null && result.confirmed) {
+      if (sheetContext != null && sheetContext.mounted) {
+        Navigator.pop(sheetContext);
+      }
+      if (!screenContext.mounted) return;
+      screenContext.read<TradeBloc>().add(
+        DeleteTrade(
+          item.id,
+          reason: result.reason,
+          reasonOther: result.reasonOther,
+        ),
+      );
+      screenContext.read<DashboardBloc>().add(RefreshDashboard());
+      screenContext.read<ActivityLogBloc>().add(RefreshActivityLog());
+      ScaffoldMessenger.of(
+        screenContext,
+      ).showSnackBar(const SnackBar(content: Text('Transaction deleted')));
+    }
+  }
+
+  Future<void> _confirmDeleteFund(
+    BuildContext screenContext,
+    BuildContext? sheetContext,
+    ActivityItem item,
+  ) async {
+    final dialogContext = sheetContext ?? screenContext;
+    final result = await DeleteConfirmationDialog.show(
+      dialogContext,
+      title: 'Delete Fund Transfer',
+      content: 'Are you sure you want to delete this fund transfer?',
+    );
+
+    if (result != null && result.confirmed) {
+      if (sheetContext != null && sheetContext.mounted) {
+        Navigator.pop(sheetContext);
+      }
+      if (!screenContext.mounted) return;
+      screenContext.read<FundTransferBloc>().add(
+        DeleteFundTransfer(
+          item.id,
+          reason: result.reason,
+          reasonOther: result.reasonOther,
+        ),
+      );
+      screenContext.read<DashboardBloc>().add(RefreshDashboard());
+      screenContext.read<ActivityLogBloc>().add(RefreshActivityLog());
+      ScaffoldMessenger.of(
+        screenContext,
+      ).showSnackBar(const SnackBar(content: Text('Fund transfer deleted')));
+    }
   }
 
   void _showFundDetails(BuildContext context, ActivityItem item) {
@@ -521,7 +617,25 @@ class ActivityLogScreen extends StatelessWidget {
             _DetailRow('Date', '${item.date}'),
             _DetailRow('Channel', item.channelName),
             _DetailRow('Source', item.isManual ? 'Manual Entry' : 'SMS'),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _confirmDeleteFund(context, ctx, item),
+                icon: Icon(Icons.delete_outline, color: AppTheme.sellRed),
+                label: Text(
+                  'Delete Fund Transfer',
+                  style: TextStyle(color: AppTheme.sellRed),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                    color: AppTheme.sellRed.withValues(alpha: 0.5),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
