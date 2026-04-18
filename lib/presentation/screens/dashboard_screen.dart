@@ -25,7 +25,7 @@ class DashboardScreen extends StatelessWidget {
             icon: const Icon(Icons.sync),
             tooltip: 'Sync SMS',
             onPressed: () {
-              context.read<SmsSyncBloc>().add(StartInitialSync());
+              context.read<SmsSyncBloc>().add(const StartInitialSync());
               showSyncProgressDialog(context);
             },
           ),

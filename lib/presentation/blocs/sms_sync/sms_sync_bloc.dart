@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import 'package:equatable/equatable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_echo/core/services/sms_service.dart';
 import 'package:equity_echo/core/services/template_parser.dart';
 import 'package:equity_echo/data/database/database.dart';
@@ -20,7 +21,17 @@ abstract class SmsSyncEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class StartInitialSync extends SmsSyncEvent {}
+class StartInitialSync extends SmsSyncEvent {
+  /// When true, ignore the stored last-sync timestamp and scan every
+  /// matching SMS in the inbox. When false (default), only messages
+  /// received after the last successful sync will be processed.
+  final bool fullSync;
+
+  const StartInitialSync({this.fullSync = false});
+
+  @override
+  List<Object?> get props => [fullSync];
+}
 
 class CancelInitialSync extends SmsSyncEvent {}
 
@@ -87,10 +98,13 @@ class SmsSyncNewEntry extends SmsSyncState {
 // ─── BLoC ────────────────────────────────────────────────────────────────────
 
 class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
+  static const String _lastSyncKey = 'sms_sync_last_sync_time';
+
   final SmsService _smsService;
   final ChannelDao _channelDao;
   final TradeDao _tradeDao;
   final FundTransferDao _fundTransferDao;
+  final SharedPreferences _prefs;
   static const _uuid = Uuid();
   StreamSubscription<SmsMessage>? _smsSubscription;
   bool _isSyncCancelled = false;
@@ -100,10 +114,12 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
     required ChannelDao channelDao,
     required TradeDao tradeDao,
     required FundTransferDao fundTransferDao,
+    required SharedPreferences prefs,
   }) : _smsService = smsService,
        _channelDao = channelDao,
        _tradeDao = tradeDao,
        _fundTransferDao = fundTransferDao,
+       _prefs = prefs,
        super(SmsSyncIdle()) {
     on<StartInitialSync>(_onInitialSync);
     on<CancelInitialSync>((event, emit) => _isSyncCancelled = true);
@@ -149,13 +165,38 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       final senderAddresses = channels.map((c) => c.senderAddress).toList();
       debugPrint('[SmsSyncBloc] Sender addresses: $senderAddresses');
 
-      // Step 4: Read inbox
+      // Step 4: Determine the lower-bound timestamp.
+      // For incremental syncs we only pull messages newer than the last
+      // successful sync. A full sync (explicitly requested by the user)
+      // ignores the stored timestamp and reads the entire inbox.
+      DateTime? since;
+      if (!event.fullSync) {
+        final lastSyncMs = _prefs.getInt(_lastSyncKey);
+        if (lastSyncMs != null) {
+          since = DateTime.fromMillisecondsSinceEpoch(lastSyncMs);
+        }
+      }
+      debugPrint(
+        '[SmsSyncBloc] Sync mode: ${event.fullSync ? 'FULL' : 'INCREMENTAL'}'
+        '${since != null ? ' since $since' : ''}',
+      );
+
+      // Capture the sync-start time BEFORE reading so that any SMS
+      // arriving during processing is not missed on the next run.
+      final syncStartedAt = DateTime.now();
+
+      // Step 5: Read inbox
       final messages = await _smsService.readInbox(
         senderAddresses: senderAddresses,
+        since: since,
       );
       debugPrint('[SmsSyncBloc] Read ${messages.length} messages from inbox');
 
       if (messages.isEmpty) {
+        await _prefs.setInt(
+          _lastSyncKey,
+          syncStartedAt.millisecondsSinceEpoch,
+        );
         emit(const SmsSyncComplete(tradesAdded: 0, fundsAdded: 0, skipped: 0));
         return;
       }
@@ -188,6 +229,15 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       debugPrint(
         '[SmsSyncBloc] Sync complete: $tradesAdded trades, $fundsAdded funds, $skipped skipped',
       );
+
+      // Persist the sync timestamp only on a successful (non-cancelled) run
+      // so that a cancelled sync is retried from the previous checkpoint.
+      if (!_isSyncCancelled) {
+        await _prefs.setInt(
+          _lastSyncKey,
+          syncStartedAt.millisecondsSinceEpoch,
+        );
+      }
 
       emit(
         SmsSyncComplete(

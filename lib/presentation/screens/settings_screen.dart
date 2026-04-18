@@ -4,8 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equity_echo/core/theme/app_theme.dart';
 import 'package:equity_echo/core/services/sms_service.dart';
 import 'package:equity_echo/core/di/injection.dart';
-import 'package:equity_echo/data/database/daos/trade_dao.dart';
-import 'package:equity_echo/data/database/daos/fund_transfer_dao.dart';
 import 'package:equity_echo/presentation/blocs/sms_sync/sms_sync_bloc.dart';
 import 'package:equity_echo/presentation/widgets/sync_progress_dialog.dart';
 import 'package:equity_echo/core/theme/theme_cubit.dart';
@@ -168,11 +166,18 @@ class SettingsScreen extends StatelessWidget {
           _SettingsTile(
             icon: Icons.sync,
             title: 'Sync SMS Inbox',
-            subtitle: 'Scan existing SMS messages',
+            subtitle: 'Scan new SMS since last sync',
             onTap: () {
-              context.read<SmsSyncBloc>().add(StartInitialSync());
+              context.read<SmsSyncBloc>().add(const StartInitialSync());
               showSyncProgressDialog(context);
             },
+          ),
+          const SizedBox(height: 6),
+          _SettingsTile(
+            icon: Icons.history,
+            title: 'Sync All Messages',
+            subtitle: 'Re-scan the entire SMS inbox',
+            onTap: () => _confirmFullSync(context),
           ),
           const SizedBox(height: 6),
           _SettingsTile(
@@ -250,22 +255,6 @@ class SettingsScreen extends StatelessWidget {
             subtitle: 'View and restore soft-deleted items',
             onTap: () => context.push('/deleted-entries'),
           ),
-          const SizedBox(height: 6),
-          _SettingsTile(
-            icon: Icons.refresh,
-            title: 'Clear & Re-sync',
-            subtitle: 'Delete all trades/funds and resync from SMS',
-            color: AppTheme.warning,
-            onTap: () => _confirmClearAndResync(context),
-          ),
-          const SizedBox(height: 6),
-          _SettingsTile(
-            icon: Icons.delete_forever,
-            title: 'Clear All Data',
-            subtitle: 'Delete all trades and fund transfers',
-            color: AppTheme.sellRed,
-            onTap: () => _confirmClearData(context),
-          ),
 
           const SizedBox(height: 40),
 
@@ -287,14 +276,16 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _confirmClearData(BuildContext context) {
+  void _confirmFullSync(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: const Text('Clear All Data?'),
+        title: const Text('Sync All Messages?'),
         content: const Text(
-          'This will permanently delete all trades and fund transfers. Channel configurations will be kept.',
+          'This ignores the last sync time and re-scans every SMS from your '
+          'configured broker channels. Duplicate entries are automatically '
+          'skipped, so this is safe to run.',
         ),
         actions: [
           TextButton(
@@ -302,54 +293,16 @@ class SettingsScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(ctx);
-              final tradeDao = getIt<TradeDao>();
-              final fundDao = getIt<FundTransferDao>();
-              await tradeDao.deleteAllTrades();
-              await fundDao.deleteAllFundTransfers();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('All data cleared')),
-                );
-              }
-            },
-            child: Text('Clear', style: TextStyle(color: AppTheme.sellRed)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmClearAndResync(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).cardColor,
-        title: const Text('Clear & Re-sync?'),
-        content: const Text(
-          'This will delete all existing trades and fund transfers, then re-sync from your SMS inbox.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final tradeDao = getIt<TradeDao>();
-              final fundDao = getIt<FundTransferDao>();
-              await tradeDao.deleteAllTrades();
-              await fundDao.deleteAllFundTransfers();
-              if (context.mounted) {
-                context.read<SmsSyncBloc>().add(StartInitialSync());
-                showSyncProgressDialog(context);
-              }
+              context.read<SmsSyncBloc>().add(
+                const StartInitialSync(fullSync: true),
+              );
+              showSyncProgressDialog(context);
             },
             child: Text(
-              'Clear & Sync',
-              style: TextStyle(color: AppTheme.warning),
+              'Sync All',
+              style: TextStyle(color: AppTheme.accent),
             ),
           ),
         ],

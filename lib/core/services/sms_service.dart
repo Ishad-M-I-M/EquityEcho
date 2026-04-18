@@ -71,7 +71,10 @@ class SmsService {
   /// Read ALL SMS from inbox (no sender filter at the query level).
   /// We fetch everything and filter in Dart for more reliable matching.
   /// Returns messages sorted by date (newest first).
-  Future<List<SmsMessage>> readInbox({List<String>? senderAddresses}) async {
+  Future<List<SmsMessage>> readInbox({
+    List<String>? senderAddresses,
+    DateTime? since,
+  }) async {
     if (defaultTargetPlatform != TargetPlatform.android) {
       debugPrint('[SmsService] Not Android — returning empty inbox');
       return [];
@@ -94,19 +97,26 @@ class SmsService {
         rawMessages = [];
         for (final sender in senderAddresses) {
           debugPrint('[SmsService] Querying inbox for sender: "$sender"');
+          var filter = tel.SmsFilter.where(
+            tel.SmsColumn.ADDRESS,
+          ).like('%$sender%');
+          if (since != null) {
+            filter = filter
+                .and(tel.SmsColumn.DATE)
+                .greaterThan(since.millisecondsSinceEpoch.toString());
+          }
           final msgs = await _telephony.getInboxSms(
             columns: [
               tel.SmsColumn.ADDRESS,
               tel.SmsColumn.BODY,
               tel.SmsColumn.DATE,
             ],
-            filter: tel.SmsFilter.where(
-              tel.SmsColumn.ADDRESS,
-            ).like('%$sender%'),
+            filter: filter,
             sortOrder: [tel.OrderBy(tel.SmsColumn.DATE, sort: tel.Sort.DESC)],
           );
           debugPrint(
-            '[SmsService] Found ${msgs.length} messages for sender "$sender"',
+            '[SmsService] Found ${msgs.length} messages for sender "$sender"'
+            '${since != null ? ' since $since' : ''}',
           );
           rawMessages.addAll(msgs);
         }
@@ -118,6 +128,11 @@ class SmsService {
             tel.SmsColumn.BODY,
             tel.SmsColumn.DATE,
           ],
+          filter: since != null
+              ? tel.SmsFilter.where(
+                  tel.SmsColumn.DATE,
+                ).greaterThan(since.millisecondsSinceEpoch.toString())
+              : null,
           sortOrder: [tel.OrderBy(tel.SmsColumn.DATE, sort: tel.Sort.DESC)],
         );
         debugPrint(
@@ -127,11 +142,18 @@ class SmsService {
 
       final allMessages = rawMessages.map(_convertMessage).toList();
 
-      // Sort all by date descending
-      allMessages.sort((a, b) => b.date.compareTo(a.date));
+      // Extra safety: filter by since date in Dart in case native filter is ignored
+      final filteredMessages = since != null
+          ? allMessages.where((m) => m.date.isAfter(since)).toList()
+          : allMessages;
 
-      debugPrint('[SmsService] Returning ${allMessages.length} messages');
-      return allMessages;
+      // Sort all by date descending
+      filteredMessages.sort((a, b) => b.date.compareTo(a.date));
+
+      debugPrint(
+        '[SmsService] Returning ${filteredMessages.length} messages',
+      );
+      return filteredMessages;
     } catch (e) {
       debugPrint('[SmsService] Error reading inbox: $e');
       return [];

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_echo/core/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_echo/core/di/injection.dart';
 import 'package:equity_echo/data/database/daos/channel_dao.dart';
 import 'package:equity_echo/data/database/daos/trade_dao.dart';
@@ -78,6 +79,7 @@ class EquityEchoApp extends StatelessWidget {
             channelDao: getIt<ChannelDao>(),
             tradeDao: getIt<TradeDao>(),
             fundTransferDao: getIt<FundTransferDao>(),
+            prefs: getIt<SharedPreferences>(),
           ),
         ),
         BlocProvider(create: (_) => ThemeCubit()),
