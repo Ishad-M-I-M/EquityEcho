@@ -227,6 +227,18 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          // Tools section
+          _SectionTitle('Tools'),
+          const SizedBox(height: 8),
+          _SettingsTile(
+            icon: Icons.calculate_outlined,
+            title: 'What-If Calculator',
+            subtitle: 'Estimate gain & annualized return on a sale',
+            onTap: () => context.push('/what-if'),
+          ),
+
+          const SizedBox(height: 24),
+
           // Data section
           _SectionTitle('Data'),
           const SizedBox(height: 8),
