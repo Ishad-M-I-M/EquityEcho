@@ -213,6 +213,11 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
       appBar: AppBar(
         title: Text('${widget.symbol} Details'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.calculate_outlined),
+            onPressed: () => context.push('/what-if?symbol=${widget.symbol}'),
+            tooltip: 'What-If Sell',
+          ),
           if (widget.symbol.contains('.R'))
             IconButton(
               icon: const Icon(Icons.autorenew),

@@ -28,7 +28,16 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Holdings')),
+      appBar: AppBar(
+        title: const Text('Holdings'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calculate_outlined),
+            tooltip: 'What-If Calculator',
+            onPressed: () => context.push('/what-if'),
+          ),
+        ],
+      ),
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoading) {

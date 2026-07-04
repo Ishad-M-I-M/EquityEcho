@@ -150,9 +150,7 @@ class SmsService {
       // Sort all by date descending
       filteredMessages.sort((a, b) => b.date.compareTo(a.date));
 
-      debugPrint(
-        '[SmsService] Returning ${filteredMessages.length} messages',
-      );
+      debugPrint('[SmsService] Returning ${filteredMessages.length} messages');
       return filteredMessages;
     } catch (e) {
       debugPrint('[SmsService] Error reading inbox: $e');

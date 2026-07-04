@@ -193,10 +193,7 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       debugPrint('[SmsSyncBloc] Read ${messages.length} messages from inbox');
 
       if (messages.isEmpty) {
-        await _prefs.setInt(
-          _lastSyncKey,
-          syncStartedAt.millisecondsSinceEpoch,
-        );
+        await _prefs.setInt(_lastSyncKey, syncStartedAt.millisecondsSinceEpoch);
         emit(const SmsSyncComplete(tradesAdded: 0, fundsAdded: 0, skipped: 0));
         return;
       }
@@ -233,10 +230,7 @@ class SmsSyncBloc extends Bloc<SmsSyncEvent, SmsSyncState> {
       // Persist the sync timestamp only on a successful (non-cancelled) run
       // so that a cancelled sync is retried from the previous checkpoint.
       if (!_isSyncCancelled) {
-        await _prefs.setInt(
-          _lastSyncKey,
-          syncStartedAt.millisecondsSinceEpoch,
-        );
+        await _prefs.setInt(_lastSyncKey, syncStartedAt.millisecondsSinceEpoch);
       }
 
       emit(
