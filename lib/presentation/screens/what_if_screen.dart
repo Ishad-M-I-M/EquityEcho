@@ -266,8 +266,7 @@ class _WhatIfScreenState extends State<WhatIfScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'Quantity to sell',
-              helperText:
-                  'Max ${_formatQty(holding.netQuantity)} shares held',
+              helperText: 'Max ${_formatQty(holding.netQuantity)} shares held',
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -570,9 +569,7 @@ class _InfoBanner extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 10),
-          Expanded(
-            child: Text(message, style: const TextStyle(fontSize: 13)),
-          ),
+          Expanded(child: Text(message, style: const TextStyle(fontSize: 13))),
         ],
       ),
     );
@@ -681,9 +678,7 @@ class _ResultCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    result.isProfit
-                        ? Icons.trending_up
-                        : Icons.trending_down,
+                    result.isProfit ? Icons.trending_up : Icons.trending_down,
                     color: color,
                     size: 18,
                   ),

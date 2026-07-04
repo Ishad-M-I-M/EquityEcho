@@ -106,7 +106,8 @@ class ReturnCalculator {
         : TransactionCharges.buyCost(buyValue);
     final buyCharges = totalBuyCost - buyValue;
 
-    final isSameDay = buyDate.year == sellDate.year &&
+    final isSameDay =
+        buyDate.year == sellDate.year &&
         buyDate.month == sellDate.month &&
         buyDate.day == sellDate.day;
     final intraDayExempt = isSameDay && applySellCharges;

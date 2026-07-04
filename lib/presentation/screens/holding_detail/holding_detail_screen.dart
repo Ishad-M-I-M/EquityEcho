@@ -215,8 +215,7 @@ class _HoldingDetailScreenState extends State<HoldingDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.calculate_outlined),
-            onPressed: () =>
-                context.push('/what-if?symbol=${widget.symbol}'),
+            onPressed: () => context.push('/what-if?symbol=${widget.symbol}'),
             tooltip: 'What-If Sell',
           ),
           if (widget.symbol.contains('.R'))

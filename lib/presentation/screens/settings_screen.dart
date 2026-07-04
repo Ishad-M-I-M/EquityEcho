@@ -312,10 +312,7 @@ class SettingsScreen extends StatelessWidget {
               );
               showSyncProgressDialog(context);
             },
-            child: Text(
-              'Sync All',
-              style: TextStyle(color: AppTheme.accent),
-            ),
+            child: Text('Sync All', style: TextStyle(color: AppTheme.accent)),
           ),
         ],
       ),

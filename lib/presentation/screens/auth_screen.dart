@@ -161,23 +161,21 @@ class _AuthScreenState extends State<AuthScreen> {
 
     if (hasPassword && password.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password is required')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Password is required')));
       }
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      await authService.reauthenticate(
-        password: hasPassword ? password : null,
-      );
+      await authService.reauthenticate(password: hasPassword ? password : null);
       await syncService.deleteAllCloudData(user.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All cloud data deleted')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('All cloud data deleted')));
       }
     } catch (e) {
       if (mounted) {
